@@ -13,7 +13,7 @@ import logging.config
 import pkg_resources
 
 # imports: project
-from projectname import version
+from organizator import version
 
 
 def main() -> None:

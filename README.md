@@ -1,6 +1,6 @@
-# Python package template
+# Organizator
 
-Replace 'projectname' with the actual name of the project in all places
+Organization manager
 
 ## License
 
