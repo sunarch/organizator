@@ -14,19 +14,16 @@ fn main() {
     let option_version_short: String = String::from("-v");
     let option_version_long: String = String::from("--version");
 
-    match std::env::args().nth(1) {
-        Some(argument) => {
-            if argument == option_version_short || argument == option_version_long {
-                let name = env!("CARGO_PKG_NAME");
-                let version = env!("CARGO_PKG_VERSION");
-                println!("{name} {version}");
-            }
-            else {
-                println!("Unrecognized option: {argument}");
-            }
+    if let Some(argument) = std::env::args().nth(1) {
+        if argument == option_version_short || argument == option_version_long {
+            let name = env!("CARGO_PKG_NAME");
+            let version = env!("CARGO_PKG_VERSION");
+            println!("{name} {version}");
+        }
+        else {
+            println!("Unrecognized option: {argument}");
+        }
 
-        },
-        None => {},
     }
 
     let project_dirs: ProjectDirs = match ProjectDirs::from(DIRS_QUALIFIER, DIRS_ORGANIZATION,  env!("CARGO_PKG_NAME")) {
