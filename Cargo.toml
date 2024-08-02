@@ -1,0 +1,23 @@
+[package]
+name = "organizator"
+version = "0.0.1"
+authors = ["András Németh <sunarch@protonmail.com>"]
+edition = "2021"
+description = "General and recurring task manager"
+documentation = "https://docs.rs/organizator"
+readme = "README.md"
+homepage = "https://codeberg.org/sunarch/organizator"
+repository = "https://codeberg.org/sunarch/organizator"
+license = "MPL-2.0"
+keywords = [
+    "organizator",
+    "task",
+    "tasks"
+]
+categories = [
+    "command-line-utilities"
+]
+exclude = [".idea/"]
+default-run = "organizator"
+
+[dependencies]
