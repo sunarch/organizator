@@ -19,6 +19,7 @@ fn main() {
             let name = env!("CARGO_PKG_NAME");
             let version = env!("CARGO_PKG_VERSION");
             println!("{name} {version}");
+            return;
         }
         else {
             panic!("Unrecognized option: {argument}");
