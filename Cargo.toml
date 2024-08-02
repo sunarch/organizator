@@ -21,3 +21,4 @@ exclude = [".idea/"]
 default-run = "organizator"
 
 [dependencies]
+directories-next = "2.0.0"
