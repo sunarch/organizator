@@ -21,7 +21,7 @@ fn main() {
             println!("{name} {version}");
         }
         else {
-            println!("Unrecognized option: {argument}");
+            panic!("Unrecognized option: {argument}");
         }
 
     }
