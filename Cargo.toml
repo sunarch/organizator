@@ -1,6 +1,6 @@
 [package]
 name = "organizator"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["András Németh <sunarch@protonmail.com>"]
 edition = "2021"
 description = "General and recurring task manager"
