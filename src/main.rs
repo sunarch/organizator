@@ -20,5 +20,5 @@ fn main() {
         }
     }
 
-    config::load_dir();
+    (_, _, _) = config::load_data_dirs();
 }
