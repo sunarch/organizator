@@ -22,6 +22,7 @@ default-run = "organizator"
 
 [dependencies]
 directories-next = "2.0.0"
+ratatui = "0.27.0"
 
 [lints.clippy]
 needless_return = "allow"
