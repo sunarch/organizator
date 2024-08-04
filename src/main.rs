@@ -35,13 +35,13 @@ fn main() {
         }
     }
 
-    (_, _, _) = config::load_data_dirs();
+    let (_, data_dir_todo_output, _) = config::load_data_dirs();
 
     if run_tui {
         tui::run().expect("Error running TUI");
     }
 
     if show_dated {
-        dated::print_list();
+        dated::print_list(data_dir_todo_output);
     }
 }
