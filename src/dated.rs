@@ -25,6 +25,8 @@ pub fn print_list(data_dir_todo_output: PathBuf) {
     };
     let file_ref: &mut File = &mut file;
 
+    print_title(file_ref);
+
     let dt_now: DateTime<Local> = Local::now();
     print_year_heading(dt_now.year(), file_ref);
     let dt_last: DateTime<Local> = dt_now.checked_add_months(Months::new(12)).expect("Failed adding months");
@@ -48,11 +50,18 @@ pub fn print_list(data_dir_todo_output: PathBuf) {
         }
     }
 
+    print_bottom_line(file_ref);
+}
+
+fn print_title(file_ref: &mut File) {
+    let line: String = String::from("# 🗓️ ismétlődő - dátumos");
+    print_dual(&line, file_ref);
+}
+
+fn print_bottom_line(file_ref: &mut File) {
     print_empty_line(file_ref);
-    {
-        let line: String = String::from("---");
-        print_dual(&line, file_ref);
-    }
+    let line: String = String::from("---");
+    print_dual(&line, file_ref);
 }
 
 fn print_year_heading(year: i32, file_ref: &mut File) {
