@@ -12,6 +12,8 @@ use chrono::{
     Weekday,
 };
 
+use crate::words;
+
 
 pub fn print_list(data_dir_todo_output: PathBuf) {
     let output_file_name: &str = "datumos.md";
@@ -54,7 +56,7 @@ pub fn print_list(data_dir_todo_output: PathBuf) {
 }
 
 fn print_title(file_ref: &mut File) {
-    let line: String = String::from("# 🗓️ ismétlődő - dátumos");
+    let line: String = format!("# 🗓️ {}", words::DATED_TITLE);
     print_dual(&line, file_ref);
 }
 
@@ -77,12 +79,12 @@ fn print_year_heading(year: i32, file_ref: &mut File) {
 }
 
 fn print_week_heading(dt_next: &DateTime<Local>, dt_sunday: &DateTime<Local>, file_ref: &mut File) {
-    let mut date_range_display: String = format!("{} {}", month_name(dt_next.month()), dt_next.day());
+    let mut date_range_display: String = format!("{} {}", words::month_name(dt_next.month()), dt_next.day());
 
     if dt_next.month() == dt_sunday.month() {
         date_range_display = format!("{}-{}.",date_range_display, dt_sunday.day());
     } else {
-        date_range_display = format!("{}. - {} {}.", date_range_display, month_name(dt_sunday.month()), dt_sunday.day());
+        date_range_display = format!("{}. - {} {}.", date_range_display, words::month_name(dt_sunday.month()), dt_sunday.day());
     }
 
     print_empty_line(file_ref);
@@ -106,24 +108,4 @@ fn print_dual(line: &String, file_ref: &mut File) {
         panic!("Couldn't write to output file\n{}", why);
     }
     file_ref.flush().expect("Unable to flush write to output file.");
-}
-
-fn month_name(number: u32) -> String {
-    return match number {
-        1 => { String::from("jan.") }
-        2 => { String::from("feb.") }
-        3 => { String::from("márc.") }
-        4 => { String::from("ápr.") }
-        5 => { String::from("máj.") }
-        6 => { String::from("jún.") }
-        7 => { String::from("júl.") }
-        8 => { String::from("aug.") }
-        9 => { String::from("szept.") }
-        10 => { String::from("okt.") }
-        11 => { String::from("nov.") }
-        12 => { String::from("dec.") }
-        _ => {
-            panic!("Illegal month number: '{}'", number);
-        }
-    }
 }

@@ -5,6 +5,7 @@
 mod config;
 mod dated;
 mod tui;
+mod words;
 
 
 fn main() {
