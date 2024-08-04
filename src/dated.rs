@@ -62,14 +62,14 @@ fn print_title(file_ref: &mut File) {
 
 fn print_bottom_line(file_ref: &mut File) {
     print_empty_line(file_ref);
-    let line: String = String::from("---");
+    let line = String::from("---");
     print_dual(&line, file_ref);
 }
 
 fn print_year_heading(year: i32, file_ref: &mut File) {
     print_empty_line(file_ref);
     {
-        let line: String = String::from("---");
+        let line = String::from("---");
         print_dual(&line, file_ref);
     }
     {

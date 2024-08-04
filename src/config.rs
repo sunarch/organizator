@@ -54,13 +54,13 @@ fn load_data_dir_single(config_dir: &Path, config_file_name: &str, config_file_p
             Ok(file) => file,
         };
 
-        let mut s = String::new();
-        match file.read_to_string(&mut s) {
+        let mut input = String::new();
+        match file.read_to_string(&mut input) {
             Err(why) => {
                 panic!("Couldn't read config file for {} ({})\n{}", config_file_purpose, config_file_path.clone().display(), why);
             },
             Ok(_) => {
-                data_dir = PathBuf::from(s);
+                data_dir = PathBuf::from(input);
 
                 if data_dir.exists() {
                     config_content_is_ok = true;
@@ -72,7 +72,7 @@ fn load_data_dir_single(config_dir: &Path, config_file_name: &str, config_file_p
     if !config_content_is_ok {
         let stdin: Stdin = io::stdin();
         let mut stdout: Stdout = io::stdout();
-        let input: &mut String = &mut String::new();
+        let input = &mut String::new();
 
         loop {
             input.clear();

@@ -9,19 +9,19 @@ mod words;
 
 
 fn main() {
-    let option_version_short: String = String::from("-v");
-    let option_version_long: String = String::from("--version");
+    let option_version_short = String::from("-v");
+    let option_version_long = String::from("--version");
 
-    let option_dated: String = String::from("--dated");
+    let option_dated = String::from("--dated");
     let mut show_dated: bool = false;
 
-    let option_tui: String = String::from("--tui");
+    let option_tui = String::from("--tui");
     let mut run_tui: bool = false;
 
     if let Some(argument) = std::env::args().nth(1) {
         if argument == option_version_short || argument == option_version_long {
-            let name = env!("CARGO_PKG_NAME");
-            let version = env!("CARGO_PKG_VERSION");
+            let name: &str = env!("CARGO_PKG_NAME");
+            let version: &str = env!("CARGO_PKG_VERSION");
             println!("{name} {version}");
             return;
         }

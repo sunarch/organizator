@@ -13,10 +13,10 @@ use ratatui::{
         ExecutableCommand,
     },
     style::Stylize,
+    layout::Rect,
     widgets::Paragraph,
-    Terminal,
+    Terminal, Frame,
 };
-
 
 pub(crate) fn run() -> io::Result<()> {
     io::stdout().execute(EnterAlternateScreen)?;
@@ -26,8 +26,8 @@ pub(crate) fn run() -> io::Result<()> {
 
     let program_name: &str = env!("CARGO_PKG_NAME");
     loop {
-        terminal.draw(|frame| {
-            let area = frame.size();
+        terminal.draw(|frame: &mut Frame| {
+            let area: Rect = frame.size();
             frame.render_widget(
 
                 Paragraph::new(format!("{program_name} (press 'q' to quit)"))
