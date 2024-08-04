@@ -61,7 +61,6 @@ fn print_year_heading(year: i32, file_ref: &mut File) {
         let line: String = String::from("---");
         print_dual(&line, file_ref);
     }
-    print_empty_line(file_ref);
     {
         let line: String = format!("## {year}");
         print_dual(&line, file_ref);
