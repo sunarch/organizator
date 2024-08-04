@@ -3,12 +3,16 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 mod config;
+mod dated;
 mod tui;
 
 
 fn main() {
     let option_version_short: String = String::from("-v");
     let option_version_long: String = String::from("--version");
+
+    let option_dated: String = String::from("--dated");
+    let mut show_dated: bool = false;
 
     let option_tui: String = String::from("--tui");
     let mut run_tui: bool = false;
@@ -19,6 +23,9 @@ fn main() {
             let version = env!("CARGO_PKG_VERSION");
             println!("{name} {version}");
             return;
+        }
+        else if argument == option_dated {
+            show_dated = true;
         }
         else if argument == option_tui {
             run_tui = true;
@@ -32,5 +39,9 @@ fn main() {
 
     if run_tui {
         tui::run().expect("Error running TUI");
+    }
+
+    if show_dated {
+        dated::print_list();
     }
 }

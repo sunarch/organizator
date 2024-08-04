@@ -21,6 +21,7 @@ exclude = [".idea/"]
 default-run = "organizator"
 
 [dependencies]
+chrono = "0.4.38"
 directories-next = "2.0.0"
 ratatui = "0.27.0"
 
