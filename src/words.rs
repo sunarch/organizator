@@ -6,7 +6,7 @@ use chrono::Weekday;
 
 pub(crate) const DATED_TITLE: &str = "ismétlődő - dátumos";
 
-pub(crate) fn month_name(number: u32) -> String {
+pub(crate) fn month_abbrev(number: u32) -> String {
     return match number {
         1 => { String::from("jan.") }
         2 => { String::from("feb.") }
