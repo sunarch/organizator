@@ -6,16 +6,13 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
-use chrono::{
-    Datelike, DateTime, Local,
-    Days, Months,
-    Weekday,
-};
+use chrono::{Datelike, DateTime, Local, Days, Months, Weekday, NaiveDate};
 
+use crate::tasks::TaskList;
 use crate::words;
 
 
-pub fn print_list(data_dir_todo_output: PathBuf) {
+pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
     let output_file_name: &str = "datumos.md";
     let output_file_path: PathBuf = data_dir_todo_output.join(output_file_name);
     println!("Writing to output file '{}", output_file_path.clone().display());
@@ -30,6 +27,32 @@ pub fn print_list(data_dir_todo_output: PathBuf) {
     print_title(file_ref);
 
     let dt_now: DateTime<Local> = Local::now();
+    let task_date_today = NaiveDate::from_ymd_opt(
+        dt_now.year(),
+        dt_now.month(),
+        dt_now.day(),
+    ).expect("Failed to create NaiveDate");
+    let mut task_date_current = NaiveDate::from_ymd_opt(0, 1, 1)
+        .expect("Failed to create NaiveDate");
+    let mut tasks_iter = task_list.dated.iter();
+    loop {
+        let (task_date_ref, tasks) = match tasks_iter.next() {
+            None => { break; }
+            Some((task_dt_ref, tasks)) => {(task_dt_ref, tasks)}
+        };
+        if task_date_ref > &task_date_today { break; }
+
+        if *task_date_ref != task_date_current {
+            task_date_current = *task_date_ref;
+            print_empty_line(file_ref);
+            print_day_heading(task_date_ref, file_ref);
+        }
+
+        for task in tasks {
+            print_dual(&format!("- [ ] {}", task), file_ref);
+        }
+    }
+
     print_year_heading(dt_now.year(), file_ref);
     let dt_last: DateTime<Local> = dt_now.checked_add_months(Months::new(12)).expect("Failed adding months");
     let mut dt_next: DateTime<Local> = dt_now;
@@ -45,7 +68,21 @@ pub fn print_list(data_dir_todo_output: PathBuf) {
             print_week_heading(&dt_next, &dt_sunday, file_ref)
         }
 
-        // print_dual(&format!("{}", dt_next), file_ref);
+        let date_for_tasks = NaiveDate::from_ymd_opt(
+            dt_next.year(),
+            dt_next.month(),
+            dt_next.day(),
+        ).expect("Failed to create NaiveDate");
+        match task_list.dated.get_key_value(&date_for_tasks) {
+            None => {}
+            Some((_, tasks)) => {
+                print_day_heading(&date_for_tasks, file_ref);
+                for task in tasks {
+                    print_dual(&format!("- [ ] {}", task), file_ref);
+                }
+                print_empty_line(file_ref);
+            }
+        }
 
         if dt_next.eq(&dt_last) {
             break;
@@ -93,6 +130,12 @@ fn print_week_heading(dt_next: &DateTime<Local>, dt_sunday: &DateTime<Local>, fi
         print_dual(&line, file_ref);
     }
     print_empty_line(file_ref);
+}
+
+fn print_day_heading(date_ref: &NaiveDate, file_ref: &mut File) {
+    let weekday: String = words::day_abbrev(date_ref.weekday());
+    let line: String = format!("{}-{:0>2}-{:0>2} ({})", date_ref.year(), date_ref.month(), date_ref.day(), weekday);
+    print_dual(&line, file_ref);
 }
 
 fn print_empty_line(file_ref: &mut File) {

@@ -4,6 +4,7 @@
 
 mod config;
 mod dated;
+mod tasks;
 mod tui;
 mod words;
 
@@ -36,13 +37,15 @@ fn main() {
         }
     }
 
-    let (_, data_dir_todo_output, _) = config::load_data_dirs();
+    let (data_dir_todo, data_dir_todo_output, _) = config::load_data_dirs();
 
     if run_tui {
         tui::run().expect("Error running TUI");
     }
 
+    let task_list: tasks::TaskList = tasks::TaskList::load(data_dir_todo);
+
     if show_dated {
-        dated::print_list(data_dir_todo_output);
+        dated::print_list(task_list, data_dir_todo_output);
     }
 }
