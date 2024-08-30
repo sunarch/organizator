@@ -13,18 +13,21 @@ use crate::tasks::{type_progressive, type_recurring, types};
 
 pub struct TaskList {
     pub dated: BTreeMap<NaiveDate, Vec<Task>>,
+    pub inactive: Vec<Task>,
 }
 
 impl TaskList {
     pub fn load(data_dir_todo: PathBuf) -> Self {
         let mut task_list = TaskList {
             dated: BTreeMap::new(),
+            inactive: Default::default(),
         };
 
         let dir_path_progressive: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
         Self::load_subdir(
             &dir_path_progressive,
             &mut task_list.dated,
+            &mut task_list.inactive,
             &type_progressive::parse,
         );
 
@@ -32,6 +35,7 @@ impl TaskList {
         Self::load_subdir(
             &dir_path_recurring,
             &mut task_list.dated,
+            &mut task_list.inactive,
             &type_recurring::parse,
         );
 
@@ -41,6 +45,7 @@ impl TaskList {
     fn load_subdir(
         todo_subdir: &PathBuf,
         tasks: &mut BTreeMap<NaiveDate, Vec<Task>>,
+        tasks_inactive: &mut Vec<Task>,
         fn_parse: &types::FnParse,
     ) {
         let dir_path_display: Display = todo_subdir.display();
@@ -71,8 +76,12 @@ impl TaskList {
                     }
                     Some((task_date, task)) => (task_date, task),
                 };
-                let date_task_list: &mut Vec<Task> = tasks.entry(task_date).or_default();
-                date_task_list.push(task);
+                if task.active {
+                    let date_task_list: &mut Vec<Task> = tasks.entry(task_date).or_default();
+                    date_task_list.push(task);
+                } else {
+                    tasks_inactive.push(task);
+                }
             }
         }
     }

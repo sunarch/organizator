@@ -8,6 +8,7 @@ pub struct Task {
     pub frequency: String,
     pub title: String,
     pub note: String,
+    pub active: bool,
 }
 
 impl fmt::Display for Task {

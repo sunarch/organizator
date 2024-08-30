@@ -55,10 +55,6 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
         Some(data) => data,
     };
 
-    if !data.active {
-        return None;
-    }
-
     let last_date = match NaiveDate::parse_from_str(data.last.as_str(), "%Y-%m-%d") {
         Err(_) => {
             println!(
@@ -131,6 +127,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
             frequency: format!("{}", data.frequency),
             title: data.title,
             note: data.note,
+            active: data.active,
         },
     ));
 }
