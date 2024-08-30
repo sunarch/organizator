@@ -34,13 +34,21 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
     };
     let file_ref: &mut File = &mut file;
 
+    let (today, last_dated) = time::today_and_last_dated();
+
     print_title(file_ref);
 
     print_section_general(&task_sections.overdue, "", file_ref);
 
-    print_section_list(&task_sections.today, ">>> TODAY <<<", file_ref);
+    {
+        let heading: String = format!(
+            ">>>  TODAY  -  {} {}.  <<<",
+            time::month_abbrev(today.month()),
+            today.day()
+        );
+        print_section_list(&task_sections.today, heading.as_str(), file_ref);
+    }
 
-    let (today, last_dated) = time::today_and_last_dated();
     print_section_heading(today.year(), file_ref);
     let mut dt_next: NaiveDate = today;
     loop {
