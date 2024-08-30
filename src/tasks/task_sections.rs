@@ -33,22 +33,14 @@ impl TaskSections {
         let dir_path_progressive: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
         Self::load_subdir(
             &dir_path_progressive,
-            &mut task_sections.overdue,
-            &mut task_sections.today,
-            &mut task_sections.dated,
-            &mut task_sections.later,
-            &mut task_sections.inactive,
+            &mut task_sections,
             &type_progressive::parse,
         );
 
         let dir_path_recurring: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
         Self::load_subdir(
             &dir_path_recurring,
-            &mut task_sections.overdue,
-            &mut task_sections.today,
-            &mut task_sections.dated,
-            &mut task_sections.later,
-            &mut task_sections.inactive,
+            &mut task_sections,
             &type_recurring::parse,
         );
 
@@ -57,11 +49,7 @@ impl TaskSections {
 
     fn load_subdir(
         todo_subdir: &PathBuf,
-        overdue: &mut BTreeMap<NaiveDate, Vec<Task>>,
-        tasks_today: &mut Vec<Task>,
-        dated: &mut BTreeMap<NaiveDate, Vec<Task>>,
-        later: &mut BTreeMap<NaiveDate, Vec<Task>>,
-        tasks_inactive: &mut Vec<Task>,
+        task_sections: &mut TaskSections,
         fn_parse: &types::FnParse,
     ) {
         let dir_path_display: Display = todo_subdir.display();
@@ -102,26 +90,29 @@ impl TaskSections {
                 println!("DEBUG: {} - {}", task_date, task.title);
 
                 if !task.active {
-                    tasks_inactive.push(task);
+                    task_sections.inactive.push(task);
                     continue;
                 }
 
                 if task_date < today {
                     println!("DEBUG DUE: {} - {}", task_date, task.title);
-                    let tasks_overdue: &mut Vec<Task> = overdue.entry(task_date).or_default();
+                    let tasks_overdue: &mut Vec<Task> =
+                        task_sections.overdue.entry(task_date).or_default();
                     tasks_overdue.push(task);
                 } else if task_date == today {
-                    tasks_today.push(task);
+                    task_sections.today.push(task);
                 } else if task_date > last_dated {
                     println!("DEBUG LATER: {} - {}", task_date, task.title);
-                    let tasks_later: &mut Vec<Task> = later.entry(task_date).or_default();
+                    let tasks_later: &mut Vec<Task> =
+                        task_sections.later.entry(task_date).or_default();
                     tasks_later.push(task);
                 } else {
                     println!("DEBUG DATED: {} - {}", task_date, task.title);
-                    let tasks_dated: &mut Vec<Task> = dated.entry(task_date).or_default();
+                    let tasks_dated: &mut Vec<Task> =
+                        task_sections.dated.entry(task_date).or_default();
                     tasks_dated.push(task);
                 }
-                println!("OVERDUE: {}", overdue.len());
+                println!("OVERDUE: {}", task_sections.overdue.len());
             }
         }
     }
