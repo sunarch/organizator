@@ -45,6 +45,6 @@ fn main() {
     let task_sections: TaskSections = TaskSections::load(data_dir_todo);
 
     if show_dated {
-        dated::print_list(task_sections, data_dir_todo_output);
+        dated::print_list(&task_sections, data_dir_todo_output);
     }
 }

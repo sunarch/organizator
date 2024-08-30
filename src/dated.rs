@@ -15,7 +15,7 @@ use crate::tasks::task_sections::TaskSections;
 use crate::time;
 use crate::words;
 
-pub fn print_list(task_sections: TaskSections, data_dir_todo_output: PathBuf) {
+pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
     let output_file_name: &str = "dated.md";
     let output_file_path: PathBuf = data_dir_todo_output.join(output_file_name);
     println!(
@@ -40,9 +40,9 @@ pub fn print_list(task_sections: TaskSections, data_dir_todo_output: PathBuf) {
     let task_date_today = NaiveDate::from_ymd_opt(dt_now.year(), dt_now.month(), dt_now.day())
         .expect("Failed to create NaiveDate");
 
-    print_section_general(task_sections.overdue, "", file_ref);
+    print_section_general(&task_sections.overdue, "", file_ref);
 
-    print_section_list(task_sections.today, ">>> TODAY <<<", file_ref);
+    print_section_list(&task_sections.today, ">>> TODAY <<<", file_ref);
 
     print_section_heading(dt_now.year(), file_ref);
     let dt_last: NaiveDate = task_date_today
@@ -83,9 +83,9 @@ pub fn print_list(task_sections: TaskSections, data_dir_todo_output: PathBuf) {
         }
     }
 
-    print_section_general(task_sections.later, "later", file_ref);
+    print_section_general(&task_sections.later, "later", file_ref);
 
-    print_section_list(task_sections.inactive, "inactive", file_ref);
+    print_section_list(&task_sections.inactive, "inactive", file_ref);
 
     print_bottom_line(file_ref);
 }
@@ -150,7 +150,7 @@ fn print_day_heading(date_ref: &NaiveDate, file_ref: &mut File) {
 }
 
 fn print_section_general(
-    task_map: BTreeMap<NaiveDate, Vec<Task>>,
+    task_map: &BTreeMap<NaiveDate, Vec<Task>>,
     heading: &str,
     file_ref: &mut File,
 ) {
@@ -169,7 +169,7 @@ fn print_section_general(
     }
 }
 
-fn print_section_list(task_list: Vec<Task>, heading: &str, file_ref: &mut File) {
+fn print_section_list(task_list: &Vec<Task>, heading: &str, file_ref: &mut File) {
     if task_list.is_empty() {
         return;
     }
