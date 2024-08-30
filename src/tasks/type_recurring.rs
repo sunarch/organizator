@@ -38,8 +38,10 @@ struct Data {
     description: String,
 
     frequency: Frequency,
-    snap_to: String,
     last: String,
+
+    #[serde(default = "types::default_string")]
+    snap_to: String,
 
     #[serde(default = "types::default_zero")]
     buffer_days: u16,
@@ -97,7 +99,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
     let today: NaiveDate = time::today();
 
     match data.snap_to.as_str() {
-        "none" => {}
+        "none" | "" => {}
         "today" => {
             if task_date < today {
                 task_date = today;

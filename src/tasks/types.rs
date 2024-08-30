@@ -21,6 +21,10 @@ pub fn default_zero() -> u16 {
     return 0;
 }
 
+pub fn default_string() -> String {
+    return Default::default();
+}
+
 pub fn default_vec<T>() -> Vec<T> {
     return Default::default();
 }
