@@ -4,7 +4,7 @@
 
 use std::io;
 use std::time::Duration;
-
+// dependencies
 use ratatui::{
     backend::CrosstermBackend,
     crossterm::{
@@ -12,10 +12,10 @@ use ratatui::{
         terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
         ExecutableCommand,
     },
-    style::Stylize,
     layout::Rect,
+    style::Stylize,
     widgets::Paragraph,
-    Terminal, Frame,
+    Frame, Terminal,
 };
 
 pub(crate) fn run() -> io::Result<()> {
@@ -29,7 +29,6 @@ pub(crate) fn run() -> io::Result<()> {
         terminal.draw(|frame: &mut Frame| {
             let area: Rect = frame.size();
             frame.render_widget(
-
                 Paragraph::new(format!("{program_name} (press 'q' to quit)"))
                     .light_green()
                     .on_black(),

@@ -4,12 +4,11 @@
 
 mod config;
 mod dated;
-mod tasks;
 mod task_types;
+mod tasks;
 mod time;
 mod tui;
 mod words;
-
 
 fn main() {
     let option_version_short = String::from("-v");
@@ -27,14 +26,11 @@ fn main() {
             let version: &str = env!("CARGO_PKG_VERSION");
             println!("{name} {version}");
             return;
-        }
-        else if argument == option_dated {
+        } else if argument == option_dated {
             show_dated = true;
-        }
-        else if argument == option_tui {
+        } else if argument == option_tui {
             run_tui = true;
-        }
-        else {
+        } else {
             panic!("Unrecognized option: {argument}");
         }
     }

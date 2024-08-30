@@ -2,7 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use chrono::{Months, Month, Days};
+// dependencies
+use chrono::{Days, Month, Months};
 
 // time intervals for dated display
 pub const MONTHS_12: Months = Months::new(12);

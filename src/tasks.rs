@@ -5,12 +5,11 @@
 use std::collections::BTreeMap;
 use std::fmt;
 use std::fs::{self, DirEntry};
-use std::path::{PathBuf, Display};
-
-use chrono::{NaiveDate};
-
+use std::path::{Display, PathBuf};
+// dependencies
+use chrono::NaiveDate;
+// internal
 use crate::task_types::{_task_types, progressive, recurring, serial};
-
 
 pub struct Task {
     pub frequency: String,
@@ -39,11 +38,15 @@ pub struct TaskList {
 impl TaskList {
     pub fn load(data_dir_todo: PathBuf) -> Self {
         let mut task_list = TaskList {
-            dated: BTreeMap::new()
+            dated: BTreeMap::new(),
         };
 
         let dir_path_progressive: PathBuf = data_dir_todo.join(progressive::DIR_NAME);
-        Self::load_subdir(&dir_path_progressive, &mut task_list.dated, &progressive::parse);
+        Self::load_subdir(
+            &dir_path_progressive,
+            &mut task_list.dated,
+            &progressive::parse,
+        );
 
         let dir_path_recurring: PathBuf = data_dir_todo.join(recurring::DIR_NAME);
         Self::load_subdir(&dir_path_recurring, &mut task_list.dated, &recurring::parse);
@@ -64,7 +67,11 @@ impl TaskList {
             println!("Todo subdir '{dir_path_display}' not found, skipping.");
             return;
         }
-        assert!(todo_subdir.is_dir(), "Todo subdir '{}' is not a directory!", dir_path_display);
+        assert!(
+            todo_subdir.is_dir(),
+            "Todo subdir '{}' is not a directory!",
+            dir_path_display
+        );
         println!("Found todo subdir '{dir_path_display}'");
 
         let mut task_date: NaiveDate;
@@ -79,9 +86,10 @@ impl TaskList {
             } else {
                 (task_date, task) = fn_parse(&entry_path);
                 if !tasks.contains_key(&task_date) {
-                    tasks.insert(task_date, vec!());
+                    tasks.insert(task_date, vec![]);
                 }
-                tasks.get_mut(&task_date)
+                tasks
+                    .get_mut(&task_date)
                     .expect("Failed to load task list day.")
                     .push(task);
             }
