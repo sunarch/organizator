@@ -4,7 +4,7 @@
 
 use std::path::Path;
 // dependencies
-use chrono::NaiveDate;
+use chrono::{Datelike, NaiveDate};
 use serde;
 // internal
 use crate::task_types::_task_types;
@@ -21,10 +21,8 @@ struct Data {
     description: String,
 
     frequency: Frequency,
+    snap_to: String,
     last: String,
-
-    #[serde(default = "_task_types::default_false")]
-    snap_to_today: bool,
 }
 
 pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
@@ -70,16 +68,39 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
         Some(date) => date,
     };
 
-    let mut task_date: &NaiveDate = &planned_date;
+    let mut task_date: NaiveDate = planned_date;
 
     let today: NaiveDate = time::today();
 
-    if data.snap_to_today && planned_date < today {
-        task_date = &today;
-    }
+    match data.snap_to.as_str() {
+        "none" => {}
+        "today" => {
+            if planned_date < today {
+                task_date = today;
+            }
+        }
+        "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun" => {
+            task_date = today;
+            while !task_date.weekday().to_string().eq(&data.snap_to) {
+                println!(
+                    "'task_date_ref {}' - snap_to '{}'",
+                    task_date.weekday().to_string(),
+                    &data.snap_to
+                );
+                task_date = time::add_days(task_date, 1).expect("Failed to add day.");
+            }
+        }
+        _ => {
+            println!(
+                "Unable to parse task snap_to: '{}' ({})",
+                data.snap_to, data.title
+            );
+            return None;
+        }
+    };
 
     return Some((
-        *task_date,
+        task_date,
         Task {
             frequency: format!("{}", data.frequency),
             title: data.title,
