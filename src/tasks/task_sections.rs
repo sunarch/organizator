@@ -110,14 +110,14 @@ impl TaskSections {
 
         // sort task lists
 
-        for (_, task_list) in &mut task_sections.overdue {
+        for task_list in task_sections.overdue.values_mut() {
             task_list.sort();
         }
         task_sections.today.sort();
-        for (_, task_list) in &mut task_sections.dated {
+        for task_list in task_sections.dated.values_mut() {
             task_list.sort();
         }
-        for (_, task_list) in &mut task_sections.later {
+        for task_list in task_sections.later.values_mut() {
             task_list.sort();
         }
         task_sections.inactive.sort();
