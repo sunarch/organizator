@@ -162,7 +162,7 @@ fn print_section_general(
         print_section_heading(heading, file_ref);
     }
     for (task_date, task_list) in task_map {
-        print_day_heading(&task_date, file_ref);
+        print_day_heading(task_date, file_ref);
         for task in task_list {
             print_dual(&format!("- [ ] {}", task), file_ref);
         }
