@@ -14,6 +14,10 @@ use crate::tasks::task::Task;
 
 pub type FnParse = dyn Fn(&Path) -> Option<(NaiveDate, Task)>;
 
+pub fn default_true() -> bool {
+    return true;
+}
+
 #[derive(serde::Serialize, serde::Deserialize)]
 pub(crate) struct Frequency {
     pub(crate) number: u8,

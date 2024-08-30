@@ -13,7 +13,7 @@ use crate::time;
 use crate::words;
 
 pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
-    let output_file_name: &str = "datumos.md";
+    let output_file_name: &str = "dated.md";
     let output_file_path: PathBuf = data_dir_todo_output.join(output_file_name);
     println!(
         "Writing to output file '{}",

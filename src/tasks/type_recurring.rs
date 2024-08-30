@@ -9,7 +9,7 @@ use serde;
 // internal
 use crate::tasks::task::Task;
 use crate::tasks::types;
-use crate::tasks::types::Frequency;
+use crate::tasks::types::{default_true, Frequency};
 use crate::time;
 
 pub(crate) const DIR_NAME: &str = "recurring";
@@ -23,6 +23,9 @@ struct Data {
     frequency: Frequency,
     snap_to: String,
     last: String,
+
+    #[serde(default = "default_true")]
+    active: bool,
 }
 
 pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
@@ -32,6 +35,10 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
         }
         Some(data) => data,
     };
+
+    if !data.active {
+        return None;
+    }
 
     let last_date = match NaiveDate::parse_from_str(data.last.as_str(), "%Y-%m-%d") {
         Err(_) => {
