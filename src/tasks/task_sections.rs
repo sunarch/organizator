@@ -12,7 +12,7 @@ use crate::tasks::task::Task;
 use crate::tasks::{type_progressive, type_recurring, types};
 use crate::time;
 
-pub struct TaskList {
+pub struct TaskSections {
     pub overdue: BTreeMap<NaiveDate, Vec<Task>>,
     pub today: Vec<Task>,
     pub dated: BTreeMap<NaiveDate, Vec<Task>>,
@@ -20,9 +20,9 @@ pub struct TaskList {
     pub inactive: Vec<Task>,
 }
 
-impl TaskList {
+impl TaskSections {
     pub fn load(data_dir_todo: PathBuf) -> Self {
-        let mut task_list = TaskList {
+        let mut task_sections = TaskSections {
             overdue: Default::default(),
             today: Default::default(),
             dated: Default::default(),
@@ -33,26 +33,26 @@ impl TaskList {
         let dir_path_progressive: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
         Self::load_subdir(
             &dir_path_progressive,
-            &mut task_list.overdue,
-            &mut task_list.today,
-            &mut task_list.dated,
-            &mut task_list.later,
-            &mut task_list.inactive,
+            &mut task_sections.overdue,
+            &mut task_sections.today,
+            &mut task_sections.dated,
+            &mut task_sections.later,
+            &mut task_sections.inactive,
             &type_progressive::parse,
         );
 
         let dir_path_recurring: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
         Self::load_subdir(
             &dir_path_recurring,
-            &mut task_list.overdue,
-            &mut task_list.today,
-            &mut task_list.dated,
-            &mut task_list.later,
-            &mut task_list.inactive,
+            &mut task_sections.overdue,
+            &mut task_sections.today,
+            &mut task_sections.dated,
+            &mut task_sections.later,
+            &mut task_sections.inactive,
             &type_recurring::parse,
         );
 
-        return task_list;
+        return task_sections;
     }
 
     fn load_subdir(

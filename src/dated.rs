@@ -11,11 +11,11 @@ use std::path::PathBuf;
 use chrono::{DateTime, Datelike, Local, NaiveDate, Weekday};
 // internal
 use crate::tasks::task::Task;
-use crate::tasks::task_list::TaskList;
+use crate::tasks::task_sections::TaskSections;
 use crate::time;
 use crate::words;
 
-pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
+pub fn print_list(task_sections: TaskSections, data_dir_todo_output: PathBuf) {
     let output_file_name: &str = "dated.md";
     let output_file_path: PathBuf = data_dir_todo_output.join(output_file_name);
     println!(
@@ -40,9 +40,9 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
     let task_date_today = NaiveDate::from_ymd_opt(dt_now.year(), dt_now.month(), dt_now.day())
         .expect("Failed to create NaiveDate");
 
-    print_section_general(task_list.overdue, "", file_ref);
+    print_section_general(task_sections.overdue, "", file_ref);
 
-    print_section_list(task_list.today, ">>> TODAY <<<", file_ref);
+    print_section_list(task_sections.today, ">>> TODAY <<<", file_ref);
 
     print_section_heading(dt_now.year(), file_ref);
     let dt_last: NaiveDate = task_date_today
@@ -68,7 +68,7 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
         let date_for_tasks =
             NaiveDate::from_ymd_opt(dt_next.year(), dt_next.month(), dt_next.day())
                 .expect("Failed to create NaiveDate");
-        match task_list.dated.get_key_value(&date_for_tasks) {
+        match task_sections.dated.get_key_value(&date_for_tasks) {
             None => {}
             Some((_, tasks)) => {
                 print_day_heading(&date_for_tasks, file_ref);
@@ -83,9 +83,9 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
         }
     }
 
-    print_section_general(task_list.later, "later", file_ref);
+    print_section_general(task_sections.later, "later", file_ref);
 
-    print_section_list(task_list.inactive, "inactive", file_ref);
+    print_section_list(task_sections.inactive, "inactive", file_ref);
 
     print_bottom_line(file_ref);
 }
