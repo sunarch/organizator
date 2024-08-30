@@ -2,14 +2,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use crate::tasks::types::Subtask;
 use std::cmp::Ordering;
 use std::fmt;
 
-#[derive(Eq)]
 pub struct Task {
     pub frequency: String,
     pub title: String,
     pub note: String,
+    pub subtasks: Vec<Subtask>,
     pub active: bool,
 }
 
@@ -58,3 +59,4 @@ impl PartialEq for Task {
             && self.active == other.active
     }
 }
+impl Eq for Task {}

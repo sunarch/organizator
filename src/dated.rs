@@ -72,11 +72,9 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
                 .expect("Failed to create NaiveDate");
         match task_sections.dated.get_key_value(&date_for_tasks) {
             None => {}
-            Some((_, tasks)) => {
+            Some((_, task_list)) => {
                 print_day_heading(&date_for_tasks, file_ref);
-                for task in tasks {
-                    print_dual(&format!("- [ ] {}", task), file_ref);
-                }
+                print_task_list(task_list, file_ref);
             }
         }
 
@@ -165,9 +163,7 @@ fn print_section_general(
     }
     for (task_date, task_list) in task_map {
         print_day_heading(task_date, file_ref);
-        for task in task_list {
-            print_dual(&format!("- [ ] {}", task), file_ref);
-        }
+        print_task_list(task_list, file_ref);
     }
 }
 
@@ -175,14 +171,22 @@ fn print_section_list(task_list: &Vec<Task>, heading: &str, file_ref: &mut File)
     if task_list.is_empty() {
         return;
     }
-
     print_section_heading(heading, file_ref);
     print_empty_line(file_ref);
+    print_task_list(task_list, file_ref);
+}
+
+fn print_task_list(task_list: &Vec<Task>, file_ref: &mut File) {
     for task in task_list {
         if task.active {
             print_dual(&format!("- [ ] {}", task), file_ref);
         } else {
             print_dual(&format!("- {}", task), file_ref);
+        }
+        for subtask in &task.subtasks {
+            if subtask.done.is_empty() {
+                print_dual(&format!("    - [ ] {}", subtask.title), file_ref);
+            }
         }
     }
 }

@@ -51,6 +51,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
             frequency: data.prefix,
             title: data.title,
             note: data.note,
+            subtasks: Default::default(),
             active: data.done.is_empty(),
         },
     ));

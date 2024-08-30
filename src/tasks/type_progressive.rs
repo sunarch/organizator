@@ -72,6 +72,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
             frequency: String::from("(PR)"),
             title: data.title,
             note: task_note,
+            subtasks: Default::default(),
             active: true,
         },
     ));

@@ -21,6 +21,16 @@ pub fn default_zero() -> u16 {
     return 0;
 }
 
+pub fn default_vec<T>() -> Vec<T> {
+    return Default::default();
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub(crate) struct Subtask {
+    pub(crate) title: String,
+    pub(crate) done: String,
+}
+
 pub(crate) fn load<Data: for<'de> serde::Deserialize<'de>>(file_path: &Path) -> Option<Data> {
     let file = match File::open(file_path) {
         Err(why) => {

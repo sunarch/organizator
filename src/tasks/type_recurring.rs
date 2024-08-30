@@ -10,6 +10,7 @@ use serde;
 // internal
 use crate::tasks::task::Task;
 use crate::tasks::types;
+use crate::tasks::types::Subtask;
 use crate::time;
 
 pub(crate) const DIR_NAME: &str = "recurring";
@@ -42,6 +43,9 @@ struct Data {
 
     #[serde(default = "types::default_zero")]
     buffer_days: u16,
+
+    #[serde(default = "types::default_vec")]
+    subtasks: Vec<Subtask>,
 
     #[serde(default = "types::default_true")]
     active: bool,
@@ -127,6 +131,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
             frequency: format!("{}", data.frequency),
             title: data.title,
             note: data.note,
+            subtasks: data.subtasks,
             active: data.active,
         },
     ));
