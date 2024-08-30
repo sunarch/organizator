@@ -5,6 +5,7 @@
 mod config;
 mod dated;
 mod tasks;
+mod task_types;
 mod time;
 mod tui;
 mod words;
