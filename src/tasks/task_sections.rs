@@ -76,7 +76,6 @@ impl TaskSections {
             let entry: DirEntry = entry.expect("Failed to iterate dir entry.");
             let entry_path: PathBuf = entry.path();
             let entry_path_display: Display = entry_path.display();
-            println!("DEBUG: {}", entry_path_display);
             if entry_path.is_dir() {
                 println!("Warning: dir inside todo subdir: '{entry_path_display}'");
             } else {
@@ -87,32 +86,26 @@ impl TaskSections {
                     Some((task_date, task)) => (task_date, task),
                 };
 
-                println!("DEBUG: {} - {}", task_date, task.title);
-
                 if !task.active {
                     task_sections.inactive.push(task);
                     continue;
                 }
 
                 if task_date < today {
-                    println!("DEBUG DUE: {} - {}", task_date, task.title);
                     let tasks_overdue: &mut Vec<Task> =
                         task_sections.overdue.entry(task_date).or_default();
                     tasks_overdue.push(task);
                 } else if task_date == today {
                     task_sections.today.push(task);
                 } else if task_date > last_dated {
-                    println!("DEBUG LATER: {} - {}", task_date, task.title);
                     let tasks_later: &mut Vec<Task> =
                         task_sections.later.entry(task_date).or_default();
                     tasks_later.push(task);
                 } else {
-                    println!("DEBUG DATED: {} - {}", task_date, task.title);
                     let tasks_dated: &mut Vec<Task> =
                         task_sections.dated.entry(task_date).or_default();
                     tasks_dated.push(task);
                 }
-                println!("OVERDUE: {}", task_sections.overdue.len());
             }
         }
     }
