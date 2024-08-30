@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use std::fmt::Display;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
@@ -61,7 +62,7 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
         }
     }
 
-    print_year_heading(dt_now.year(), file_ref);
+    print_section_heading(dt_now.year(), file_ref);
     let dt_last: NaiveDate = task_date_today
         .checked_add_months(time::MONTHS_12)
         .expect("Failed adding months");
@@ -76,7 +77,7 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
                 .checked_add_days(time::DAYS_6)
                 .expect("Failed adding days");
             if format!("{:?}", dt_sunday.iso_week()).ends_with("01") {
-                print_year_heading(dt_sunday.year(), file_ref);
+                print_section_heading(dt_sunday.year(), file_ref);
             }
 
             print_week_heading(&dt_next, &dt_sunday, file_ref)
@@ -114,14 +115,14 @@ fn print_bottom_line(file_ref: &mut File) {
     print_dual(&line, file_ref);
 }
 
-fn print_year_heading(year: i32, file_ref: &mut File) {
+fn print_section_heading<T: Display>(text: T, file_ref: &mut File) {
     print_empty_line(file_ref);
     {
         let line = String::from("---");
         print_dual(&line, file_ref);
     }
     {
-        let line: String = format!("## {year}");
+        let line: String = format!("## {}", text);
         print_dual(&line, file_ref);
     }
 }
