@@ -8,7 +8,7 @@ use std::path::PathBuf;
 // dependencies
 use chrono::{DateTime, Datelike, Local, NaiveDate, Weekday};
 // internal
-use crate::tasks::TaskList;
+use crate::tasks::task_list::TaskList;
 use crate::time;
 use crate::words;
 

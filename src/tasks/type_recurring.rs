@@ -7,9 +7,9 @@ use std::path::Path;
 use chrono::{Datelike, NaiveDate};
 use serde;
 // internal
-use crate::task_types::_task_types;
-use crate::task_types::_task_types::Frequency;
-use crate::tasks::Task;
+use crate::tasks::task::Task;
+use crate::tasks::types;
+use crate::tasks::types::Frequency;
 use crate::time;
 
 pub(crate) const DIR_NAME: &str = "recurring";
@@ -26,7 +26,7 @@ struct Data {
 }
 
 pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
-    let data: Data = match _task_types::load(file_path) {
+    let data: Data = match types::load(file_path) {
         None => {
             return None;
         }

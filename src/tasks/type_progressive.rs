@@ -7,8 +7,8 @@ use std::path::Path;
 use chrono::{DateTime, Datelike, Local, NaiveDate};
 use serde;
 // internal
-use crate::task_types::_task_types;
-use crate::tasks::Task;
+use crate::tasks::task::Task;
+use crate::tasks::types;
 
 pub(crate) const DIR_NAME: &str = "progressive";
 
@@ -28,7 +28,7 @@ struct Data {
 pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
     let timestamp: DateTime<Local> = Local::now();
 
-    let data: Data = match _task_types::load(file_path) {
+    let data: Data = match types::load(file_path) {
         None => {
             return None;
         }

@@ -4,11 +4,12 @@
 
 mod config;
 mod dated;
-mod task_types;
 mod tasks;
 mod time;
 mod tui;
 mod words;
+
+use crate::tasks::task_list::TaskList;
 
 fn main() {
     let option_version_short = String::from("-v");
@@ -41,7 +42,7 @@ fn main() {
         tui::run().expect("Error running TUI");
     }
 
-    let task_list: tasks::TaskList = tasks::TaskList::load(data_dir_todo);
+    let task_list: TaskList = TaskList::load(data_dir_todo);
 
     if show_dated {
         dated::print_list(task_list, data_dir_todo_output);

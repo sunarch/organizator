@@ -10,7 +10,7 @@ use chrono::NaiveDate;
 use serde;
 use serde_json;
 // internal
-use crate::tasks::Task;
+use crate::tasks::task::Task;
 
 pub type FnParse = dyn Fn(&Path) -> Option<(NaiveDate, Task)>;
 

@@ -3,33 +3,13 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use std::collections::BTreeMap;
-use std::fmt;
 use std::fs::{self, DirEntry};
 use std::path::{Display, PathBuf};
 // dependencies
 use chrono::NaiveDate;
 // internal
-use crate::task_types::{_task_types, progressive, recurring};
-
-pub struct Task {
-    pub frequency: String,
-    pub title: String,
-    pub note: String,
-}
-
-impl fmt::Display for Task {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut display = String::new();
-        if !self.frequency.is_empty() {
-            display = format!("{} - ", self.frequency);
-        }
-        display.push_str(self.title.as_str());
-        if !self.note.is_empty() {
-            display = format!("{} ({})", display, self.note);
-        }
-        return write!(f, "{}", display);
-    }
-}
+use crate::tasks::task::Task;
+use crate::tasks::{type_progressive, type_recurring, types};
 
 pub struct TaskList {
     pub dated: BTreeMap<NaiveDate, Vec<Task>>,
@@ -41,15 +21,19 @@ impl TaskList {
             dated: BTreeMap::new(),
         };
 
-        let dir_path_progressive: PathBuf = data_dir_todo.join(progressive::DIR_NAME);
+        let dir_path_progressive: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
         Self::load_subdir(
             &dir_path_progressive,
             &mut task_list.dated,
-            &progressive::parse,
+            &type_progressive::parse,
         );
 
-        let dir_path_recurring: PathBuf = data_dir_todo.join(recurring::DIR_NAME);
-        Self::load_subdir(&dir_path_recurring, &mut task_list.dated, &recurring::parse);
+        let dir_path_recurring: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
+        Self::load_subdir(
+            &dir_path_recurring,
+            &mut task_list.dated,
+            &type_recurring::parse,
+        );
 
         return task_list;
     }
@@ -57,7 +41,7 @@ impl TaskList {
     fn load_subdir(
         todo_subdir: &PathBuf,
         tasks: &mut BTreeMap<NaiveDate, Vec<Task>>,
-        fn_parse: &_task_types::FnParse,
+        fn_parse: &types::FnParse,
     ) {
         let dir_path_display: Display = todo_subdir.display();
         if !todo_subdir.exists() {
