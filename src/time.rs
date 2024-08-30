@@ -40,9 +40,16 @@ pub fn today() -> NaiveDate {
 
 pub fn today_and_last_dated() -> (NaiveDate, NaiveDate) {
     let today: NaiveDate = today();
-    let last_dated: NaiveDate = today
+    let mut last_dated: NaiveDate = today
         .checked_add_months(MONTHS_12)
         .expect("Failed to add months");
+    const SUNDAY_VALUE: u8 = 7;
+    let add_for_sunday: u32 = (SUNDAY_VALUE) as u32 - last_dated.weekday().num_days_from_sunday();
+    if add_for_sunday > 0 {
+        last_dated = last_dated
+            .checked_add_days(Days::new(add_for_sunday as u64))
+            .expect("Failed to add days");
+    }
     return (today, last_dated);
 }
 
