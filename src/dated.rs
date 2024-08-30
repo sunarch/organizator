@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 // dependencies
-use chrono::{DateTime, Datelike, Local, NaiveDate, Weekday};
+use chrono::{Datelike, NaiveDate, Weekday};
 // internal
 use crate::tasks::task::Task;
 use crate::tasks::task_sections::TaskSections;
@@ -36,19 +36,13 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
 
     print_title(file_ref);
 
-    let dt_now: DateTime<Local> = Local::now();
-    let task_date_today = NaiveDate::from_ymd_opt(dt_now.year(), dt_now.month(), dt_now.day())
-        .expect("Failed to create NaiveDate");
-
     print_section_general(&task_sections.overdue, "", file_ref);
 
     print_section_list(&task_sections.today, ">>> TODAY <<<", file_ref);
 
-    print_section_heading(dt_now.year(), file_ref);
-    let dt_last: NaiveDate = task_date_today
-        .checked_add_months(time::MONTHS_12)
-        .expect("Failed adding months");
-    let mut dt_next: NaiveDate = task_date_today;
+    let (today, last_dated) = time::today_and_last_dated();
+    print_section_heading(today.year(), file_ref);
+    let mut dt_next: NaiveDate = today;
     loop {
         dt_next = dt_next
             .checked_add_days(time::DAYS_1)
@@ -78,7 +72,7 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
             }
         }
 
-        if dt_next.eq(&dt_last) {
+        if dt_next.eq(&last_dated) {
             break;
         }
     }

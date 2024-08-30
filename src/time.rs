@@ -38,6 +38,14 @@ pub fn today() -> NaiveDate {
         .expect("Failed to create NaiveDate from now()");
 }
 
+pub fn today_and_last_dated() -> (NaiveDate, NaiveDate) {
+    let today: NaiveDate = today();
+    let last_dated: NaiveDate = today
+        .checked_add_months(MONTHS_12)
+        .expect("Failed to add months");
+    return (today, last_dated);
+}
+
 pub fn month_abbrev(month: u32) -> String {
     let month: Month = Month::try_from(month as u8).expect("Failed to convert month.");
     let month_name: &str = month.name();

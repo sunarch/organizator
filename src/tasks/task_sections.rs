@@ -66,10 +66,7 @@ impl TaskSections {
         let mut task_date: NaiveDate;
         let mut task: Task;
 
-        let today: NaiveDate = time::today();
-        let last_dated: NaiveDate = today
-            .checked_add_months(time::MONTHS_12)
-            .expect("Failed to add months");
+        let (today, last_dated) = time::today_and_last_dated();
 
         for entry in fs::read_dir(todo_subdir).expect("Failed to iterate todo subdir.") {
             let entry: DirEntry = entry.expect("Failed to iterate dir entry.");
