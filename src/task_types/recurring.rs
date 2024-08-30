@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use std::path::PathBuf;
+use std::path::Path;
 // dependencies
 use chrono::{DateTime, Datelike, Local, NaiveDate};
 // internal
@@ -10,7 +10,7 @@ use crate::tasks::Task;
 
 pub(crate) const DIR_NAME: &str = "recurring";
 
-pub(crate) fn parse(file_path: &PathBuf) -> (NaiveDate, Task) {
+pub(crate) fn parse(file_path: &Path) -> (NaiveDate, Task) {
     let timestamp: DateTime<Local> = Local::now();
     return (
         NaiveDate::from_ymd_opt(timestamp.year(), timestamp.month(), timestamp.day())

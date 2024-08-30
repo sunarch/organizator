@@ -14,12 +14,8 @@ const DIRS_ORGANIZATION: &str = "sunarch";
 
 fn load_dir() -> PathBuf {
     let project_dirs: ProjectDirs =
-        match ProjectDirs::from(DIRS_QUALIFIER, DIRS_ORGANIZATION, env!("CARGO_PKG_NAME")) {
-            Some(value) => value,
-            None => {
-                panic!("Unable to load project directory paths!")
-            }
-        };
+        ProjectDirs::from(DIRS_QUALIFIER, DIRS_ORGANIZATION, env!("CARGO_PKG_NAME"))
+            .unwrap_or_else(|| panic!("Unable to load project directory paths!"));
 
     let config_dir: &Path = project_dirs.config_dir();
     let config_dir_display: Display = config_dir.display();

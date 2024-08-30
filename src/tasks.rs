@@ -20,11 +20,11 @@ pub struct Task {
 impl fmt::Display for Task {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut display = String::new();
-        if self.frequency.len() > 0 {
+        if !self.frequency.is_empty() {
             display = format!("{} - ", self.frequency);
         }
         display.push_str(self.title.as_str());
-        if self.note.len() > 0 {
+        if !self.note.is_empty() {
             display = format!("{} ({})", display, self.note);
         }
         return write!(f, "{}", display);
@@ -85,13 +85,8 @@ impl TaskList {
                 println!("Warning: dir inside todo subdir: '{entry_path_display}'");
             } else {
                 (task_date, task) = fn_parse(&entry_path);
-                if !tasks.contains_key(&task_date) {
-                    tasks.insert(task_date, vec![]);
-                }
-                tasks
-                    .get_mut(&task_date)
-                    .expect("Failed to load task list day.")
-                    .push(task);
+                let date_task_list: &mut Vec<Task> = tasks.entry(task_date).or_default();
+                date_task_list.push(task);
             }
         }
     }

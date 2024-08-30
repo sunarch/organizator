@@ -2,10 +2,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use std::path::PathBuf;
+use std::path::Path;
 // dependencies
 use chrono::NaiveDate;
 // internal
 use crate::tasks::Task;
 
-pub type FnParse = dyn Fn(&PathBuf) -> (NaiveDate, Task);
+pub type FnParse = dyn Fn(&Path) -> (NaiveDate, Task);
