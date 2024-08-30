@@ -107,5 +107,19 @@ impl TaskSections {
                 }
             }
         }
+
+        // sort task lists
+
+        for (_, task_list) in &mut task_sections.overdue {
+            task_list.sort();
+        }
+        task_sections.today.sort();
+        for (_, task_list) in &mut task_sections.dated {
+            task_list.sort();
+        }
+        for (_, task_list) in &mut task_sections.later {
+            task_list.sort();
+        }
+        task_sections.inactive.sort();
     }
 }
