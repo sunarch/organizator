@@ -37,7 +37,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
 
     let mut task_note: String = String::new();
     for item in data.items {
-        if item.done == "" {
+        if item.done.is_empty() {
             task_note = item.title;
             break;
         }
