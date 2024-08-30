@@ -9,7 +9,7 @@ use std::path::{Display, PathBuf};
 use chrono::NaiveDate;
 // internal
 use crate::tasks::task::Task;
-use crate::tasks::{type_progressive, type_recurring, types};
+use crate::tasks::{type_progressive, type_recurring, type_simple, types};
 use crate::time;
 
 pub struct TaskSections {
@@ -43,6 +43,9 @@ impl TaskSections {
             &mut task_sections,
             &type_recurring::parse,
         );
+
+        let dir_path_simple: PathBuf = data_dir_todo.join(type_simple::DIR_NAME);
+        Self::load_subdir(&dir_path_simple, &mut task_sections, &type_simple::parse);
 
         return task_sections;
     }

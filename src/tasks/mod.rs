@@ -6,4 +6,5 @@ pub mod task;
 pub mod task_sections;
 pub mod type_progressive;
 pub mod type_recurring;
+pub mod type_simple;
 pub mod types;
