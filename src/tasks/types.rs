@@ -17,6 +17,10 @@ pub fn default_true() -> bool {
     return true;
 }
 
+pub fn default_zero() -> u16 {
+    return 0;
+}
+
 pub(crate) fn load<Data: for<'de> serde::Deserialize<'de>>(file_path: &Path) -> Option<Data> {
     let file = match File::open(file_path) {
         Err(why) => {

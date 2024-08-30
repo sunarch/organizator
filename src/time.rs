@@ -28,6 +28,10 @@ pub fn add_days(date: NaiveDate, count: u8) -> Option<NaiveDate> {
     return date.checked_add_days(Days::new(count as u64));
 }
 
+pub fn subtract_days(date: NaiveDate, count: u16) -> Option<NaiveDate> {
+    return date.checked_sub_days(Days::new(count as u64));
+}
+
 pub fn today() -> NaiveDate {
     let timestamp: DateTime<Local> = Local::now();
     return NaiveDate::from_ymd_opt(timestamp.year(), timestamp.month(), timestamp.day())

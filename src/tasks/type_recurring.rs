@@ -40,6 +40,9 @@ struct Data {
     snap_to: String,
     last: String,
 
+    #[serde(default = "types::default_zero")]
+    buffer_days: u16,
+
     #[serde(default = "types::default_true")]
     active: bool,
 }
@@ -116,6 +119,11 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
             return None;
         }
     };
+
+    if data.buffer_days > 0 {
+        task_date =
+            time::subtract_days(task_date, data.buffer_days).expect("Failed to subtract day.");
+    }
 
     return Some((
         task_date,
