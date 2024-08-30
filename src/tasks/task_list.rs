@@ -13,7 +13,8 @@ use crate::tasks::{type_progressive, type_recurring, types};
 use crate::time;
 
 pub struct TaskList {
-    pub due: BTreeMap<NaiveDate, Vec<Task>>,
+    pub overdue: BTreeMap<NaiveDate, Vec<Task>>,
+    pub today: Vec<Task>,
     pub dated: BTreeMap<NaiveDate, Vec<Task>>,
     pub later: BTreeMap<NaiveDate, Vec<Task>>,
     pub inactive: Vec<Task>,
@@ -22,7 +23,8 @@ pub struct TaskList {
 impl TaskList {
     pub fn load(data_dir_todo: PathBuf) -> Self {
         let mut task_list = TaskList {
-            due: Default::default(),
+            overdue: Default::default(),
+            today: Default::default(),
             dated: Default::default(),
             later: Default::default(),
             inactive: Default::default(),
@@ -31,7 +33,8 @@ impl TaskList {
         let dir_path_progressive: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
         Self::load_subdir(
             &dir_path_progressive,
-            &mut task_list.due,
+            &mut task_list.overdue,
+            &mut task_list.today,
             &mut task_list.dated,
             &mut task_list.later,
             &mut task_list.inactive,
@@ -41,7 +44,8 @@ impl TaskList {
         let dir_path_recurring: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
         Self::load_subdir(
             &dir_path_recurring,
-            &mut task_list.due,
+            &mut task_list.overdue,
+            &mut task_list.today,
             &mut task_list.dated,
             &mut task_list.later,
             &mut task_list.inactive,
@@ -53,7 +57,8 @@ impl TaskList {
 
     fn load_subdir(
         todo_subdir: &PathBuf,
-        due: &mut BTreeMap<NaiveDate, Vec<Task>>,
+        overdue: &mut BTreeMap<NaiveDate, Vec<Task>>,
+        tasks_today: &mut Vec<Task>,
         dated: &mut BTreeMap<NaiveDate, Vec<Task>>,
         later: &mut BTreeMap<NaiveDate, Vec<Task>>,
         tasks_inactive: &mut Vec<Task>,
@@ -73,6 +78,11 @@ impl TaskList {
 
         let mut task_date: NaiveDate;
         let mut task: Task;
+
+        let today: NaiveDate = time::today();
+        let last_dated: NaiveDate = today
+            .checked_add_months(time::MONTHS_12)
+            .expect("Failed to add months");
 
         for entry in fs::read_dir(todo_subdir).expect("Failed to iterate todo subdir.") {
             let entry: DirEntry = entry.expect("Failed to iterate dir entry.");
@@ -96,15 +106,13 @@ impl TaskList {
                     continue;
                 }
 
-                if task_date <= time::today() {
+                if task_date < today {
                     println!("DEBUG DUE: {} - {}", task_date, task.title);
-                    let tasks_due: &mut Vec<Task> = due.entry(task_date).or_default();
-                    tasks_due.push(task);
-                } else if task_date
-                    > time::today()
-                        .checked_add_months(time::MONTHS_12)
-                        .expect("Failed to add months")
-                {
+                    let tasks_overdue: &mut Vec<Task> = overdue.entry(task_date).or_default();
+                    tasks_overdue.push(task);
+                } else if task_date == today {
+                    tasks_today.push(task);
+                } else if task_date > last_dated {
                     println!("DEBUG LATER: {} - {}", task_date, task.title);
                     let tasks_later: &mut Vec<Task> = later.entry(task_date).or_default();
                     tasks_later.push(task);
@@ -113,6 +121,7 @@ impl TaskList {
                     let tasks_dated: &mut Vec<Task> = dated.entry(task_date).or_default();
                     tasks_dated.push(task);
                 }
+                println!("OVERDUE: {}", overdue.len());
             }
         }
     }

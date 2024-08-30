@@ -8,9 +8,9 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 // dependencies
-use crate::tasks::task::Task;
 use chrono::{DateTime, Datelike, Local, NaiveDate, Weekday};
 // internal
+use crate::tasks::task::Task;
 use crate::tasks::task_list::TaskList;
 use crate::time;
 use crate::words;
@@ -40,7 +40,9 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
     let task_date_today = NaiveDate::from_ymd_opt(dt_now.year(), dt_now.month(), dt_now.day())
         .expect("Failed to create NaiveDate");
 
-    print_section_general(task_list.due, "", task_date_today, file_ref);
+    print_section_general(task_list.overdue, "", file_ref);
+
+    print_section_list(task_list.today, ">>> TODAY <<<", file_ref);
 
     print_section_heading(dt_now.year(), file_ref);
     let dt_last: NaiveDate = task_date_today
@@ -69,7 +71,7 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
         match task_list.dated.get_key_value(&date_for_tasks) {
             None => {}
             Some((_, tasks)) => {
-                print_day_heading(&date_for_tasks, false, file_ref);
+                print_day_heading(&date_for_tasks, file_ref);
                 for task in tasks {
                     print_dual(&format!("- [ ] {}", task), file_ref);
                 }
@@ -81,7 +83,7 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
         }
     }
 
-    print_section_general(task_list.later, "later", task_date_today, file_ref);
+    print_section_general(task_list.later, "later", file_ref);
 
     print_section_list(task_list.inactive, "inactive", file_ref);
 
@@ -133,18 +135,15 @@ fn print_week_heading(dt_next: &NaiveDate, dt_sunday: &NaiveDate, file_ref: &mut
     }
 }
 
-fn print_day_heading(date_ref: &NaiveDate, at_today: bool, file_ref: &mut File) {
+fn print_day_heading(date_ref: &NaiveDate, file_ref: &mut File) {
     let weekday: String = date_ref.weekday().to_string();
-    let mut line: String = format!(
+    let line: String = format!(
         "{}-{:0>2}-{:0>2} ({})",
         date_ref.year(),
         date_ref.month(),
         date_ref.day(),
         weekday
     );
-    if at_today {
-        line = format!("{} {:>^20} TODAY {:<^20}", line, "", "");
-    }
 
     print_empty_line(file_ref);
     print_dual(&line, file_ref);
@@ -153,7 +152,6 @@ fn print_day_heading(date_ref: &NaiveDate, at_today: bool, file_ref: &mut File) 
 fn print_section_general(
     task_map: BTreeMap<NaiveDate, Vec<Task>>,
     heading: &str,
-    task_date_today: NaiveDate,
     file_ref: &mut File,
 ) {
     if task_map.is_empty() {
@@ -164,8 +162,7 @@ fn print_section_general(
         print_section_heading(heading, file_ref);
     }
     for (task_date, task_list) in task_map {
-        let at_today: bool = task_date == task_date_today;
-        print_day_heading(&task_date, at_today, file_ref);
+        print_day_heading(&task_date, file_ref);
         for task in task_list {
             print_dual(&format!("- [ ] {}", task), file_ref);
         }
@@ -180,7 +177,11 @@ fn print_section_list(task_list: Vec<Task>, heading: &str, file_ref: &mut File) 
     print_section_heading(heading, file_ref);
     print_empty_line(file_ref);
     for task in task_list {
-        print_dual(&format!("- {}", task), file_ref);
+        if task.active {
+            print_dual(&format!("- [ ] {}", task), file_ref);
+        } else {
+            print_dual(&format!("- {}", task), file_ref);
+        }
     }
 }
 
