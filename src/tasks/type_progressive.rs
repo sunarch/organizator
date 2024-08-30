@@ -44,6 +44,10 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
             last_date_string = item.done;
         }
     }
+    if task_note.is_empty() {
+        // no items with empty done: all items done
+        return None;
+    }
 
     let last_date = match NaiveDate::parse_from_str(last_date_string.as_str(), "%Y-%m-%d") {
         Err(_) => {
