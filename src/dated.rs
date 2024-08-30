@@ -54,13 +54,13 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
     }
 
     print_year_heading(dt_now.year(), file_ref);
-    let dt_last: DateTime<Local> = dt_now.checked_add_months(Months::new(12)).expect("Failed adding months");
-    let mut dt_next: DateTime<Local> = dt_now;
+    let dt_last: NaiveDate = task_date_today.checked_add_months(Months::new(12)).expect("Failed adding months");
+    let mut dt_next: NaiveDate = task_date_today;
     loop {
         dt_next = dt_next.checked_add_days(Days::new(1)).expect("Failed adding day");
 
         if dt_next.weekday() == Weekday::Mon {
-            let dt_sunday: DateTime<Local> = dt_next.checked_add_days(Days::new(6)).expect("Failed adding days");
+            let dt_sunday: NaiveDate = dt_next.checked_add_days(Days::new(6)).expect("Failed adding days");
             if format!("{:?}", dt_sunday.iso_week()).ends_with("01") {
                 print_year_heading(dt_sunday.year(), file_ref);
             }
@@ -115,7 +115,7 @@ fn print_year_heading(year: i32, file_ref: &mut File) {
     }
 }
 
-fn print_week_heading(dt_next: &DateTime<Local>, dt_sunday: &DateTime<Local>, file_ref: &mut File) {
+fn print_week_heading(dt_next: &NaiveDate, dt_sunday: &NaiveDate, file_ref: &mut File) {
     let mut date_range_display: String = format!("{} {}", words::month_abbrev(dt_next.month()), dt_next.day());
 
     if dt_next.month() == dt_sunday.month() {
