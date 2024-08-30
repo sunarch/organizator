@@ -82,7 +82,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
         _ => None,
     };
 
-    let planned_date: NaiveDate = match task_date_option {
+    let mut task_date: NaiveDate = match task_date_option {
         None => {
             println!("Unable to parse task frequency ({})", data.title);
             return None;
@@ -90,14 +90,12 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
         Some(date) => date,
     };
 
-    let mut task_date: NaiveDate = planned_date;
-
     let today: NaiveDate = time::today();
 
     match data.snap_to.as_str() {
         "none" => {}
         "today" => {
-            if planned_date < today {
+            if task_date < today {
                 task_date = today;
             }
         }
