@@ -30,6 +30,10 @@ impl fmt::Display for Frequency {
     }
 }
 
+pub(crate) fn default_false() -> bool {
+    return false;
+}
+
 pub(crate) fn load<Data: for<'de> serde::Deserialize<'de>>(file_path: &Path) -> Option<Data> {
     let file = match File::open(file_path) {
         Err(why) => {

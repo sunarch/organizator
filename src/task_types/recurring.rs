@@ -21,8 +21,10 @@ struct Data {
     description: String,
 
     frequency: Frequency,
-    snap_to_today: bool,
     last: String,
+
+    #[serde(default = "_task_types::default_false")]
+    snap_to_today: bool,
 }
 
 pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
