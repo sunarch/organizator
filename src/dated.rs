@@ -2,11 +2,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use std::collections::BTreeMap;
 use std::fmt::Display;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 // dependencies
+use crate::tasks::task::Task;
 use chrono::{DateTime, Datelike, Local, NaiveDate, Weekday};
 // internal
 use crate::tasks::task_list::TaskList;
@@ -38,14 +40,7 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
     let task_date_today = NaiveDate::from_ymd_opt(dt_now.year(), dt_now.month(), dt_now.day())
         .expect("Failed to create NaiveDate");
 
-    for (task_date, tasks) in task_list.due {
-        let at_today: bool = task_date == task_date_today;
-        print_day_heading(&task_date, at_today, file_ref);
-
-        for task in tasks {
-            print_dual(&format!("- [ ] {}", task), file_ref);
-        }
-    }
+    print_section_general(task_list.due, "", task_date_today, file_ref);
 
     print_section_heading(dt_now.year(), file_ref);
     let dt_last: NaiveDate = task_date_today
@@ -86,15 +81,7 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
         }
     }
 
-    if !task_list.later.is_empty() {
-        print_section_heading("later", file_ref);
-        for (task_date, tasks) in task_list.later {
-            print_day_heading(&task_date, false, file_ref);
-            for task in tasks {
-                print_dual(&format!("- [ ] {}", task), file_ref);
-            }
-        }
-    }
+    print_section_general(task_list.later, "later", task_date_today, file_ref);
 
     if !task_list.inactive.is_empty() {
         print_section_heading("inactive", file_ref);
@@ -167,6 +154,26 @@ fn print_day_heading(date_ref: &NaiveDate, at_today: bool, file_ref: &mut File) 
 
     print_empty_line(file_ref);
     print_dual(&line, file_ref);
+}
+
+fn print_section_general(
+    task_map: BTreeMap<NaiveDate, Vec<Task>>,
+    heading: &str,
+    task_date_today: NaiveDate,
+    file_ref: &mut File,
+) {
+    if !task_map.is_empty() {
+        if !heading.is_empty() {
+            print_section_heading(heading, file_ref);
+        }
+        for (task_date, task_list) in task_map {
+            let at_today: bool = task_date == task_date_today;
+            print_day_heading(&task_date, at_today, file_ref);
+            for task in task_list {
+                print_dual(&format!("- [ ] {}", task), file_ref);
+            }
+        }
+    }
 }
 
 fn print_empty_line(file_ref: &mut File) {
