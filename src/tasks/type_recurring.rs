@@ -100,7 +100,9 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
             }
         }
         "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun" => {
-            task_date = today;
+            if task_date < today {
+                task_date = today;
+            }
             while !task_date.weekday().to_string().eq(&data.snap_to) {
                 task_date = time::add_days(task_date, 1).expect("Failed to add day.");
             }
