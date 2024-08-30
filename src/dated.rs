@@ -83,13 +83,7 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
 
     print_section_general(task_list.later, "later", task_date_today, file_ref);
 
-    if !task_list.inactive.is_empty() {
-        print_section_heading("inactive", file_ref);
-        print_empty_line(file_ref);
-        for task in task_list.inactive {
-            print_dual(&format!("- {}", task), file_ref);
-        }
-    }
+    print_section_list(task_list.inactive, "inactive", file_ref);
 
     print_bottom_line(file_ref);
 }
@@ -173,6 +167,18 @@ fn print_section_general(
                 print_dual(&format!("- [ ] {}", task), file_ref);
             }
         }
+    }
+}
+
+fn print_section_list(task_list: Vec<Task>, heading: &str, file_ref: &mut File) {
+    if task_list.is_empty() {
+        return;
+    }
+
+    print_section_heading(heading, file_ref);
+    print_empty_line(file_ref);
+    for task in task_list {
+        print_dual(&format!("- {}", task), file_ref);
     }
 }
 
