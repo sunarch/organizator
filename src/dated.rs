@@ -156,16 +156,18 @@ fn print_section_general(
     task_date_today: NaiveDate,
     file_ref: &mut File,
 ) {
-    if !task_map.is_empty() {
-        if !heading.is_empty() {
-            print_section_heading(heading, file_ref);
-        }
-        for (task_date, task_list) in task_map {
-            let at_today: bool = task_date == task_date_today;
-            print_day_heading(&task_date, at_today, file_ref);
-            for task in task_list {
-                print_dual(&format!("- [ ] {}", task), file_ref);
-            }
+    if task_map.is_empty() {
+        return;
+    }
+
+    if !heading.is_empty() {
+        print_section_heading(heading, file_ref);
+    }
+    for (task_date, task_list) in task_map {
+        let at_today: bool = task_date == task_date_today;
+        print_day_heading(&task_date, at_today, file_ref);
+        for task in task_list {
+            print_dual(&format!("- [ ] {}", task), file_ref);
         }
     }
 }
