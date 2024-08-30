@@ -27,7 +27,7 @@ pub(crate) fn run() -> io::Result<()> {
     let program_name: &str = env!("CARGO_PKG_NAME");
     loop {
         terminal.draw(|frame: &mut Frame| {
-            let area: Rect = frame.size();
+            let area: Rect = frame.area();
             frame.render_widget(
                 Paragraph::new(format!("{program_name} (press 'q' to quit)"))
                     .light_green()
