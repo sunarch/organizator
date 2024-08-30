@@ -10,23 +10,30 @@ use chrono::NaiveDate;
 // internal
 use crate::tasks::task::Task;
 use crate::tasks::{type_progressive, type_recurring, types};
+use crate::time;
 
 pub struct TaskList {
+    pub due: BTreeMap<NaiveDate, Vec<Task>>,
     pub dated: BTreeMap<NaiveDate, Vec<Task>>,
+    pub later: BTreeMap<NaiveDate, Vec<Task>>,
     pub inactive: Vec<Task>,
 }
 
 impl TaskList {
     pub fn load(data_dir_todo: PathBuf) -> Self {
         let mut task_list = TaskList {
-            dated: BTreeMap::new(),
+            due: Default::default(),
+            dated: Default::default(),
+            later: Default::default(),
             inactive: Default::default(),
         };
 
         let dir_path_progressive: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
         Self::load_subdir(
             &dir_path_progressive,
+            &mut task_list.due,
             &mut task_list.dated,
+            &mut task_list.later,
             &mut task_list.inactive,
             &type_progressive::parse,
         );
@@ -34,7 +41,9 @@ impl TaskList {
         let dir_path_recurring: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
         Self::load_subdir(
             &dir_path_recurring,
+            &mut task_list.due,
             &mut task_list.dated,
+            &mut task_list.later,
             &mut task_list.inactive,
             &type_recurring::parse,
         );
@@ -44,7 +53,9 @@ impl TaskList {
 
     fn load_subdir(
         todo_subdir: &PathBuf,
-        tasks: &mut BTreeMap<NaiveDate, Vec<Task>>,
+        due: &mut BTreeMap<NaiveDate, Vec<Task>>,
+        dated: &mut BTreeMap<NaiveDate, Vec<Task>>,
+        later: &mut BTreeMap<NaiveDate, Vec<Task>>,
         tasks_inactive: &mut Vec<Task>,
         fn_parse: &types::FnParse,
     ) {
@@ -67,6 +78,7 @@ impl TaskList {
             let entry: DirEntry = entry.expect("Failed to iterate dir entry.");
             let entry_path: PathBuf = entry.path();
             let entry_path_display: Display = entry_path.display();
+            println!("DEBUG: {}", entry_path_display);
             if entry_path.is_dir() {
                 println!("Warning: dir inside todo subdir: '{entry_path_display}'");
             } else {
@@ -76,11 +88,30 @@ impl TaskList {
                     }
                     Some((task_date, task)) => (task_date, task),
                 };
-                if task.active {
-                    let date_task_list: &mut Vec<Task> = tasks.entry(task_date).or_default();
-                    date_task_list.push(task);
-                } else {
+
+                println!("DEBUG: {} - {}", task_date, task.title);
+
+                if !task.active {
                     tasks_inactive.push(task);
+                    continue;
+                }
+
+                if task_date <= time::today() {
+                    println!("DEBUG DUE: {} - {}", task_date, task.title);
+                    let tasks_due: &mut Vec<Task> = due.entry(task_date).or_default();
+                    tasks_due.push(task);
+                } else if task_date
+                    > time::today()
+                        .checked_add_months(time::MONTHS_12)
+                        .expect("Failed to add months")
+                {
+                    println!("DEBUG LATER: {} - {}", task_date, task.title);
+                    let tasks_later: &mut Vec<Task> = later.entry(task_date).or_default();
+                    tasks_later.push(task);
+                } else {
+                    println!("DEBUG DATED: {} - {}", task_date, task.title);
+                    let tasks_dated: &mut Vec<Task> = dated.entry(task_date).or_default();
+                    tasks_dated.push(task);
                 }
             }
         }

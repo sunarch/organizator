@@ -37,25 +37,10 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
     let dt_now: DateTime<Local> = Local::now();
     let task_date_today = NaiveDate::from_ymd_opt(dt_now.year(), dt_now.month(), dt_now.day())
         .expect("Failed to create NaiveDate");
-    let mut task_date_current =
-        NaiveDate::from_ymd_opt(0, 1, 1).expect("Failed to create NaiveDate");
-    let mut tasks_iter = task_list.dated.iter();
-    loop {
-        let (task_date_ref, tasks) = match tasks_iter.next() {
-            None => {
-                break;
-            }
-            Some((task_dt_ref, tasks)) => (task_dt_ref, tasks),
-        };
-        if task_date_ref > &task_date_today {
-            break;
-        }
 
-        if *task_date_ref != task_date_current {
-            task_date_current = *task_date_ref;
-            let at_today: bool = task_date_ref == &task_date_today;
-            print_day_heading(task_date_ref, at_today, file_ref);
-        }
+    for (task_date, tasks) in task_list.due {
+        let at_today: bool = task_date == task_date_today;
+        print_day_heading(&task_date, at_today, file_ref);
 
         for task in tasks {
             print_dual(&format!("- [ ] {}", task), file_ref);
@@ -98,6 +83,16 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
 
         if dt_next.eq(&dt_last) {
             break;
+        }
+    }
+
+    if !task_list.later.is_empty() {
+        print_section_heading("later", file_ref);
+        for (task_date, tasks) in task_list.later {
+            print_day_heading(&task_date, false, file_ref);
+            for task in tasks {
+                print_dual(&format!("- [ ] {}", task), file_ref);
+            }
         }
     }
 
