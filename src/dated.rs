@@ -9,6 +9,7 @@ use std::path::PathBuf;
 use chrono::{Datelike, DateTime, Local, NaiveDate, Months, Days, Weekday};
 
 use crate::tasks::TaskList;
+use crate::time;
 use crate::words;
 
 const MONTHS_12: Months = Months::new(12);
@@ -119,12 +120,12 @@ fn print_year_heading(year: i32, file_ref: &mut File) {
 }
 
 fn print_week_heading(dt_next: &NaiveDate, dt_sunday: &NaiveDate, file_ref: &mut File) {
-    let mut date_range_display: String = format!("{} {}", words::month_abbrev(dt_next.month()), dt_next.day());
+    let mut date_range_display: String = format!("{} {}", time::month_abbrev(dt_next.month()), dt_next.day());
 
     if dt_next.month() == dt_sunday.month() {
         date_range_display = format!("{}-{}.",date_range_display, dt_sunday.day());
     } else {
-        date_range_display = format!("{}. - {} {}.", date_range_display, words::month_abbrev(dt_sunday.month()), dt_sunday.day());
+        date_range_display = format!("{}. - {} {}.", date_range_display, time::month_abbrev(dt_sunday.month()), dt_sunday.day());
     }
 
     print_empty_line(file_ref);
