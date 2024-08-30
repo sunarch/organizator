@@ -57,11 +57,10 @@ impl TaskSections {
             println!("Todo subdir '{dir_path_display}' not found, skipping.");
             return;
         }
-        assert!(
-            todo_subdir.is_dir(),
-            "Todo subdir '{}' is not a directory!",
-            dir_path_display
-        );
+        if !todo_subdir.is_dir() {
+            println!("Todo subdir '{dir_path_display}' is not a directory, skipping.");
+            return;
+        }
         println!("Found todo subdir '{dir_path_display}'");
 
         let mut task_date: NaiveDate;
