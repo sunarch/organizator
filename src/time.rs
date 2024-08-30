@@ -2,7 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use chrono::Month;
+use chrono::{Months, Month, Days};
+
+// time intervals for dated display
+pub const MONTHS_12: Months = Months::new(12);
+pub const DAYS_1: Days = Days::new(1);
+pub const DAYS_6: Days = Days::new(6);
 
 pub fn month_abbrev(month: u32) -> String {
     let month: Month = Month::try_from(month as u8).expect("Failed to convert month.");

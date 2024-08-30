@@ -6,15 +6,11 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
-use chrono::{Datelike, DateTime, Local, NaiveDate, Months, Days, Weekday};
+use chrono::{Datelike, DateTime, Local, NaiveDate, Weekday};
 
 use crate::tasks::TaskList;
 use crate::time;
 use crate::words;
-
-const MONTHS_12: Months = Months::new(12);
-const DAYS_1: Days = Days::new(1);
-const DAYS_6: Days = Days::new(6);
 
 pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
     let output_file_name: &str = "datumos.md";
@@ -58,13 +54,13 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
     }
 
     print_year_heading(dt_now.year(), file_ref);
-    let dt_last: NaiveDate = task_date_today.checked_add_months(MONTHS_12).expect("Failed adding months");
+    let dt_last: NaiveDate = task_date_today.checked_add_months(time::MONTHS_12).expect("Failed adding months");
     let mut dt_next: NaiveDate = task_date_today;
     loop {
-        dt_next = dt_next.checked_add_days(DAYS_1).expect("Failed adding day");
+        dt_next = dt_next.checked_add_days(time::DAYS_1).expect("Failed adding day");
 
         if dt_next.weekday() == Weekday::Mon {
-            let dt_sunday: NaiveDate = dt_next.checked_add_days(DAYS_6).expect("Failed adding days");
+            let dt_sunday: NaiveDate = dt_next.checked_add_days(time::DAYS_6).expect("Failed adding days");
             if format!("{:?}", dt_sunday.iso_week()).ends_with("01") {
                 print_year_heading(dt_sunday.year(), file_ref);
             }
