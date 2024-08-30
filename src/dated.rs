@@ -52,7 +52,6 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
 
         if *task_date_ref != task_date_current {
             task_date_current = *task_date_ref;
-            print_empty_line(file_ref);
             let at_today: bool = task_date_ref == &task_date_today;
             print_day_heading(task_date_ref, at_today, file_ref);
         }
@@ -93,7 +92,6 @@ pub fn print_list(task_list: TaskList, data_dir_todo_output: PathBuf) {
                 for task in tasks {
                     print_dual(&format!("- [ ] {}", task), file_ref);
                 }
-                print_empty_line(file_ref);
             }
         }
 
@@ -148,7 +146,6 @@ fn print_week_heading(dt_next: &NaiveDate, dt_sunday: &NaiveDate, file_ref: &mut
         let line: String = format!("#### {:?} ({})", dt_next.iso_week(), date_range_display);
         print_dual(&line, file_ref);
     }
-    print_empty_line(file_ref);
 }
 
 fn print_day_heading(date_ref: &NaiveDate, at_today: bool, file_ref: &mut File) {
@@ -163,6 +160,8 @@ fn print_day_heading(date_ref: &NaiveDate, at_today: bool, file_ref: &mut File) 
     if at_today {
         line = format!("{} {:>^20} TODAY {:<^20}", line, "", "");
     }
+
+    print_empty_line(file_ref);
     print_dual(&line, file_ref);
 }
 
