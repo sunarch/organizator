@@ -2,7 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use std::fmt;
 use std::fs::File;
 use std::path::Path;
 // dependencies
@@ -16,22 +15,6 @@ pub type FnParse = dyn Fn(&Path) -> Option<(NaiveDate, Task)>;
 
 pub fn default_true() -> bool {
     return true;
-}
-
-#[derive(serde::Serialize, serde::Deserialize)]
-pub(crate) struct Frequency {
-    pub(crate) number: u8,
-    pub(crate) name: String,
-}
-
-impl fmt::Display for Frequency {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        return if self.number == 1 {
-            write!(f, "{}ly", self.name)
-        } else {
-            write!(f, "{}-{}", self.number, self.name)
-        };
-    }
 }
 
 pub(crate) fn load<Data: for<'de> serde::Deserialize<'de>>(file_path: &Path) -> Option<Data> {

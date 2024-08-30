@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use std::fmt;
 use std::path::Path;
 // dependencies
 use chrono::{Datelike, NaiveDate};
@@ -9,10 +10,25 @@ use serde;
 // internal
 use crate::tasks::task::Task;
 use crate::tasks::types;
-use crate::tasks::types::{default_true, Frequency};
 use crate::time;
 
 pub(crate) const DIR_NAME: &str = "recurring";
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub(crate) struct Frequency {
+    pub(crate) number: u8,
+    pub(crate) name: String,
+}
+
+impl fmt::Display for Frequency {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        return if self.number == 1 {
+            write!(f, "{}ly", self.name)
+        } else {
+            write!(f, "{}-{}", self.number, self.name)
+        };
+    }
+}
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct Data {
@@ -24,7 +40,7 @@ struct Data {
     snap_to: String,
     last: String,
 
-    #[serde(default = "default_true")]
+    #[serde(default = "types::default_true")]
     active: bool,
 }
 
