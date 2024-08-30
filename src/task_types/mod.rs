@@ -5,4 +5,3 @@
 pub mod _task_types;
 pub mod progressive;
 pub mod recurring;
-pub mod serial;

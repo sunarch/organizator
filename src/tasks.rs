@@ -9,7 +9,7 @@ use std::path::{Display, PathBuf};
 // dependencies
 use chrono::NaiveDate;
 // internal
-use crate::task_types::{_task_types, progressive, recurring, serial};
+use crate::task_types::{_task_types, progressive, recurring};
 
 pub struct Task {
     pub frequency: String,
@@ -51,9 +51,6 @@ impl TaskList {
         let dir_path_recurring: PathBuf = data_dir_todo.join(recurring::DIR_NAME);
         Self::load_subdir(&dir_path_recurring, &mut task_list.dated, &recurring::parse);
 
-        let dir_path_serial: PathBuf = data_dir_todo.join(serial::DIR_NAME);
-        Self::load_subdir(&dir_path_serial, &mut task_list.dated, &serial::parse);
-
         return task_list;
     }
 
@@ -84,7 +81,12 @@ impl TaskList {
             if entry_path.is_dir() {
                 println!("Warning: dir inside todo subdir: '{entry_path_display}'");
             } else {
-                (task_date, task) = fn_parse(&entry_path);
+                (task_date, task) = match fn_parse(&entry_path) {
+                    None => {
+                        continue;
+                    }
+                    Some((task_date, task)) => (task_date, task),
+                };
                 let date_task_list: &mut Vec<Task> = tasks.entry(task_date).or_default();
                 date_task_list.push(task);
             }

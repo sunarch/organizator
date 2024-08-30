@@ -5,26 +5,51 @@
 use std::path::Path;
 // dependencies
 use chrono::{DateTime, Datelike, Local, NaiveDate};
+use serde;
 // internal
+use crate::task_types::_task_types;
 use crate::tasks::Task;
 
 pub(crate) const DIR_NAME: &str = "progressive";
 
-pub(crate) fn parse(file_path: &Path) -> (NaiveDate, Task) {
+#[derive(serde::Serialize, serde::Deserialize)]
+struct ProgressiveItem {
+    title: String,
+    done: String,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+struct Data {
+    title: String,
+    description: String,
+    items: Vec<ProgressiveItem>,
+}
+
+pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
     let timestamp: DateTime<Local> = Local::now();
-    return (
+
+    let data: Data = match _task_types::load(file_path) {
+        None => {
+            return None;
+        }
+        Some(data) => data,
+    };
+
+    let mut task_note: String = String::new();
+    for item in data.items {
+        if item.done == "" {
+            task_note = item.title;
+            break;
+        }
+    }
+
+    return Some((
         NaiveDate::from_ymd_opt(timestamp.year(), timestamp.month(), timestamp.day())
             .expect("Failed to create NaiveDate"),
         Task {
-            frequency: String::from("frequency"),
-            title: String::from(
-                file_path
-                    .file_name()
-                    .expect("Failed to parse filename.")
-                    .to_str()
-                    .expect("Failed to convert string."),
-            ),
-            note: String::from("note"),
+            frequency: String::from("(PR)"),
+            title: data.title,
+            note: task_note,
         },
-    );
+    ));
 }
