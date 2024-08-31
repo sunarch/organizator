@@ -43,8 +43,8 @@ struct Data {
     #[serde(default = "types::default_string")]
     snap_to: String,
 
-    #[serde(default = "types::default_zero")]
-    buffer_days: u16,
+    #[serde(default = "types::default_zero_i32")]
+    buffer_days: i32,
 
     #[serde(default = "types::default_vec")]
     subtasks: Vec<Subtask>,
@@ -122,9 +122,9 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
         }
     };
 
-    if data.buffer_days > 0 {
-        task_date =
-            time::subtract_days(task_date, data.buffer_days).expect("Failed to subtract day.");
+    if data.buffer_days != 0 {
+        task_date = time::adjust_by_buffer_days(task_date, data.buffer_days)
+            .expect("Failed to subtract day.");
     }
 
     return Some((

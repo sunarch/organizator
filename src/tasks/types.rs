@@ -17,7 +17,7 @@ pub fn default_true() -> bool {
     return true;
 }
 
-pub fn default_zero() -> u16 {
+pub fn default_zero_i32() -> i32 {
     return 0;
 }
 

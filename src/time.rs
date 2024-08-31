@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use std::cmp::Ordering;
 // dependencies
 use chrono::{DateTime, Datelike, Days, Local, Month, Months, NaiveDate};
 
@@ -28,8 +29,12 @@ pub fn add_days(date: NaiveDate, count: u8) -> Option<NaiveDate> {
     return date.checked_add_days(Days::new(count as u64));
 }
 
-pub fn subtract_days(date: NaiveDate, count: u16) -> Option<NaiveDate> {
-    return date.checked_sub_days(Days::new(count as u64));
+pub fn adjust_by_buffer_days(date: NaiveDate, count: i32) -> Option<NaiveDate> {
+    return match count.cmp(&0) {
+        Ordering::Equal => Some(date),
+        Ordering::Greater => date.checked_sub_days(Days::new(count as u64)),
+        Ordering::Less => date.checked_add_days(Days::new(count.unsigned_abs() as u64)),
+    };
 }
 
 pub fn today() -> NaiveDate {
