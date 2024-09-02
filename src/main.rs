@@ -4,6 +4,7 @@
 
 mod config;
 mod dated;
+mod logging;
 mod tasks;
 mod time;
 mod tui;
@@ -12,6 +13,7 @@ mod words;
 // internal
 use crate::tasks::task_data::TaskData;
 
+const OPTION_DEBUG: &str = "--debug";
 const OPTION_VERSION_SHORT: &str = "-v";
 const OPTION_VERSION_LONG: &str = "--version";
 const OPTION_DATED: &str = "--dated";
@@ -27,7 +29,9 @@ fn main() {
     let mut run_tui: bool = false;
 
     if let Some(argument) = std::env::args().nth(1) {
-        if argument == OPTION_VERSION_SHORT || argument == OPTION_VERSION_LONG {
+        if argument == OPTION_DEBUG {
+            logging::set_debug();
+        } else if argument == OPTION_VERSION_SHORT || argument == OPTION_VERSION_LONG {
             print_version();
             return;
         } else if argument == OPTION_DATED {

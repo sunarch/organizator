@@ -8,6 +8,7 @@ use std::path::Path;
 use chrono::NaiveDate;
 use serde;
 // internal
+use crate::logging;
 use crate::tasks::task::Task;
 use crate::tasks::types;
 use crate::tasks::types::Subtask;
@@ -63,20 +64,20 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
 
     let last_date = match NaiveDate::parse_from_str(data.last.as_str(), "%Y-%m-%d") {
         Err(_) => {
-            println!(
+            logging::error(format!(
                 "Failed to convert last date in recurring task: '{}' ({})",
                 data.last, data.title
-            );
+            ));
             return None;
         }
         Ok(date) => date,
     };
 
     if data.frequency.number < 1 {
-        println!(
+        logging::error(format!(
             "Invalid frequency number: '{}' ({})",
             data.frequency.number, data.title
-        );
+        ));
         return None;
     }
 
@@ -90,7 +91,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
 
     let mut task_date: NaiveDate = match task_date_option {
         None => {
-            println!("Unable to parse task frequency ({})", data.title);
+            logging::error(format!("Unable to parse task frequency ({})", data.title));
             return None;
         }
         Some(date) => date,
@@ -114,10 +115,10 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
             }
         }
         _ => {
-            println!(
+            logging::error(format!(
                 "Unable to parse task snap_to: '{}' ({})",
                 data.snap_to, data.title
-            );
+            ));
             return None;
         }
     };

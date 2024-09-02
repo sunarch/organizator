@@ -8,6 +8,8 @@ use std::path::{Display, Path, PathBuf};
 use std::{fs, io};
 // dependencies
 use directories_next::ProjectDirs;
+// internal
+use crate::logging;
 
 const DIRS_QUALIFIER: &str = "dev";
 const DIRS_ORGANIZATION: &str = "sunarch";
@@ -20,14 +22,14 @@ fn load_dir() -> PathBuf {
     let config_dir: &Path = project_dirs.config_dir();
     let config_dir_display: Display = config_dir.display();
     if config_dir.exists() {
-        println!("Found config dir '{config_dir_display}'")
+        logging::info(format!("Found config dir '{config_dir_display}'"));
     } else {
         match fs::create_dir_all(config_dir) {
             Ok(_) => {
-                println!("Created config dir '{config_dir_display}'")
+                logging::info(format!("Created config dir '{config_dir_display}'"));
             }
             Err(_) => {
-                panic!("Unable to load or create project config directory!")
+                panic!("Unable to load or create project config directory!");
             }
         }
     }
@@ -133,7 +135,9 @@ fn load_data_dir_single(
     }
 
     let data_dir_display: Display = data_dir.display();
-    println!("Loaded data dir for '{config_file_purpose}': '{data_dir_display}'");
+    logging::info(format!(
+        "Loaded data dir for '{config_file_purpose}': '{data_dir_display}'"
+    ));
 
     return data_dir;
 }

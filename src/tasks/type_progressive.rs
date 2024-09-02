@@ -7,6 +7,7 @@ use std::path::Path;
 use chrono::NaiveDate;
 use serde;
 // internal
+use crate::logging;
 use crate::tasks::task::Task;
 use crate::tasks::types;
 use crate::time;
@@ -51,10 +52,10 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
 
     let last_date = match NaiveDate::parse_from_str(last_date_string.as_str(), "%Y-%m-%d") {
         Err(_) => {
-            println!(
+            logging::error(format!(
                 "Failed to convert last date in progressive task: '{}' ({})",
                 last_date_string, data.title
-            );
+            ));
             return None;
         }
         Ok(date) => date,

@@ -9,6 +9,7 @@ use chrono::NaiveDate;
 use serde;
 use serde_json;
 // internal
+use crate::logging;
 use crate::tasks::task::Task;
 
 pub type FnParse = dyn Fn(&Path) -> Option<(NaiveDate, Task)>;
@@ -38,11 +39,11 @@ pub(crate) struct Subtask {
 pub(crate) fn load<Data: for<'de> serde::Deserialize<'de>>(file_path: &Path) -> Option<Data> {
     let file = match File::open(file_path) {
         Err(why) => {
-            println!(
+            logging::error(format!(
                 "Couldn't open todo file '{}' \n{}",
                 file_path.display(),
                 why
-            );
+            ));
             return None;
         }
         Ok(file) => file,
@@ -50,11 +51,11 @@ pub(crate) fn load<Data: for<'de> serde::Deserialize<'de>>(file_path: &Path) -> 
 
     match serde_json::from_reader(file) {
         Err(why) => {
-            println!(
+            logging::error(format!(
                 "Couldn't parse todo file '{}' \n{}",
                 file_path.display(),
                 why
-            );
+            ));
             return None;
         }
         Ok(data) => Some(data),

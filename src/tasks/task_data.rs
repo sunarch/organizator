@@ -8,6 +8,7 @@ use std::path::{Display, PathBuf};
 // dependencies
 use chrono::NaiveDate;
 // internal
+use crate::logging;
 use crate::tasks::task::Task;
 use crate::tasks::{type_progressive, type_recurring, type_simple, types};
 use crate::time;
@@ -91,14 +92,18 @@ impl TaskSections {
     ) {
         let dir_path_display: Display = todo_subdir.display();
         if !todo_subdir.exists() {
-            println!("Todo subdir '{dir_path_display}' not found, skipping.");
+            logging::warning(format!(
+                "Todo subdir '{dir_path_display}' not found, skipping."
+            ));
             return;
         }
         if !todo_subdir.is_dir() {
-            println!("Todo subdir '{dir_path_display}' is not a directory, skipping.");
+            logging::warning(format!(
+                "Todo subdir '{dir_path_display}' is not a directory, skipping."
+            ));
             return;
         }
-        println!("Found todo subdir '{dir_path_display}'");
+        logging::info(format!("Found todo subdir '{dir_path_display}'"));
 
         let mut task_date: NaiveDate;
         let mut task: Task;
@@ -108,7 +113,7 @@ impl TaskSections {
             let entry_path: PathBuf = entry.path();
             let entry_path_display: Display = entry_path.display();
             if entry_path.is_dir() {
-                println!("Warning: dir inside todo subdir: '{entry_path_display}'");
+                logging::warning(format!("Dir inside todo subdir: '{entry_path_display}'"));
             } else {
                 (task_date, task) = match fn_parse(&entry_path) {
                     None => {

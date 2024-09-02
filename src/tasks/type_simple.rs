@@ -4,6 +4,7 @@
 
 use std::path::Path;
 // dependencies
+use crate::logging;
 use chrono::NaiveDate;
 use serde;
 // internal
@@ -36,10 +37,10 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
 
     let due_date = match NaiveDate::parse_from_str(data.due.as_str(), "%Y-%m-%d") {
         Err(_) => {
-            println!(
+            logging::error(format!(
                 "Failed to convert due date in simple task: '{}' ({})",
                 data.due, data.title
-            );
+            ));
             return None;
         }
         Ok(date) => date,

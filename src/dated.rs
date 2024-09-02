@@ -10,6 +10,7 @@ use std::path::PathBuf;
 // dependencies
 use chrono::{Datelike, NaiveDate};
 // internal
+use crate::logging;
 use crate::tasks::task::Task;
 use crate::tasks::task_data::TaskData;
 use crate::time;
@@ -18,10 +19,10 @@ use crate::words;
 pub fn print_to_file(task_data_ref: &TaskData, data_dir_todo_output: PathBuf) {
     let output_file_name: &str = "dated.md";
     let output_file_path: PathBuf = data_dir_todo_output.join(output_file_name);
-    println!(
+    logging::info(format!(
         "Writing to output file '{}",
         output_file_path.clone().display()
-    );
+    ));
     let file: File = match File::create(output_file_path.clone()) {
         Err(why) => {
             panic!(
