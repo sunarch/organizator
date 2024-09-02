@@ -35,6 +35,7 @@ fn main() {
             print_version();
             return;
         } else if argument == OPTION_DATED {
+            logging::set_warning();
             print_dated = true;
         } else if argument == OPTION_TUI {
             run_tui = true;

@@ -16,6 +16,14 @@ const LOG_LEVEL_DEBUG: u8 = 4;
 
 static LOG_LEVEL: AtomicU8 = AtomicU8::new(LOG_LEVEL_INFO);
 
+pub fn set_warning() {
+    LOG_LEVEL.store(LOG_LEVEL_WARNING, Ordering::Relaxed);
+}
+
+pub fn set_debug() {
+    LOG_LEVEL.store(LOG_LEVEL_DEBUG, Ordering::Relaxed);
+}
+
 pub fn error(msg: String) {
     if LOG_LEVEL.load(Ordering::Relaxed) >= LOG_LEVEL_ERROR {
         log("ERROR  ", &msg);
@@ -38,10 +46,6 @@ pub fn debug(msg: String) {
     if LOG_LEVEL.load(Ordering::Relaxed) >= LOG_LEVEL_DEBUG {
         log("DEBUG  ", &msg);
     }
-}
-
-pub fn set_debug() {
-    LOG_LEVEL.store(LOG_LEVEL_DEBUG, Ordering::Relaxed);
 }
 
 fn log(prefix: &str, msg_ref: &String) {
