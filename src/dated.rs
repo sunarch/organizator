@@ -58,30 +58,22 @@ fn print_list(task_data: &TaskData, file_opt_ref: &mut Option<File>) {
 
     print_section_heading(task_data.dates.today.year(), file_opt_ref);
     print_section_general(&task_data.sections.dated_current_week, "", file_opt_ref);
-    let mut dt_next: NaiveDate = task_data.dates.first_in_dated_full_weeks;
-    loop {
-        if dt_next > task_data.dates.last_dated {
-            break;
+    for week_ref in &task_data.dates.dated_weeks {
+        if time::is_day_in_first_week_of_year(&week_ref.last_day()) {
+            print_section_heading(week_ref.last_day().year(), file_opt_ref);
         }
 
-        if time::is_monday(&dt_next) {
-            let dt_sunday: NaiveDate = time::monday_to_sunday(&dt_next);
-            if time::is_day_in_first_week_of_year(&dt_sunday) {
-                print_section_heading(dt_sunday.year(), file_opt_ref);
-            }
+        print_week_heading(&week_ref.first_day(), file_opt_ref);
 
-            print_week_heading(&dt_next, file_opt_ref)
-        }
-
-        match task_data.sections.dated.get_key_value(&dt_next) {
-            None => {}
-            Some((_, task_list)) => {
-                print_day_heading(&dt_next, file_opt_ref);
-                print_task_list(task_list, file_opt_ref);
+        for day in time::iterate_week(week_ref) {
+            match task_data.sections.dated.get_key_value(&day) {
+                None => {}
+                Some((_, task_list)) => {
+                    print_day_heading(&day, file_opt_ref);
+                    print_task_list(task_list, file_opt_ref);
+                }
             }
         }
-
-        dt_next = time::increment_day(&dt_next);
     }
 
     print_section_general(&task_data.sections.later, "later", file_opt_ref);

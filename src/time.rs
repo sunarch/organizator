@@ -4,12 +4,12 @@
 
 use std::cmp::Ordering;
 // dependencies
-use chrono::{DateTime, Datelike, Days, Local, Month, Months, NaiveDate, Weekday};
+use chrono::{DateTime, Datelike, Days, Local, Month, Months, NaiveDate, NaiveWeek, Weekday};
 
 // time intervals for dated display
 const MONTHS_12: Months = Months::new(12);
-const DAYS_1: Days = Days::new(1);
 const DAYS_6: Days = Days::new(6);
+const DAYS_7: Days = Days::new(7);
 
 // time intervals for task frequency
 
@@ -29,10 +29,14 @@ pub fn add_days(date: NaiveDate, count: u8) -> Option<NaiveDate> {
     return date.checked_add_days(Days::new(count as u64));
 }
 
-pub fn increment_day(date_ref: &NaiveDate) -> NaiveDate {
+pub fn increment_by_one_week(date_ref: &NaiveDate) -> NaiveDate {
     return date_ref
-        .checked_add_days(DAYS_1)
-        .expect("Failed to add day.");
+        .checked_add_days(DAYS_7)
+        .expect("Failed to add days.");
+}
+
+pub fn week_of_day(date_ref: &NaiveDate) -> NaiveWeek {
+    return date_ref.week(Weekday::Mon);
 }
 
 pub fn monday_to_sunday(date_ref: &NaiveDate) -> NaiveDate {
@@ -79,6 +83,11 @@ pub fn next_monday(date_ref: &NaiveDate) -> NaiveDate {
     } else {
         *date_ref
     };
+}
+
+pub fn iterate_week(week_ref: &NaiveWeek) -> impl Iterator<Item = NaiveDate> {
+    const DAYS_IN_WEEK: usize = 7;
+    return week_ref.first_day().iter_days().take(DAYS_IN_WEEK);
 }
 
 pub fn month_abbrev(month: u32) -> String {
@@ -134,10 +143,6 @@ pub fn week_timestamp(date_ref: &NaiveDate) -> String {
     };
 
     return format!("#### {:?} ({})", date_monday.iso_week(), date_range_display);
-}
-
-pub fn is_monday(date_ref: &NaiveDate) -> bool {
-    return date_ref.weekday() == Weekday::Mon;
 }
 
 pub fn is_day_in_first_week_of_year(date_ref: &NaiveDate) -> bool {

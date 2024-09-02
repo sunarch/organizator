@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 use std::fs::{self, DirEntry};
 use std::path::{Display, PathBuf};
 // dependencies
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveWeek};
 // internal
 use crate::logging;
 use crate::tasks::task::Task;
@@ -30,6 +30,7 @@ pub struct TaskDates {
     pub today: NaiveDate,
     pub first_in_dated_full_weeks: NaiveDate,
     pub last_dated: NaiveDate,
+    pub dated_weeks: Vec<NaiveWeek>,
 }
 
 impl TaskDates {
@@ -37,10 +38,19 @@ impl TaskDates {
         let today: NaiveDate = time::today();
         let first_in_dated_full_weeks: NaiveDate = time::next_monday(&today);
         let last_dated: NaiveDate = time::first_sunday_after_12_months(today);
+
+        let mut dated_weeks: Vec<NaiveWeek> = Default::default();
+        let mut dated_weeks_iter_date: NaiveDate = first_in_dated_full_weeks;
+        while dated_weeks_iter_date < last_dated {
+            dated_weeks.push(time::week_of_day(&dated_weeks_iter_date));
+            dated_weeks_iter_date = time::increment_by_one_week(&dated_weeks_iter_date);
+        }
+
         return TaskDates {
             today,
             first_in_dated_full_weeks,
             last_dated,
+            dated_weeks,
         };
     }
 }
