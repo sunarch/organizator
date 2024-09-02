@@ -131,3 +131,8 @@ pub fn is_monday(date_ref: &NaiveDate) -> bool {
 pub fn is_day_in_first_week_of_year(date_ref: &NaiveDate) -> bool {
     return format!("{:?}", date_ref.iso_week()).ends_with("01");
 }
+
+pub fn current_clock_timestamp() -> String {
+    let date: DateTime<Local> = Local::now();
+    return format!("{}", date.format("%H:%M:%S"));
+}

@@ -5,6 +5,8 @@
 #![allow(dead_code)]
 
 use std::sync::atomic::{AtomicU8, Ordering};
+// internal
+use crate::time;
 
 const LOG_LEVEL_NONE: u8 = 0;
 const LOG_LEVEL_ERROR: u8 = 1;
@@ -16,28 +18,37 @@ static LOG_LEVEL: AtomicU8 = AtomicU8::new(LOG_LEVEL_INFO);
 
 pub fn error(msg: String) {
     if LOG_LEVEL.load(Ordering::Relaxed) >= LOG_LEVEL_ERROR {
-        println!("[ERROR  ] {}", msg);
+        log("ERROR  ", &msg);
     }
 }
 
 pub fn warning(msg: String) {
     if LOG_LEVEL.load(Ordering::Relaxed) >= LOG_LEVEL_WARNING {
-        println!("[WARNING] {}", msg);
+        log("WARNING", &msg);
     }
 }
 
 pub fn info(msg: String) {
     if LOG_LEVEL.load(Ordering::Relaxed) >= LOG_LEVEL_INFO {
-        println!("[INFO   ] {}", msg);
+        log("INFO   ", &msg);
     }
 }
 
 pub fn debug(msg: String) {
     if LOG_LEVEL.load(Ordering::Relaxed) >= LOG_LEVEL_DEBUG {
-        println!("[DEBUG  ] {}", msg);
+        log("DEBUG  ", &msg);
     }
 }
 
 pub fn set_debug() {
     LOG_LEVEL.store(LOG_LEVEL_DEBUG, Ordering::Relaxed);
+}
+
+fn log(prefix: &str, msg_ref: &String) {
+    println!(
+        "[{}][{}] {}",
+        time::current_clock_timestamp(),
+        prefix,
+        msg_ref
+    );
 }
