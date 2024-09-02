@@ -11,11 +11,11 @@ use std::path::PathBuf;
 use chrono::{Datelike, NaiveDate};
 // internal
 use crate::tasks::task::Task;
-use crate::tasks::task_data::TaskSections;
+use crate::tasks::task_data::TaskData;
 use crate::time;
 use crate::words;
 
-pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
+pub fn print_list(task_data: &TaskData, data_dir_todo_output: PathBuf) {
     let output_file_name: &str = "dated.md";
     let output_file_path: PathBuf = data_dir_todo_output.join(output_file_name);
     println!(
@@ -38,7 +38,7 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
 
     print_title(file_ref);
 
-    print_section_general(&task_sections.overdue, "", file_ref);
+    print_section_general(&task_data.sections.overdue, "", file_ref);
 
     {
         let heading: String = format!(
@@ -47,7 +47,7 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
             today.day(),
             time::weekday_abbrev(&today)
         );
-        print_section_list(&task_sections.today, heading.as_str(), file_ref);
+        print_section_list(&task_data.sections.today, heading.as_str(), file_ref);
     }
 
     print_section_heading(today.year(), file_ref);
@@ -64,7 +64,7 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
             print_week_heading(&dt_next, &dt_sunday, file_ref)
         }
 
-        match task_sections.dated.get_key_value(&dt_next) {
+        match task_data.sections.dated.get_key_value(&dt_next) {
             None => {}
             Some((_, task_list)) => {
                 print_day_heading(&dt_next, file_ref);
@@ -77,9 +77,9 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
         }
     }
 
-    print_section_general(&task_sections.later, "later", file_ref);
+    print_section_general(&task_data.sections.later, "later", file_ref);
 
-    print_section_list(&task_sections.inactive, "inactive", file_ref);
+    print_section_list(&task_data.sections.inactive, "inactive", file_ref);
 
     print_bottom_line(file_ref);
 }

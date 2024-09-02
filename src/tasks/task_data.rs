@@ -12,6 +12,18 @@ use crate::tasks::task::Task;
 use crate::tasks::{type_progressive, type_recurring, type_simple, types};
 use crate::time;
 
+pub struct TaskData {
+    pub sections: TaskSections,
+}
+
+impl TaskData {
+    pub fn load(data_dir_todo: PathBuf) -> Self {
+        return TaskData {
+            sections: TaskSections::load(data_dir_todo),
+        };
+    }
+}
+
 pub struct TaskSections {
     pub overdue: BTreeMap<NaiveDate, Vec<Task>>,
     pub today: Vec<Task>,
@@ -21,7 +33,7 @@ pub struct TaskSections {
 }
 
 impl TaskSections {
-    pub fn load(data_dir_todo: PathBuf) -> Self {
+    fn load(data_dir_todo: PathBuf) -> Self {
         let mut task_sections = TaskSections {
             overdue: Default::default(),
             today: Default::default(),

@@ -10,7 +10,7 @@ mod tui;
 mod words;
 
 // internal
-use crate::tasks::task_data::TaskSections;
+use crate::tasks::task_data::TaskData;
 
 const OPTION_VERSION_SHORT: &str = "-v";
 const OPTION_VERSION_LONG: &str = "--version";
@@ -42,9 +42,9 @@ fn main() {
         tui::run().expect("Error running TUI");
     }
 
-    let task_sections: TaskSections = TaskSections::load(data_dir_todo);
+    let task_data: TaskData = TaskData::load(data_dir_todo);
 
     if show_dated {
-        dated::print_list(&task_sections, data_dir_todo_output);
+        dated::print_list(&task_data, data_dir_todo_output);
     }
 }
