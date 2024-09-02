@@ -23,7 +23,7 @@ fn main() {
         return;
     }
 
-    let mut show_dated: bool = false;
+    let mut print_dated: bool = false;
     let mut run_tui: bool = false;
 
     if let Some(argument) = std::env::args().nth(1) {
@@ -33,7 +33,7 @@ fn main() {
             println!("{name} {version}");
             return;
         } else if argument == OPTION_DATED {
-            show_dated = true;
+            print_dated = true;
         } else if argument == OPTION_TUI {
             run_tui = true;
         } else {
@@ -43,14 +43,16 @@ fn main() {
 
     let (data_dir_todo, data_dir_todo_output, _) = config::load_data_dirs();
 
-    if run_tui {
-        tui::run().expect("Error running TUI");
-    }
-
     let task_data: TaskData = TaskData::load(data_dir_todo);
     dated::print_to_file(&task_data, data_dir_todo_output);
 
-    if show_dated {
+    if print_dated {
         dated::print_to_console(&task_data);
+        return;
+    }
+
+    if run_tui {
+        tui::run().expect("Error running TUI");
+        return;
     }
 }
