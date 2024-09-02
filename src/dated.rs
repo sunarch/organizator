@@ -68,13 +68,10 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
             print_week_heading(&dt_next, &dt_sunday, file_ref)
         }
 
-        let date_for_tasks =
-            NaiveDate::from_ymd_opt(dt_next.year(), dt_next.month(), dt_next.day())
-                .expect("Failed to create NaiveDate");
-        match task_sections.dated.get_key_value(&date_for_tasks) {
+        match task_sections.dated.get_key_value(&dt_next) {
             None => {}
             Some((_, task_list)) => {
-                print_day_heading(&date_for_tasks, file_ref);
+                print_day_heading(&dt_next, file_ref);
                 print_task_list(task_list, file_ref);
             }
         }
