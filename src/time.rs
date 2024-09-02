@@ -93,6 +93,37 @@ pub fn day_timestamp(date_ref: &NaiveDate) -> String {
     );
 }
 
+pub fn week_timestamp(date_ref: &NaiveDate) -> String {
+    let date_monday: NaiveDate = if date_ref.weekday() == Weekday::Mon {
+        *date_ref
+    } else {
+        let subtract_for_monday: u32 = date_ref.weekday().num_days_from_monday();
+        date_ref
+            .checked_sub_days(Days::new(subtract_for_monday as u64))
+            .expect("Failed to subtract days")
+    };
+    let date_sunday: NaiveDate = monday_to_sunday(&date_monday);
+
+    let date_range_display: String = if date_monday.month() == date_sunday.month() {
+        format!(
+            "{} {}-{}.",
+            month_abbrev(date_monday.month()),
+            date_monday.day(),
+            date_sunday.day()
+        )
+    } else {
+        format!(
+            "{} {}. - {} {}.",
+            month_abbrev(date_monday.month()),
+            date_monday.day(),
+            month_abbrev(date_sunday.month()),
+            date_sunday.day(),
+        )
+    };
+
+    return format!("#### {:?} ({})", date_monday.iso_week(), date_range_display);
+}
+
 pub fn is_monday(date_ref: &NaiveDate) -> bool {
     return date_ref.weekday() == Weekday::Mon;
 }

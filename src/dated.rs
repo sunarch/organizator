@@ -59,7 +59,7 @@ pub fn print_list(task_data: &TaskData, data_dir_todo_output: PathBuf) {
                 print_section_heading(dt_sunday.year(), file_ref);
             }
 
-            print_week_heading(&dt_next, &dt_sunday, file_ref)
+            print_week_heading(&dt_next, file_ref)
         }
 
         match task_data.sections.dated.get_key_value(&dt_next) {
@@ -105,26 +105,9 @@ fn print_section_heading<T: Display>(text: T, file_ref: &mut File) {
     }
 }
 
-fn print_week_heading(dt_next: &NaiveDate, dt_sunday: &NaiveDate, file_ref: &mut File) {
-    let mut date_range_display: String =
-        format!("{} {}", time::month_abbrev(dt_next.month()), dt_next.day());
-
-    if dt_next.month() == dt_sunday.month() {
-        date_range_display = format!("{}-{}.", date_range_display, dt_sunday.day());
-    } else {
-        date_range_display = format!(
-            "{}. - {} {}.",
-            date_range_display,
-            time::month_abbrev(dt_sunday.month()),
-            dt_sunday.day()
-        );
-    }
-
+fn print_week_heading(date_ref: &NaiveDate, file_ref: &mut File) {
     print_empty_line(file_ref);
-    {
-        let line: String = format!("#### {:?} ({})", dt_next.iso_week(), date_range_display);
-        print_dual(&line, file_ref);
-    }
+    print_dual(&time::week_timestamp(date_ref), file_ref);
 }
 
 fn print_day_heading(date_ref: &NaiveDate, file_ref: &mut File) {
