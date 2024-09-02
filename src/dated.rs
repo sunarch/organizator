@@ -34,8 +34,6 @@ pub fn print_list(task_data: &TaskData, data_dir_todo_output: PathBuf) {
     };
     let file_ref: &mut File = &mut file;
 
-    let (today, last_dated) = time::today_and_last_dated();
-
     print_title(file_ref);
 
     print_section_general(&task_data.sections.overdue, "", file_ref);
@@ -43,15 +41,15 @@ pub fn print_list(task_data: &TaskData, data_dir_todo_output: PathBuf) {
     {
         let heading: String = format!(
             ">>>  TODAY  -  {} {}. ({}) <<<",
-            time::month_abbrev(today.month()),
-            today.day(),
-            time::weekday_abbrev(&today)
+            time::month_abbrev(task_data.dates.today.month()),
+            task_data.dates.today.day(),
+            time::weekday_abbrev(&task_data.dates.today)
         );
         print_section_list(&task_data.sections.today, heading.as_str(), file_ref);
     }
 
-    print_section_heading(today.year(), file_ref);
-    let mut dt_next: NaiveDate = today;
+    print_section_heading(task_data.dates.today.year(), file_ref);
+    let mut dt_next: NaiveDate = task_data.dates.today;
     loop {
         dt_next = time::increment_day(&dt_next);
 
@@ -72,7 +70,7 @@ pub fn print_list(task_data: &TaskData, data_dir_todo_output: PathBuf) {
             }
         }
 
-        if dt_next.eq(&last_dated) {
+        if dt_next.eq(&task_data.dates.last_dated) {
             break;
         }
     }

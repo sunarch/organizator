@@ -13,14 +13,27 @@ use crate::tasks::{type_progressive, type_recurring, type_simple, types};
 use crate::time;
 
 pub struct TaskData {
+    pub dates: TaskDates,
     pub sections: TaskSections,
 }
 
 impl TaskData {
     pub fn load(data_dir_todo: PathBuf) -> Self {
-        return TaskData {
-            sections: TaskSections::load(data_dir_todo),
-        };
+        let dates: TaskDates = TaskDates::create();
+        let sections: TaskSections = TaskSections::load(data_dir_todo, &dates);
+        return TaskData { dates, sections };
+    }
+}
+
+pub struct TaskDates {
+    pub today: NaiveDate,
+    pub last_dated: NaiveDate,
+}
+
+impl TaskDates {
+    pub fn create() -> Self {
+        let (today, last_dated) = time::today_and_last_dated();
+        return TaskDates { today, last_dated };
     }
 }
 
@@ -33,7 +46,7 @@ pub struct TaskSections {
 }
 
 impl TaskSections {
-    fn load(data_dir_todo: PathBuf) -> Self {
+    fn load(data_dir_todo: PathBuf, task_dates_ref: &TaskDates) -> Self {
         let mut task_sections = TaskSections {
             overdue: Default::default(),
             today: Default::default(),
@@ -47,6 +60,7 @@ impl TaskSections {
             &dir_path_progressive,
             &mut task_sections,
             &type_progressive::parse,
+            task_dates_ref,
         );
 
         let dir_path_recurring: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
@@ -54,10 +68,16 @@ impl TaskSections {
             &dir_path_recurring,
             &mut task_sections,
             &type_recurring::parse,
+            task_dates_ref,
         );
 
         let dir_path_simple: PathBuf = data_dir_todo.join(type_simple::DIR_NAME);
-        Self::load_subdir(&dir_path_simple, &mut task_sections, &type_simple::parse);
+        Self::load_subdir(
+            &dir_path_simple,
+            &mut task_sections,
+            &type_simple::parse,
+            task_dates_ref,
+        );
 
         return task_sections;
     }
@@ -66,6 +86,7 @@ impl TaskSections {
         todo_subdir: &PathBuf,
         task_sections: &mut TaskSections,
         fn_parse: &types::FnParse,
+        task_dates_ref: &TaskDates,
     ) {
         let dir_path_display: Display = todo_subdir.display();
         if !todo_subdir.exists() {
@@ -80,8 +101,6 @@ impl TaskSections {
 
         let mut task_date: NaiveDate;
         let mut task: Task;
-
-        let (today, last_dated) = time::today_and_last_dated();
 
         for entry in fs::read_dir(todo_subdir).expect("Failed to iterate todo subdir.") {
             let entry: DirEntry = entry.expect("Failed to iterate dir entry.");
@@ -102,13 +121,13 @@ impl TaskSections {
                     continue;
                 }
 
-                if task_date < today {
+                if task_date < task_dates_ref.today {
                     let tasks_overdue: &mut Vec<Task> =
                         task_sections.overdue.entry(task_date).or_default();
                     tasks_overdue.push(task);
-                } else if task_date == today {
+                } else if task_date == task_dates_ref.today {
                     task_sections.today.push(task);
-                } else if task_date > last_dated {
+                } else if task_date > task_dates_ref.last_dated {
                     let tasks_later: &mut Vec<Task> =
                         task_sections.later.entry(task_date).or_default();
                     tasks_later.push(task);
