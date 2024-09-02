@@ -69,6 +69,18 @@ pub fn first_sunday_after_12_months(today: NaiveDate) -> NaiveDate {
     return target_date;
 }
 
+pub fn next_monday(date_ref: &NaiveDate) -> NaiveDate {
+    const DAY_COUNT: u8 = 7;
+    let add_for_monday: u32 = DAY_COUNT as u32 - date_ref.weekday().num_days_from_monday();
+    return if add_for_monday > 0 {
+        date_ref
+            .checked_add_days(Days::new(add_for_monday as u64))
+            .expect("Failed to add days")
+    } else {
+        *date_ref
+    };
+}
+
 pub fn month_abbrev(month: u32) -> String {
     let month: Month = Month::try_from(month as u8).expect("Failed to convert month.");
     let month_name: &str = month.name();

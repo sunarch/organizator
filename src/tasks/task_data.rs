@@ -28,20 +28,27 @@ impl TaskData {
 
 pub struct TaskDates {
     pub today: NaiveDate,
+    pub first_in_dated_full_weeks: NaiveDate,
     pub last_dated: NaiveDate,
 }
 
 impl TaskDates {
     pub fn create() -> Self {
         let today: NaiveDate = time::today();
+        let first_in_dated_full_weeks: NaiveDate = time::next_monday(&today);
         let last_dated: NaiveDate = time::first_sunday_after_12_months(today);
-        return TaskDates { today, last_dated };
+        return TaskDates {
+            today,
+            first_in_dated_full_weeks,
+            last_dated,
+        };
     }
 }
 
 pub struct TaskSections {
     pub overdue: BTreeMap<NaiveDate, Vec<Task>>,
     pub today: Vec<Task>,
+    pub dated_current_week: BTreeMap<NaiveDate, Vec<Task>>,
     pub dated: BTreeMap<NaiveDate, Vec<Task>>,
     pub later: BTreeMap<NaiveDate, Vec<Task>>,
     pub inactive: Vec<Task>,
@@ -52,6 +59,7 @@ impl TaskSections {
         let mut task_sections = TaskSections {
             overdue: Default::default(),
             today: Default::default(),
+            dated_current_week: Default::default(),
             dated: Default::default(),
             later: Default::default(),
             inactive: Default::default(),
@@ -133,6 +141,14 @@ impl TaskSections {
                     tasks_overdue.push(task);
                 } else if task_date == task_dates_ref.today {
                     task_sections.today.push(task);
+                } else if task_date > task_dates_ref.today
+                    && task_date < task_dates_ref.first_in_dated_full_weeks
+                {
+                    let tasks_dated_current_week: &mut Vec<Task> = task_sections
+                        .dated_current_week
+                        .entry(task_date)
+                        .or_default();
+                    tasks_dated_current_week.push(task);
                 } else if task_date > task_dates_ref.last_dated {
                     let tasks_later: &mut Vec<Task> =
                         task_sections.later.entry(task_date).or_default();
@@ -154,6 +170,9 @@ impl TaskSections {
         }
         {
             self.today.sort();
+        }
+        for task_list in self.dated_current_week.values_mut() {
+            task_list.sort();
         }
         for task_list in self.dated.values_mut() {
             task_list.sort();

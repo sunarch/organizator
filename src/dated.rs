@@ -57,9 +57,12 @@ fn print_list(task_data: &TaskData, file_opt_ref: &mut Option<File>) {
     }
 
     print_section_heading(task_data.dates.today.year(), file_opt_ref);
-    let mut dt_next: NaiveDate = task_data.dates.today;
+    print_section_general(&task_data.sections.dated_current_week, "", file_opt_ref);
+    let mut dt_next: NaiveDate = task_data.dates.first_in_dated_full_weeks;
     loop {
-        dt_next = time::increment_day(&dt_next);
+        if dt_next > task_data.dates.last_dated {
+            break;
+        }
 
         if time::is_monday(&dt_next) {
             let dt_sunday: NaiveDate = time::monday_to_sunday(&dt_next);
@@ -78,9 +81,7 @@ fn print_list(task_data: &TaskData, file_opt_ref: &mut Option<File>) {
             }
         }
 
-        if dt_next.eq(&task_data.dates.last_dated) {
-            break;
-        }
+        dt_next = time::increment_day(&dt_next);
     }
 
     print_section_general(&task_data.sections.later, "later", file_opt_ref);
