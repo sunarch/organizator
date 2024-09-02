@@ -32,7 +32,8 @@ pub struct TaskDates {
 
 impl TaskDates {
     pub fn create() -> Self {
-        let (today, last_dated) = time::today_and_last_dated();
+        let today: NaiveDate = time::today();
+        let last_dated: NaiveDate = time::first_sunday_after_12_months(today);
         return TaskDates { today, last_dated };
     }
 }
