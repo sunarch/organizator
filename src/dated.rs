@@ -130,16 +130,8 @@ fn print_week_heading(dt_next: &NaiveDate, dt_sunday: &NaiveDate, file_ref: &mut
 }
 
 fn print_day_heading(date_ref: &NaiveDate, file_ref: &mut File) {
-    let line: String = format!(
-        "{}-{:0>2}-{:0>2} ({})",
-        date_ref.year(),
-        date_ref.month(),
-        date_ref.day(),
-        time::weekday_abbrev(date_ref)
-    );
-
     print_empty_line(file_ref);
-    print_dual(&line, file_ref);
+    print_dual(&time::day_timestamp(date_ref), file_ref);
 }
 
 fn print_section_general(

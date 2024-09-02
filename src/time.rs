@@ -84,6 +84,16 @@ pub fn weekday_abbrev(date_ref: &NaiveDate) -> String {
     return date_ref.weekday().to_string();
 }
 
+pub fn day_timestamp(date_ref: &NaiveDate) -> String {
+    return format!(
+        "{}-{:0>2}-{:0>2} ({})",
+        date_ref.year(),
+        date_ref.month(),
+        date_ref.day(),
+        weekday_abbrev(date_ref)
+    );
+}
+
 pub fn is_monday(date_ref: &NaiveDate) -> bool {
     return date_ref.weekday() == Weekday::Mon;
 }
