@@ -9,27 +9,27 @@ mod time;
 mod tui;
 mod words;
 
+// internal
 use crate::tasks::task_sections::TaskSections;
 
+const OPTION_VERSION_SHORT: &str = "-v";
+const OPTION_VERSION_LONG: &str = "--version";
+const OPTION_DATED: &str = "--dated";
+const OPTION_TUI: &str = "--tui";
+
 fn main() {
-    let option_version_short = String::from("-v");
-    let option_version_long = String::from("--version");
-
-    let option_dated = String::from("--dated");
     let mut show_dated: bool = false;
-
-    let option_tui = String::from("--tui");
     let mut run_tui: bool = false;
 
     if let Some(argument) = std::env::args().nth(1) {
-        if argument == option_version_short || argument == option_version_long {
+        if argument == OPTION_VERSION_SHORT || argument == OPTION_VERSION_LONG {
             let name: &str = env!("CARGO_PKG_NAME");
             let version: &str = env!("CARGO_PKG_VERSION");
             println!("{name} {version}");
             return;
-        } else if argument == option_dated {
+        } else if argument == OPTION_DATED {
             show_dated = true;
-        } else if argument == option_tui {
+        } else if argument == OPTION_TUI {
             run_tui = true;
         } else {
             panic!("Unrecognized option: {argument}");
