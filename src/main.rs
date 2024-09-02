@@ -10,7 +10,7 @@ mod tui;
 mod words;
 
 // internal
-use crate::tasks::task_sections::TaskSections;
+use crate::tasks::task_data::TaskSections;
 
 const OPTION_VERSION_SHORT: &str = "-v";
 const OPTION_VERSION_LONG: &str = "--version";

@@ -11,7 +11,7 @@ use std::path::PathBuf;
 use chrono::{Datelike, NaiveDate};
 // internal
 use crate::tasks::task::Task;
-use crate::tasks::task_sections::TaskSections;
+use crate::tasks::task_data::TaskSections;
 use crate::time;
 use crate::words;
 

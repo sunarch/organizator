@@ -3,7 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 pub mod task;
-pub mod task_sections;
+pub mod task_data;
 pub mod type_progressive;
 pub mod type_recurring;
 pub mod type_simple;
