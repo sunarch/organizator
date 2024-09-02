@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 // dependencies
-use chrono::{Datelike, NaiveDate};
+use chrono::{Datelike, NaiveDate, NaiveWeek};
 // internal
 use crate::logging;
 use crate::tasks::task::Task;
@@ -58,23 +58,11 @@ fn print_list(task_data: &TaskData, file_opt_ref: &mut Option<File>) {
 
     print_section_heading(task_data.dates.today.year(), file_opt_ref);
     print_section_general(&task_data.sections.dated_current_week, "", file_opt_ref);
-    for week_ref in &task_data.dates.dated_weeks {
-        if time::is_day_in_first_week_of_year(&week_ref.last_day()) {
-            print_section_heading(week_ref.last_day().year(), file_opt_ref);
-        }
-
-        print_week_heading(&week_ref.first_day(), file_opt_ref);
-
-        for day in time::iterate_week(week_ref) {
-            match task_data.sections.dated.get_key_value(&day) {
-                None => {}
-                Some((_, task_list)) => {
-                    print_day_heading(&day, file_opt_ref);
-                    print_task_list(task_list, file_opt_ref);
-                }
-            }
-        }
-    }
+    print_section_dated(
+        &task_data.sections.dated,
+        &task_data.dates.dated_weeks,
+        file_opt_ref,
+    );
 
     print_section_general(&task_data.sections.later, "later", file_opt_ref);
 
@@ -141,6 +129,30 @@ fn print_section_list(task_list: &Vec<Task>, heading: &str, file_opt_ref: &mut O
     print_section_heading(heading, file_opt_ref);
     print_empty_line(file_opt_ref);
     print_task_list(task_list, file_opt_ref);
+}
+
+fn print_section_dated(
+    task_map: &BTreeMap<NaiveDate, Vec<Task>>,
+    week_list: &Vec<NaiveWeek>,
+    file_opt_ref: &mut Option<File>,
+) {
+    for week_ref in week_list {
+        if time::is_day_in_first_week_of_year(&week_ref.last_day()) {
+            print_section_heading(week_ref.last_day().year(), file_opt_ref);
+        }
+
+        print_week_heading(&week_ref.first_day(), file_opt_ref);
+
+        for day in time::iterate_week(week_ref) {
+            match task_map.get_key_value(&day) {
+                None => {}
+                Some((_, task_list)) => {
+                    print_day_heading(&day, file_opt_ref);
+                    print_task_list(task_list, file_opt_ref);
+                }
+            }
+        }
+    }
 }
 
 fn print_task_list(task_list: &Vec<Task>, file_opt_ref: &mut Option<File>) {
