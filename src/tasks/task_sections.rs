@@ -108,22 +108,24 @@ impl TaskSections {
             }
         }
 
-        // sort task lists
+        task_sections.sort_task_lists()
+    }
 
-        for task_list in task_sections.overdue.values_mut() {
+    fn sort_task_lists(&mut self) {
+        for task_list in self.overdue.values_mut() {
             task_list.sort();
         }
         {
-            task_sections.today.sort();
+            self.today.sort();
         }
-        for task_list in task_sections.dated.values_mut() {
+        for task_list in self.dated.values_mut() {
             task_list.sort();
         }
-        for task_list in task_sections.later.values_mut() {
+        for task_list in self.later.values_mut() {
             task_list.sort();
         }
         {
-            task_sections.inactive.sort();
+            self.inactive.sort();
         }
     }
 }
