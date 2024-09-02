@@ -43,8 +43,9 @@ fn main() {
     }
 
     let task_data: TaskData = TaskData::load(data_dir_todo);
+    dated::print_to_file(&task_data, data_dir_todo_output);
 
     if show_dated {
-        dated::print_list(&task_data, data_dir_todo_output);
+        dated::print_to_console(&task_data);
     }
 }
