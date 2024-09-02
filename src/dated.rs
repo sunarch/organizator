@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 // dependencies
-use chrono::{Datelike, NaiveDate, Weekday};
+use chrono::{Datelike, NaiveDate};
 // internal
 use crate::tasks::task::Task;
 use crate::tasks::task_sections::TaskSections;
@@ -57,7 +57,7 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
             .checked_add_days(time::DAYS_1)
             .expect("Failed adding day");
 
-        if dt_next.weekday() == Weekday::Mon {
+        if time::is_monday(&dt_next) {
             let dt_sunday: NaiveDate = dt_next
                 .checked_add_days(time::DAYS_6)
                 .expect("Failed adding days");

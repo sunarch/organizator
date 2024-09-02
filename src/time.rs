@@ -4,7 +4,7 @@
 
 use std::cmp::Ordering;
 // dependencies
-use chrono::{DateTime, Datelike, Days, Local, Month, Months, NaiveDate};
+use chrono::{DateTime, Datelike, Days, Local, Month, Months, NaiveDate, Weekday};
 
 // time intervals for dated display
 pub const MONTHS_12: Months = Months::new(12);
@@ -70,4 +70,8 @@ pub fn month_abbrev(month: u32) -> String {
 
 pub fn weekday_abbrev(date_ref: &NaiveDate) -> String {
     return date_ref.weekday().to_string();
+}
+
+pub fn is_monday(date_ref: &NaiveDate) -> bool {
+    return date_ref.weekday() == Weekday::Mon;
 }
