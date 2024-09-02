@@ -5,7 +5,7 @@
 use std::fmt;
 use std::path::Path;
 // dependencies
-use chrono::{Datelike, NaiveDate};
+use chrono::NaiveDate;
 use serde;
 // internal
 use crate::tasks::task::Task;
@@ -109,7 +109,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
             if task_date < today {
                 task_date = today;
             }
-            while !task_date.weekday().to_string().eq(&data.snap_to) {
+            while !time::weekday_abbrev(&task_date).eq(&data.snap_to) {
                 task_date = time::add_days(task_date, 1).expect("Failed to add day.");
             }
         }

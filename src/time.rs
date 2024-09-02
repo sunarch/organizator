@@ -67,3 +67,7 @@ pub fn month_abbrev(month: u32) -> String {
     }
     return name_abbrev;
 }
+
+pub fn weekday_abbrev(date_ref: &NaiveDate) -> String {
+    return date_ref.weekday().to_string();
+}

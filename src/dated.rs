@@ -42,9 +42,10 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
 
     {
         let heading: String = format!(
-            ">>>  TODAY  -  {} {}.  <<<",
+            ">>>  TODAY  -  {} {}. ({}) <<<",
             time::month_abbrev(today.month()),
-            today.day()
+            today.day(),
+            time::weekday_abbrev(&today)
         );
         print_section_list(&task_sections.today, heading.as_str(), file_ref);
     }
@@ -136,13 +137,12 @@ fn print_week_heading(dt_next: &NaiveDate, dt_sunday: &NaiveDate, file_ref: &mut
 }
 
 fn print_day_heading(date_ref: &NaiveDate, file_ref: &mut File) {
-    let weekday: String = date_ref.weekday().to_string();
     let line: String = format!(
         "{}-{:0>2}-{:0>2} ({})",
         date_ref.year(),
         date_ref.month(),
         date_ref.day(),
-        weekday
+        time::weekday_abbrev(date_ref)
     );
 
     print_empty_line(file_ref);
