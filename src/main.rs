@@ -28,9 +28,7 @@ fn main() {
 
     if let Some(argument) = std::env::args().nth(1) {
         if argument == OPTION_VERSION_SHORT || argument == OPTION_VERSION_LONG {
-            let name: &str = env!("CARGO_PKG_NAME");
-            let version: &str = env!("CARGO_PKG_VERSION");
-            println!("{name} {version}");
+            print_version();
             return;
         } else if argument == OPTION_DATED {
             print_dated = true;
@@ -55,4 +53,10 @@ fn main() {
         tui::run().expect("Error running TUI");
         return;
     }
+}
+
+fn print_version() {
+    let name: &str = env!("CARGO_PKG_NAME");
+    let version: &str = env!("CARGO_PKG_VERSION");
+    println!("{name} {version}");
 }
