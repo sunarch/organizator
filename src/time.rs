@@ -97,3 +97,7 @@ pub fn day_timestamp(date_ref: &NaiveDate) -> String {
 pub fn is_monday(date_ref: &NaiveDate) -> bool {
     return date_ref.weekday() == Weekday::Mon;
 }
+
+pub fn is_day_in_first_week_of_year(date_ref: &NaiveDate) -> bool {
+    return format!("{:?}", date_ref.iso_week()).ends_with("01");
+}

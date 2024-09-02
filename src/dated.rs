@@ -57,7 +57,7 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
 
         if time::is_monday(&dt_next) {
             let dt_sunday: NaiveDate = time::monday_to_sunday(&dt_next);
-            if format!("{:?}", dt_sunday.iso_week()).ends_with("01") {
+            if time::is_day_in_first_week_of_year(&dt_sunday) {
                 print_section_heading(dt_sunday.year(), file_ref);
             }
 
