@@ -18,6 +18,11 @@ const OPTION_DATED: &str = "--dated";
 const OPTION_TUI: &str = "--tui";
 
 fn main() {
+    if std::env::args().nth(2).is_some() {
+        println!("Too many arguments!");
+        return;
+    }
+
     let mut show_dated: bool = false;
     let mut run_tui: bool = false;
 
