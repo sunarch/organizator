@@ -7,9 +7,9 @@ use std::cmp::Ordering;
 use chrono::{DateTime, Datelike, Days, Local, Month, Months, NaiveDate, Weekday};
 
 // time intervals for dated display
-pub const MONTHS_12: Months = Months::new(12);
-pub const DAYS_1: Days = Days::new(1);
-pub const DAYS_6: Days = Days::new(6);
+const MONTHS_12: Months = Months::new(12);
+const DAYS_1: Days = Days::new(1);
+const DAYS_6: Days = Days::new(6);
 
 // time intervals for task frequency
 
@@ -27,6 +27,18 @@ pub fn add_weeks(date: NaiveDate, count: u8) -> Option<NaiveDate> {
 
 pub fn add_days(date: NaiveDate, count: u8) -> Option<NaiveDate> {
     return date.checked_add_days(Days::new(count as u64));
+}
+
+pub fn increment_day(date_ref: &NaiveDate) -> NaiveDate {
+    return date_ref
+        .checked_add_days(DAYS_1)
+        .expect("Failed to add day.");
+}
+
+pub fn monday_to_sunday(date_ref: &NaiveDate) -> NaiveDate {
+    return date_ref
+        .checked_add_days(DAYS_6)
+        .expect("Failed to add days.");
 }
 
 pub fn adjust_by_buffer_days(date: NaiveDate, count: i32) -> Option<NaiveDate> {

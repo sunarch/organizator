@@ -53,14 +53,10 @@ pub fn print_list(task_sections: &TaskSections, data_dir_todo_output: PathBuf) {
     print_section_heading(today.year(), file_ref);
     let mut dt_next: NaiveDate = today;
     loop {
-        dt_next = dt_next
-            .checked_add_days(time::DAYS_1)
-            .expect("Failed adding day");
+        dt_next = time::increment_day(&dt_next);
 
         if time::is_monday(&dt_next) {
-            let dt_sunday: NaiveDate = dt_next
-                .checked_add_days(time::DAYS_6)
-                .expect("Failed adding days");
+            let dt_sunday: NaiveDate = time::monday_to_sunday(&dt_next);
             if format!("{:?}", dt_sunday.iso_week()).ends_with("01") {
                 print_section_heading(dt_sunday.year(), file_ref);
             }
