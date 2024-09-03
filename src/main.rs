@@ -4,10 +4,10 @@
 
 mod config;
 mod dated;
+mod display_tui;
 mod logging;
 mod tasks;
 mod time;
-mod tui;
 mod words;
 
 // internal
@@ -65,7 +65,7 @@ fn main() {
     }
 
     if run_tui {
-        tui::run().expect("Error running TUI");
+        display_tui::run().expect("Error running TUI");
         return;
     }
 }
