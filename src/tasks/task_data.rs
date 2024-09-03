@@ -39,8 +39,6 @@ impl TaskData {
     }
 
     fn load_subdir(&mut self, todo_subdir: &Path, fn_parse: &types::FnParse) {
-        let task_dates: &TaskDates = &self.dates; // immutable reference, no need to modify here
-
         let dir_path_display: Display = todo_subdir.display();
         if !todo_subdir.exists() {
             logging::warning(format!(
@@ -73,38 +71,39 @@ impl TaskData {
                     Some((task_date, task)) => (task_date, task),
                 };
 
-                if !task.active {
-                    self.sections.inactive.push(task);
-                    continue;
-                }
-
-                if task_date < task_dates.today {
-                    let tasks_overdue: &mut Vec<Task> =
-                        self.sections.overdue.entry(task_date).or_default();
-                    tasks_overdue.push(task);
-                } else if task_date == task_dates.today {
-                    self.sections.today.push(task);
-                } else if task_date > task_dates.today
-                    && task_date < task_dates.first_in_dated_full_weeks
-                {
-                    let tasks_dated_current_week: &mut Vec<Task> = self
-                        .sections
-                        .dated_current_week
-                        .entry(task_date)
-                        .or_default();
-                    tasks_dated_current_week.push(task);
-                } else if task_date > task_dates.last_dated {
-                    let tasks_later: &mut Vec<Task> =
-                        self.sections.later.entry(task_date).or_default();
-                    tasks_later.push(task);
-                } else {
-                    let tasks_dated: &mut Vec<Task> =
-                        self.sections.dated.entry(task_date).or_default();
-                    tasks_dated.push(task);
-                }
+                self.add_task(task_date, task)
             }
         }
 
         self.sections.sort_task_lists()
+    }
+
+    fn add_task(&mut self, task_date: NaiveDate, task: Task) {
+        let task_dates: &TaskDates = &self.dates; // immutable reference, no need to modify here
+
+        if !task.active {
+            self.sections.inactive.push(task);
+            return;
+        }
+
+        if task_date < task_dates.today {
+            let tasks_overdue: &mut Vec<Task> = self.sections.overdue.entry(task_date).or_default();
+            tasks_overdue.push(task);
+        } else if task_date == task_dates.today {
+            self.sections.today.push(task);
+        } else if task_date > task_dates.today && task_date < task_dates.first_in_dated_full_weeks {
+            let tasks_dated_current_week: &mut Vec<Task> = self
+                .sections
+                .dated_current_week
+                .entry(task_date)
+                .or_default();
+            tasks_dated_current_week.push(task);
+        } else if task_date > task_dates.last_dated {
+            let tasks_later: &mut Vec<Task> = self.sections.later.entry(task_date).or_default();
+            tasks_later.push(task);
+        } else {
+            let tasks_dated: &mut Vec<Task> = self.sections.dated.entry(task_date).or_default();
+            tasks_dated.push(task);
+        }
     }
 }
