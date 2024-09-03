@@ -55,8 +55,8 @@ pub fn today() -> NaiveDate {
         .expect("Failed to create NaiveDate from now()");
 }
 
-pub fn first_sunday_after_12_months(today: NaiveDate) -> NaiveDate {
-    let mut target_date: NaiveDate = today
+pub fn first_sunday_after_12_months(date: NaiveDate) -> NaiveDate {
+    let mut target_date: NaiveDate = date
         .checked_add_months(MONTHS_12)
         .expect("Failed to add months");
     const SUNDAY_VALUE: u8 = 7;
