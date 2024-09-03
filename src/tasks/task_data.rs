@@ -21,9 +21,10 @@ pub struct TaskData {
 impl TaskData {
     pub fn load(data_dir_todo: &Path) -> Self {
         let dates: TaskDates = TaskDates::create();
-        let mut sections: TaskSections = TaskSections::create();
-        sections.load(data_dir_todo, &dates);
-        return TaskData { dates, sections };
+        let sections: TaskSections = TaskSections::create();
+        let mut data: TaskData = TaskData { dates, sections };
+        data.load_data(data_dir_todo);
+        return data;
     }
 }
 
@@ -48,25 +49,53 @@ impl TaskSections {
         };
     }
 
-    fn load(&mut self, data_dir_todo: &Path, task_dates: &TaskDates) {
+    fn sort_task_lists(&mut self) {
+        for task_list in self.overdue.values_mut() {
+            task_list.sort();
+        }
+        {
+            self.today.sort();
+        }
+        for task_list in self.dated_current_week.values_mut() {
+            task_list.sort();
+        }
+        for task_list in self.dated.values_mut() {
+            task_list.sort();
+        }
+        for task_list in self.later.values_mut() {
+            task_list.sort();
+        }
+        {
+            self.inactive.sort();
+        }
+    }
+}
+
+impl TaskData {
+    fn load_data(&mut self, data_dir_todo: &Path) {
         let dir_path_progressive: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
         Self::load_subdir(
             &dir_path_progressive,
-            self,
+            &mut self.sections,
             &type_progressive::parse,
-            task_dates,
+            &self.dates,
         );
 
         let dir_path_recurring: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
         Self::load_subdir(
             &dir_path_recurring,
-            self,
+            &mut self.sections,
             &type_recurring::parse,
-            task_dates,
+            &self.dates,
         );
 
         let dir_path_simple: PathBuf = data_dir_todo.join(type_simple::DIR_NAME);
-        Self::load_subdir(&dir_path_simple, self, &type_simple::parse, task_dates);
+        Self::load_subdir(
+            &dir_path_simple,
+            &mut self.sections,
+            &type_simple::parse,
+            &self.dates,
+        );
     }
 
     fn load_subdir(
@@ -139,26 +168,5 @@ impl TaskSections {
         }
 
         task_sections.sort_task_lists()
-    }
-
-    fn sort_task_lists(&mut self) {
-        for task_list in self.overdue.values_mut() {
-            task_list.sort();
-        }
-        {
-            self.today.sort();
-        }
-        for task_list in self.dated_current_week.values_mut() {
-            task_list.sort();
-        }
-        for task_list in self.dated.values_mut() {
-            task_list.sort();
-        }
-        for task_list in self.later.values_mut() {
-            task_list.sort();
-        }
-        {
-            self.inactive.sort();
-        }
     }
 }
