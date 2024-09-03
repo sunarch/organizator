@@ -8,8 +8,10 @@ use chrono::{DateTime, Datelike, Days, Local, Month, Months, NaiveDate, NaiveWee
 
 // time intervals for dated display
 const MONTHS_12: Months = Months::new(12);
-const DAYS_6: Days = Days::new(6);
+
 const DAYS_7: Days = Days::new(7);
+const DAYS_6: Days = Days::new(6);
+const DAYS_1: Days = Days::new(1);
 
 // time intervals for task frequency
 
@@ -31,6 +33,10 @@ pub fn add_days(date: &NaiveDate, count: u8) -> Option<NaiveDate> {
 
 pub fn increment_by_one_week(date: &NaiveDate) -> NaiveDate {
     return date.checked_add_days(DAYS_7).expect("Failed to add days.");
+}
+
+pub fn increment_by_one_day(date: &NaiveDate) -> NaiveDate {
+    return date.checked_add_days(DAYS_1).expect("Failed to add day.");
 }
 
 pub fn week_of_day(date: &NaiveDate) -> NaiveWeek {

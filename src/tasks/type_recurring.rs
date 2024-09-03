@@ -111,7 +111,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
                 task_date = today;
             }
             while !time::weekday_abbrev(&task_date).eq(&data.snap_to) {
-                task_date = time::add_days(&task_date, 1).expect("Failed to add day.");
+                task_date = time::increment_by_one_day(&task_date);
             }
         }
         _ => {
