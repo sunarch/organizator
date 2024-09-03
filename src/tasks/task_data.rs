@@ -21,7 +21,7 @@ pub struct TaskData {
 impl TaskData {
     pub fn load(data_dir_todo: &Path) -> Self {
         let dates: TaskDates = TaskDates::create();
-        let sections: TaskSections = TaskSections::create();
+        let sections: TaskSections = Default::default();
         let mut data: TaskData = TaskData { dates, sections };
         data.load_data(data_dir_todo);
         return data;

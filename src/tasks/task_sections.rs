@@ -15,8 +15,8 @@ pub struct TaskSections {
     pub inactive: Vec<Task>,
 }
 
-impl TaskSections {
-    pub(crate) fn create() -> Self {
+impl Default for TaskSections {
+    fn default() -> Self {
         return TaskSections {
             overdue: Default::default(),
             today: Default::default(),
@@ -26,7 +26,9 @@ impl TaskSections {
             inactive: Default::default(),
         };
     }
+}
 
+impl TaskSections {
     pub(crate) fn sort_task_lists(&mut self) {
         for task_list in self.overdue.values_mut() {
             task_list.sort();
