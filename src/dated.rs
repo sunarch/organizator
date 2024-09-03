@@ -42,20 +42,21 @@ pub fn print_to_console(task_data: &TaskData) {
     print_list(task_data, &mut None);
 }
 
+pub fn print_today_to_console(task_data: &TaskData) {
+    print_part_today(&task_data.dates.today, &task_data.sections.today, &mut None);
+}
+
 fn print_list(task_data: &TaskData, file_option: &mut Option<File>) {
     print_title(file_option);
 
     // no heading for overdue section
     print_section_general(&task_data.sections.overdue, file_option);
 
-    {
-        let heading: String = format!(
-            ">>>  TODAY  -  {} <<<",
-            timestamp::day_short(&task_data.dates.today)
-        );
-        print_section_heading(heading.as_str(), file_option);
-    }
-    print_section_list(&task_data.sections.today, file_option);
+    print_part_today(
+        &task_data.dates.today,
+        &task_data.sections.today,
+        file_option,
+    );
 
     print_section_heading(task_data.dates.current_year, file_option);
     print_section_general(&task_data.sections.dated_current_week, file_option);
@@ -79,6 +80,14 @@ fn print_list(task_data: &TaskData, file_option: &mut Option<File>) {
     print_section_list(&task_data.sections.inactive, file_option);
 
     print_bottom_line(file_option);
+}
+
+fn print_part_today(today: &NaiveDate, task_list: &Vec<Task>, file_option: &mut Option<File>) {
+    {
+        let heading: String = format!(">>>  TODAY  -  {} <<<", timestamp::day_short(today));
+        print_section_heading(heading.as_str(), file_option);
+    }
+    print_section_list(task_list, file_option);
 }
 
 fn print_title(file_option: &mut Option<File>) {

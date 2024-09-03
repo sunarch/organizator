@@ -17,6 +17,7 @@ const OPTION_DEBUG: &str = "--debug";
 const OPTION_VERSION_SHORT: &str = "-v";
 const OPTION_VERSION_LONG: &str = "--version";
 const OPTION_DATED: &str = "--dated";
+const OPTION_TODAY: &str = "--today";
 const OPTION_TUI: &str = "--tui";
 
 fn main() {
@@ -26,6 +27,7 @@ fn main() {
     }
 
     let mut print_dated: bool = false;
+    let mut print_today: bool = false;
     let mut run_tui: bool = false;
 
     if let Some(argument) = std::env::args().nth(1) {
@@ -37,6 +39,9 @@ fn main() {
         } else if argument == OPTION_DATED {
             logging::set_warning();
             print_dated = true;
+        } else if argument == OPTION_TODAY {
+            logging::set_warning();
+            print_today = true;
         } else if argument == OPTION_TUI {
             run_tui = true;
         } else {
@@ -51,6 +56,11 @@ fn main() {
 
     if print_dated {
         dated::print_to_console(&task_data);
+        return;
+    }
+
+    if print_today {
+        dated::print_today_to_console(&task_data);
         return;
     }
 
