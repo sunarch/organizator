@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 // dependencies
-use chrono::{Datelike, NaiveDate, NaiveWeek};
+use chrono::{NaiveDate, NaiveWeek};
 // internal
 use crate::logging;
 use crate::tasks::task::Task;
@@ -49,10 +49,8 @@ fn print_list(task_data: &TaskData, file_option: &mut Option<File>) {
 
     {
         let heading: String = format!(
-            ">>>  TODAY  -  {} {}. ({}) <<<",
-            time::month_abbrev(task_data.dates.today.month()),
-            task_data.dates.today.day(),
-            time::weekday_abbrev(&task_data.dates.today)
+            ">>>  TODAY  -  {} <<<",
+            time::day_timestamp_short(&task_data.dates.today)
         );
         print_section_heading(heading.as_str(), file_option);
     }

@@ -115,6 +115,15 @@ pub fn day_timestamp(date: &NaiveDate) -> String {
     );
 }
 
+pub fn day_timestamp_short(date: &NaiveDate) -> String {
+    return format!(
+        "{} {}. ({})",
+        month_abbrev(date.month()),
+        date.day(),
+        weekday_abbrev(date)
+    );
+}
+
 pub fn week_timestamp(date: &NaiveDate) -> String {
     let date_monday: NaiveDate = if date.weekday() == Weekday::Mon {
         *date
