@@ -23,16 +23,18 @@ impl TaskData {
         let dates: TaskDates = TaskDates::create();
         let sections: TaskSections = Default::default();
         let mut data: TaskData = TaskData { dates, sections };
-
-        let dir_path_progressive: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
-        data.load_subdir(&dir_path_progressive, &type_progressive::parse);
-
-        let dir_path_recurring: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
-        data.load_subdir(&dir_path_recurring, &type_recurring::parse);
-
-        let dir_path_simple: PathBuf = data_dir_todo.join(type_simple::DIR_NAME);
-        data.load_subdir(&dir_path_simple, &type_simple::parse);
-
+        {
+            let dir_path: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
+            data.load_subdir(&dir_path, &type_progressive::parse);
+        }
+        {
+            let dir_path: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
+            data.load_subdir(&dir_path, &type_recurring::parse);
+        }
+        {
+            let dir_path: PathBuf = data_dir_todo.join(type_simple::DIR_NAME);
+            data.load_subdir(&dir_path, &type_simple::parse);
+        }
         return data;
     }
 
