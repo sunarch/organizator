@@ -5,6 +5,7 @@
 pub mod task;
 pub mod task_data;
 pub mod task_dates;
+pub mod task_sections;
 pub mod type_progressive;
 pub mod type_recurring;
 pub mod type_simple;
