@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+pub mod timestamp;
+
 use std::cmp::Ordering;
 // dependencies
 use chrono::{DateTime, Datelike, Days, Local, Month, Months, NaiveDate, NaiveWeek, Weekday};
@@ -56,8 +58,8 @@ pub fn adjust_by_buffer_days(date: &NaiveDate, count: i32) -> Option<NaiveDate> 
 }
 
 pub fn today() -> NaiveDate {
-    let timestamp: DateTime<Local> = Local::now();
-    return NaiveDate::from_ymd_opt(timestamp.year(), timestamp.month(), timestamp.day())
+    let dt_now: DateTime<Local> = Local::now();
+    return NaiveDate::from_ymd_opt(dt_now.year(), dt_now.month(), dt_now.day())
         .expect("Failed to create NaiveDate from now()");
 }
 
@@ -105,60 +107,6 @@ pub fn weekday_abbrev(date: &NaiveDate) -> String {
     return date.weekday().to_string();
 }
 
-pub fn day_timestamp(date: &NaiveDate) -> String {
-    return format!(
-        "{}-{:0>2}-{:0>2} ({})",
-        date.year(),
-        date.month(),
-        date.day(),
-        weekday_abbrev(date)
-    );
-}
-
-pub fn day_timestamp_short(date: &NaiveDate) -> String {
-    return format!(
-        "{} {}. ({})",
-        month_abbrev(date.month()),
-        date.day(),
-        weekday_abbrev(date)
-    );
-}
-
-pub fn week_timestamp(date: &NaiveDate) -> String {
-    let date_monday: NaiveDate = if date.weekday() == Weekday::Mon {
-        *date
-    } else {
-        let subtract_for_monday: u32 = date.weekday().num_days_from_monday();
-        date.checked_sub_days(Days::new(subtract_for_monday as u64))
-            .expect("Failed to subtract days")
-    };
-    let date_sunday: NaiveDate = monday_to_sunday(&date_monday);
-
-    let date_range_display: String = if date_monday.month() == date_sunday.month() {
-        format!(
-            "{} {}-{}.",
-            month_abbrev(date_monday.month()),
-            date_monday.day(),
-            date_sunday.day()
-        )
-    } else {
-        format!(
-            "{} {}. - {} {}.",
-            month_abbrev(date_monday.month()),
-            date_monday.day(),
-            month_abbrev(date_sunday.month()),
-            date_sunday.day(),
-        )
-    };
-
-    return format!("#### {:?} ({})", date_monday.iso_week(), date_range_display);
-}
-
 pub fn is_day_in_first_week_of_year(date: &NaiveDate) -> bool {
     return format!("{:?}", date.iso_week()).ends_with("01");
-}
-
-pub fn current_clock_timestamp() -> String {
-    let date: DateTime<Local> = Local::now();
-    return format!("{}", date.format("%H:%M:%S"));
 }

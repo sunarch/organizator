@@ -14,6 +14,7 @@ use crate::logging;
 use crate::tasks::task::Task;
 use crate::tasks::task_data::TaskData;
 use crate::time;
+use crate::time::timestamp;
 use crate::words;
 
 pub fn print_to_file(task_data: &TaskData, data_dir_todo_output: &Path) {
@@ -50,7 +51,7 @@ fn print_list(task_data: &TaskData, file_option: &mut Option<File>) {
     {
         let heading: String = format!(
             ">>>  TODAY  -  {} <<<",
-            time::day_timestamp_short(&task_data.dates.today)
+            timestamp::day_short(&task_data.dates.today)
         );
         print_section_heading(heading.as_str(), file_option);
     }
@@ -105,12 +106,12 @@ fn print_section_heading<T: Display>(text: T, file_option: &mut Option<File>) {
 
 fn print_week_heading(date: &NaiveDate, file_option: &mut Option<File>) {
     print_empty_line(file_option);
-    print_dual(&time::week_timestamp(date), file_option);
+    print_dual(&timestamp::week(date), file_option);
 }
 
 fn print_day_heading(date: &NaiveDate, file_option: &mut Option<File>) {
     print_empty_line(file_option);
-    print_dual(&time::day_timestamp(date), file_option);
+    print_dual(&timestamp::day(date), file_option);
 }
 
 fn print_section_general(

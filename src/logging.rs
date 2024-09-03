@@ -6,7 +6,7 @@
 
 use std::sync::atomic::{AtomicU8, Ordering};
 // internal
-use crate::time;
+use crate::time::timestamp;
 
 const LOG_LEVEL_NONE: u8 = 0;
 const LOG_LEVEL_ERROR: u8 = 1;
@@ -49,10 +49,5 @@ pub fn debug(msg: String) {
 }
 
 fn log(prefix: &str, message: &String) {
-    println!(
-        "[{}][{}] {}",
-        time::current_clock_timestamp(),
-        prefix,
-        message
-    );
+    println!("[{}][{}] {}", timestamp::current_clock(), prefix, message);
 }
