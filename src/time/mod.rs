@@ -8,14 +8,11 @@ use std::cmp::Ordering;
 // dependencies
 use chrono::{DateTime, Datelike, Days, Local, Month, Months, NaiveDate, NaiveWeek, Weekday};
 
-// time intervals for dated display
 const MONTHS_12: Months = Months::new(12);
 
 const DAYS_7: Days = Days::new(7);
 const DAYS_6: Days = Days::new(6);
 const DAYS_1: Days = Days::new(1);
-
-// time intervals for task frequency
 
 pub fn add_years(date: &NaiveDate, count: u8) -> Option<NaiveDate> {
     return date.checked_add_months(Months::new((count * 12) as u32));
