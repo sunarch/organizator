@@ -48,11 +48,11 @@ pub fn debug(msg: String) {
     }
 }
 
-fn log(prefix: &str, msg_ref: &String) {
+fn log(prefix: &str, message: &String) {
     println!(
         "[{}][{}] {}",
         time::current_clock_timestamp(),
         prefix,
-        msg_ref
+        message
     );
 }

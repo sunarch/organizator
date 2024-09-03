@@ -88,7 +88,7 @@ pub struct TaskSections {
 }
 
 impl TaskSections {
-    fn load(data_dir_todo: PathBuf, task_dates_ref: &TaskDates) -> Self {
+    fn load(data_dir_todo: PathBuf, task_dates: &TaskDates) -> Self {
         let mut task_sections = TaskSections {
             overdue: Default::default(),
             today: Default::default(),
@@ -103,7 +103,7 @@ impl TaskSections {
             &dir_path_progressive,
             &mut task_sections,
             &type_progressive::parse,
-            task_dates_ref,
+            task_dates,
         );
 
         let dir_path_recurring: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
@@ -111,7 +111,7 @@ impl TaskSections {
             &dir_path_recurring,
             &mut task_sections,
             &type_recurring::parse,
-            task_dates_ref,
+            task_dates,
         );
 
         let dir_path_simple: PathBuf = data_dir_todo.join(type_simple::DIR_NAME);
@@ -119,7 +119,7 @@ impl TaskSections {
             &dir_path_simple,
             &mut task_sections,
             &type_simple::parse,
-            task_dates_ref,
+            task_dates,
         );
 
         return task_sections;
@@ -129,7 +129,7 @@ impl TaskSections {
         todo_subdir: &PathBuf,
         task_sections: &mut TaskSections,
         fn_parse: &types::FnParse,
-        task_dates_ref: &TaskDates,
+        task_dates: &TaskDates,
     ) {
         let dir_path_display: Display = todo_subdir.display();
         if !todo_subdir.exists() {
@@ -168,21 +168,21 @@ impl TaskSections {
                     continue;
                 }
 
-                if task_date < task_dates_ref.today {
+                if task_date < task_dates.today {
                     let tasks_overdue: &mut Vec<Task> =
                         task_sections.overdue.entry(task_date).or_default();
                     tasks_overdue.push(task);
-                } else if task_date == task_dates_ref.today {
+                } else if task_date == task_dates.today {
                     task_sections.today.push(task);
-                } else if task_date > task_dates_ref.today
-                    && task_date < task_dates_ref.first_in_dated_full_weeks
+                } else if task_date > task_dates.today
+                    && task_date < task_dates.first_in_dated_full_weeks
                 {
                     let tasks_dated_current_week: &mut Vec<Task> = task_sections
                         .dated_current_week
                         .entry(task_date)
                         .or_default();
                     tasks_dated_current_week.push(task);
-                } else if task_date > task_dates_ref.last_dated {
+                } else if task_date > task_dates.last_dated {
                     let tasks_later: &mut Vec<Task> =
                         task_sections.later.entry(task_date).or_default();
                     tasks_later.push(task);
