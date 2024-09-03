@@ -13,19 +13,19 @@ const DAYS_7: Days = Days::new(7);
 
 // time intervals for task frequency
 
-pub fn add_years(date: NaiveDate, count: u8) -> Option<NaiveDate> {
+pub fn add_years(date: &NaiveDate, count: u8) -> Option<NaiveDate> {
     return date.checked_add_months(Months::new((count * 12) as u32));
 }
 
-pub fn add_months(date: NaiveDate, count: u8) -> Option<NaiveDate> {
+pub fn add_months(date: &NaiveDate, count: u8) -> Option<NaiveDate> {
     return date.checked_add_months(Months::new(count as u32));
 }
 
-pub fn add_weeks(date: NaiveDate, count: u8) -> Option<NaiveDate> {
+pub fn add_weeks(date: &NaiveDate, count: u8) -> Option<NaiveDate> {
     return date.checked_add_days(Days::new((count * 7) as u64));
 }
 
-pub fn add_days(date: NaiveDate, count: u8) -> Option<NaiveDate> {
+pub fn add_days(date: &NaiveDate, count: u8) -> Option<NaiveDate> {
     return date.checked_add_days(Days::new(count as u64));
 }
 
@@ -41,9 +41,9 @@ pub fn monday_to_sunday(date: &NaiveDate) -> NaiveDate {
     return date.checked_add_days(DAYS_6).expect("Failed to add days.");
 }
 
-pub fn adjust_by_buffer_days(date: NaiveDate, count: i32) -> Option<NaiveDate> {
+pub fn adjust_by_buffer_days(date: &NaiveDate, count: i32) -> Option<NaiveDate> {
     return match count.cmp(&0) {
-        Ordering::Equal => Some(date),
+        Ordering::Equal => Some(*date),
         Ordering::Greater => date.checked_sub_days(Days::new(count as u64)),
         Ordering::Less => date.checked_add_days(Days::new(count.unsigned_abs() as u64)),
     };
@@ -55,7 +55,7 @@ pub fn today() -> NaiveDate {
         .expect("Failed to create NaiveDate from now()");
 }
 
-pub fn first_sunday_after_12_months(date: NaiveDate) -> NaiveDate {
+pub fn first_sunday_after_12_months(date: &NaiveDate) -> NaiveDate {
     let mut target_date: NaiveDate = date
         .checked_add_months(MONTHS_12)
         .expect("Failed to add months");

@@ -82,10 +82,10 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
     }
 
     let task_date_option: Option<NaiveDate> = match data.frequency.name.as_str() {
-        "year" => time::add_years(last_date, data.frequency.number),
-        "month" => time::add_months(last_date, data.frequency.number),
-        "week" => time::add_weeks(last_date, data.frequency.number),
-        "day" => time::add_days(last_date, data.frequency.number),
+        "year" => time::add_years(&last_date, data.frequency.number),
+        "month" => time::add_months(&last_date, data.frequency.number),
+        "week" => time::add_weeks(&last_date, data.frequency.number),
+        "day" => time::add_days(&last_date, data.frequency.number),
         _ => None,
     };
 
@@ -111,7 +111,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
                 task_date = today;
             }
             while !time::weekday_abbrev(&task_date).eq(&data.snap_to) {
-                task_date = time::add_days(task_date, 1).expect("Failed to add day.");
+                task_date = time::add_days(&task_date, 1).expect("Failed to add day.");
             }
         }
         _ => {
@@ -124,7 +124,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
     };
 
     if data.buffer_days != 0 {
-        task_date = time::adjust_by_buffer_days(task_date, data.buffer_days)
+        task_date = time::adjust_by_buffer_days(&task_date, data.buffer_days)
             .expect("Failed to subtract day.");
     }
 

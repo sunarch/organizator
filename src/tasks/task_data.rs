@@ -45,7 +45,7 @@ impl TaskDates {
     pub fn create() -> Self {
         let today: NaiveDate = time::today();
         let first_in_dated_full_weeks: NaiveDate = time::next_monday(&today);
-        let last_dated: NaiveDate = time::first_sunday_after_12_months(today);
+        let last_dated: NaiveDate = time::first_sunday_after_12_months(&today);
 
         let mut year_of_week: DatedWeeksPart = DatedWeeksPart::CurrentYear;
         let mut dated_weeks_current_year: Vec<NaiveWeek> = Default::default();
