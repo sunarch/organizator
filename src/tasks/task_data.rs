@@ -63,16 +63,17 @@ impl TaskData {
             let entry_path_display: Display = entry_path.display();
             if entry_path.is_dir() {
                 logging::warning(format!("Dir inside todo subdir: '{entry_path_display}'"));
-            } else {
-                (task_date, task) = match fn_parse(&entry_path) {
-                    None => {
-                        continue;
-                    }
-                    Some((task_date, task)) => (task_date, task),
-                };
-
-                self.add_task(task_date, task)
+                continue;
             }
+
+            (task_date, task) = match fn_parse(&entry_path) {
+                None => {
+                    continue;
+                }
+                Some((task_date, task)) => (task_date, task),
+            };
+
+            self.add_task(task_date, task)
         }
 
         self.sections.sort_task_lists()
