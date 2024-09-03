@@ -21,7 +21,8 @@ pub struct TaskData {
 impl TaskData {
     pub fn load(data_dir_todo: &Path) -> Self {
         let dates: TaskDates = TaskDates::create();
-        let sections: TaskSections = TaskSections::load(data_dir_todo, &dates);
+        let mut sections: TaskSections = TaskSections::create();
+        sections.load(data_dir_todo, &dates);
         return TaskData { dates, sections };
     }
 }
@@ -36,8 +37,8 @@ pub struct TaskSections {
 }
 
 impl TaskSections {
-    fn load(data_dir_todo: &Path, task_dates: &TaskDates) -> Self {
-        let mut task_sections = TaskSections {
+    fn create() -> Self {
+        return TaskSections {
             overdue: Default::default(),
             today: Default::default(),
             dated_current_week: Default::default(),
@@ -45,11 +46,13 @@ impl TaskSections {
             later: Default::default(),
             inactive: Default::default(),
         };
+    }
 
+    fn load(&mut self, data_dir_todo: &Path, task_dates: &TaskDates) {
         let dir_path_progressive: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
         Self::load_subdir(
             &dir_path_progressive,
-            &mut task_sections,
+            self,
             &type_progressive::parse,
             task_dates,
         );
@@ -57,20 +60,13 @@ impl TaskSections {
         let dir_path_recurring: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
         Self::load_subdir(
             &dir_path_recurring,
-            &mut task_sections,
+            self,
             &type_recurring::parse,
             task_dates,
         );
 
         let dir_path_simple: PathBuf = data_dir_todo.join(type_simple::DIR_NAME);
-        Self::load_subdir(
-            &dir_path_simple,
-            &mut task_sections,
-            &type_simple::parse,
-            task_dates,
-        );
-
-        return task_sections;
+        Self::load_subdir(&dir_path_simple, self, &type_simple::parse, task_dates);
     }
 
     fn load_subdir(
