@@ -58,11 +58,18 @@ fn print_list(task_data: &TaskData, file_opt_ref: &mut Option<File>) {
     }
     print_section_list(&task_data.sections.today, file_opt_ref);
 
-    print_section_heading(task_data.dates.today.year(), file_opt_ref);
+    print_section_heading(task_data.dates.current_year, file_opt_ref);
     print_section_general(&task_data.sections.dated_current_week, file_opt_ref);
     print_section_dated(
         &task_data.sections.dated,
-        &task_data.dates.dated_weeks,
+        &task_data.dates.dated_weeks_current_year,
+        file_opt_ref,
+    );
+
+    print_section_heading(task_data.dates.next_year, file_opt_ref);
+    print_section_dated(
+        &task_data.sections.dated,
+        &task_data.dates.dated_weeks_next_year,
         file_opt_ref,
     );
 
@@ -136,10 +143,6 @@ fn print_section_dated(
     file_opt_ref: &mut Option<File>,
 ) {
     for week_ref in week_list {
-        if time::is_day_in_first_week_of_year(&week_ref.last_day()) {
-            print_section_heading(week_ref.last_day().year(), file_opt_ref);
-        }
-
         print_week_heading(&week_ref.first_day(), file_opt_ref);
 
         for day in time::iterate_week(week_ref) {
