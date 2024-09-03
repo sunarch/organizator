@@ -22,15 +22,20 @@ const OPTION_DATED: &str = "--dated";
 const OPTION_TODAY: &str = "--today";
 const OPTION_TUI: &str = "--tui";
 
+enum Intent {
+    FileUpdateOnly,
+    PrintDated,
+    PrintToday,
+    RunTUI,
+}
+
 fn main() {
     if std::env::args().nth(2).is_some() {
         println!("Too many arguments!");
         return;
     }
 
-    let mut print_dated: bool = false;
-    let mut print_today: bool = false;
-    let mut run_tui: bool = false;
+    let mut intent: Intent = Intent::FileUpdateOnly;
 
     if let Some(argument) = std::env::args().nth(1) {
         if argument == OPTION_DEBUG {
@@ -40,12 +45,12 @@ fn main() {
             return;
         } else if argument == OPTION_DATED {
             logging::set_warning();
-            print_dated = true;
+            intent = Intent::PrintDated;
         } else if argument == OPTION_TODAY {
             logging::set_warning();
-            print_today = true;
+            intent = Intent::PrintToday;
         } else if argument == OPTION_TUI {
-            run_tui = true;
+            intent = Intent::RunTUI;
         } else {
             panic!("Unrecognized option: {argument}");
         }
@@ -56,19 +61,11 @@ fn main() {
     let task_data: TaskData = TaskData::load(data_dir_todo.as_ref());
     display_file::dated::print(&task_data, data_dir_todo_output.as_ref());
 
-    if print_dated {
-        display_console::dated::print(&task_data);
-        return;
-    }
-
-    if print_today {
-        display_console::dated::print_today(&task_data);
-        return;
-    }
-
-    if run_tui {
-        display_tui::run().expect("Error running TUI");
-        return;
+    match intent {
+        Intent::FileUpdateOnly => {}
+        Intent::PrintDated => display_console::dated::print(&task_data),
+        Intent::PrintToday => display_console::dated::print_today(&task_data),
+        Intent::RunTUI => display_tui::run().expect("Error running TUI"),
     }
 }
 
