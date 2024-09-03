@@ -44,7 +44,8 @@ pub fn print_to_console(task_data_ref: &TaskData) {
 fn print_list(task_data: &TaskData, file_opt_ref: &mut Option<File>) {
     print_title(file_opt_ref);
 
-    print_section_general(&task_data.sections.overdue, "", file_opt_ref);
+    // no heading for overdue section
+    print_section_general(&task_data.sections.overdue, file_opt_ref);
 
     {
         let heading: String = format!(
@@ -53,20 +54,23 @@ fn print_list(task_data: &TaskData, file_opt_ref: &mut Option<File>) {
             task_data.dates.today.day(),
             time::weekday_abbrev(&task_data.dates.today)
         );
-        print_section_list(&task_data.sections.today, heading.as_str(), file_opt_ref);
+        print_section_heading(heading.as_str(), file_opt_ref);
     }
+    print_section_list(&task_data.sections.today, file_opt_ref);
 
     print_section_heading(task_data.dates.today.year(), file_opt_ref);
-    print_section_general(&task_data.sections.dated_current_week, "", file_opt_ref);
+    print_section_general(&task_data.sections.dated_current_week, file_opt_ref);
     print_section_dated(
         &task_data.sections.dated,
         &task_data.dates.dated_weeks,
         file_opt_ref,
     );
 
-    print_section_general(&task_data.sections.later, "later", file_opt_ref);
+    print_section_heading("later", file_opt_ref);
+    print_section_general(&task_data.sections.later, file_opt_ref);
 
-    print_section_list(&task_data.sections.inactive, "inactive", file_opt_ref);
+    print_section_heading("inactive", file_opt_ref);
+    print_section_list(&task_data.sections.inactive, file_opt_ref);
 
     print_bottom_line(file_opt_ref);
 }
@@ -106,27 +110,22 @@ fn print_day_heading(date_ref: &NaiveDate, file_opt_ref: &mut Option<File>) {
 
 fn print_section_general(
     task_map: &BTreeMap<NaiveDate, Vec<Task>>,
-    heading: &str,
     file_opt_ref: &mut Option<File>,
 ) {
     if task_map.is_empty() {
         return;
     }
 
-    if !heading.is_empty() {
-        print_section_heading(heading, file_opt_ref);
-    }
     for (task_date, task_list) in task_map {
         print_day_heading(task_date, file_opt_ref);
         print_task_list(task_list, file_opt_ref);
     }
 }
 
-fn print_section_list(task_list: &Vec<Task>, heading: &str, file_opt_ref: &mut Option<File>) {
+fn print_section_list(task_list: &Vec<Task>, file_opt_ref: &mut Option<File>) {
     if task_list.is_empty() {
         return;
     }
-    print_section_heading(heading, file_opt_ref);
     print_empty_line(file_opt_ref);
     print_task_list(task_list, file_opt_ref);
 }
