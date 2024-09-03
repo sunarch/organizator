@@ -6,12 +6,12 @@ use std::collections::BTreeMap;
 use std::fs::{self, DirEntry};
 use std::path::{Display, Path, PathBuf};
 // dependencies
-use chrono::{Datelike, NaiveDate, NaiveWeek};
+use chrono::NaiveDate;
 // internal
 use crate::logging;
 use crate::tasks::task::Task;
+use crate::tasks::task_dates::TaskDates;
 use crate::tasks::{type_progressive, type_recurring, type_simple, types};
-use crate::time;
 
 pub struct TaskData {
     pub dates: TaskDates,
@@ -23,58 +23,6 @@ impl TaskData {
         let dates: TaskDates = TaskDates::create();
         let sections: TaskSections = TaskSections::load(data_dir_todo, &dates);
         return TaskData { dates, sections };
-    }
-}
-
-pub struct TaskDates {
-    pub today: NaiveDate,
-    pub current_year: i32,
-    pub next_year: i32,
-    pub first_in_dated_full_weeks: NaiveDate,
-    pub last_dated: NaiveDate,
-    pub dated_weeks_current_year: Vec<NaiveWeek>,
-    pub dated_weeks_next_year: Vec<NaiveWeek>,
-}
-
-enum DatedWeeksPart {
-    CurrentYear,
-    NextYear,
-}
-
-impl TaskDates {
-    pub fn create() -> Self {
-        let today: NaiveDate = time::today();
-        let first_in_dated_full_weeks: NaiveDate = time::next_monday(&today);
-        let last_dated: NaiveDate = time::first_sunday_after_12_months(&today);
-
-        let mut year_of_week: DatedWeeksPart = DatedWeeksPart::CurrentYear;
-        let mut dated_weeks_current_year: Vec<NaiveWeek> = Default::default();
-        let mut dated_weeks_next_year: Vec<NaiveWeek> = Default::default();
-        let mut dated_weeks_iter_date: NaiveDate = first_in_dated_full_weeks;
-        while dated_weeks_iter_date < last_dated {
-            match year_of_week {
-                DatedWeeksPart::CurrentYear => {
-                    dated_weeks_current_year.push(time::week_of_day(&dated_weeks_iter_date));
-                }
-                DatedWeeksPart::NextYear => {
-                    dated_weeks_next_year.push(time::week_of_day(&dated_weeks_iter_date));
-                }
-            }
-            dated_weeks_iter_date = time::increment_by_one_week(&dated_weeks_iter_date);
-            if time::is_day_in_first_week_of_year(&dated_weeks_iter_date) {
-                year_of_week = DatedWeeksPart::NextYear;
-            }
-        }
-
-        return TaskDates {
-            today,
-            current_year: today.year(),
-            next_year: today.year() + 1,
-            first_in_dated_full_weeks,
-            last_dated,
-            dated_weeks_current_year,
-            dated_weeks_next_year,
-        };
     }
 }
 
