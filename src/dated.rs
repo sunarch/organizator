@@ -146,12 +146,9 @@ fn print_section_dated(
         print_week_heading(&week_ref.first_day(), file_opt_ref);
 
         for day in time::iterate_week(week_ref) {
-            match task_map.get_key_value(&day) {
-                None => {}
-                Some((_, task_list)) => {
-                    print_day_heading(&day, file_opt_ref);
-                    print_task_list(task_list, file_opt_ref);
-                }
+            if let Some((_, task_list)) = task_map.get_key_value(&day) {
+                print_day_heading(&day, file_opt_ref);
+                print_task_list(task_list, file_opt_ref);
             }
         }
     }
