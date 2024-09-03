@@ -9,6 +9,7 @@ use serde;
 // internal
 use crate::logging;
 use crate::tasks::task::Task;
+use crate::tasks::task_data::TaskAddable;
 use crate::tasks::types;
 use crate::time;
 
@@ -27,10 +28,10 @@ struct Data {
     items: Vec<ProgressiveItem>,
 }
 
-pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
+pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
     let data: Data = match types::load(file_path) {
         None => {
-            return None;
+            return;
         }
         Some(data) => data,
     };
@@ -47,7 +48,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
     }
     if task_note.is_empty() {
         // no items with empty done: all items done
-        return None;
+        return;
     }
 
     let last_date = match NaiveDate::parse_from_str(last_date_string.as_str(), "%Y-%m-%d") {
@@ -56,7 +57,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
                 "Failed to convert last date in progressive task: '{}' ({})",
                 last_date_string, data.title
             ));
-            return None;
+            return;
         }
         Ok(date) => date,
     };
@@ -67,14 +68,13 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
         task_date = time::increment_by_one_day(&task_date);
     };
 
-    return Some((
-        task_date,
-        Task {
-            frequency: String::from("(PR)"),
-            title: data.title,
-            note: task_note,
-            subtasks: Default::default(),
-            active: true,
-        },
-    ));
+    let task: Task = Task {
+        frequency: String::from("(PR)"),
+        title: data.title,
+        note: task_note,
+        subtasks: Default::default(),
+        active: true,
+    };
+
+    task_data.add_task(task_date, task);
 }

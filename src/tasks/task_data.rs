@@ -11,7 +11,8 @@ use crate::logging;
 use crate::tasks::task::Task;
 use crate::tasks::task_dates::TaskDates;
 use crate::tasks::task_sections::TaskSections;
-use crate::tasks::{type_progressive, type_recurring, type_simple, types};
+use crate::tasks::types::FnLoadTaskType;
+use crate::tasks::{type_progressive, type_recurring, type_simple};
 
 pub struct TaskData {
     pub dates: TaskDates,
@@ -25,20 +26,20 @@ impl TaskData {
         let mut data: TaskData = TaskData { dates, sections };
         {
             let dir_path: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
-            data.load_subdir(&dir_path, &type_progressive::parse);
+            data.load_subdir(&dir_path, &type_progressive::load_one);
         }
         {
             let dir_path: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
-            data.load_subdir(&dir_path, &type_recurring::parse);
+            data.load_subdir(&dir_path, &type_recurring::load_one);
         }
         {
             let dir_path: PathBuf = data_dir_todo.join(type_simple::DIR_NAME);
-            data.load_subdir(&dir_path, &type_simple::parse);
+            data.load_subdir(&dir_path, &type_simple::load);
         }
         return data;
     }
 
-    fn load_subdir(&mut self, todo_subdir: &Path, fn_parse: &types::FnParse) {
+    fn load_subdir(&mut self, todo_subdir: &Path, fn_load: &FnLoadTaskType) {
         let dir_path_display: Display = todo_subdir.display();
         if !todo_subdir.exists() {
             logging::warning(format!(
@@ -62,13 +63,7 @@ impl TaskData {
                 logging::warning(format!("Dir inside todo subdir: '{entry_path_display}'"));
                 continue;
             }
-
-            match fn_parse(&entry_path) {
-                None => {
-                    continue;
-                }
-                Some((task_date, task)) => self.add_task(task_date, task),
-            };
+            fn_load(&entry_path, self);
         }
 
         self.sections.sort_task_lists()

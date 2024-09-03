@@ -10,6 +10,7 @@ use serde;
 // internal
 use crate::logging;
 use crate::tasks::task::Task;
+use crate::tasks::task_data::TaskAddable;
 use crate::tasks::types;
 use crate::tasks::types::Subtask;
 use crate::time;
@@ -54,10 +55,10 @@ struct Data {
     active: bool,
 }
 
-pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
+pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
     let data: Data = match types::load(file_path) {
         None => {
-            return None;
+            return;
         }
         Some(data) => data,
     };
@@ -68,7 +69,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
                 "Failed to convert last date in recurring task: '{}' ({})",
                 data.last, data.title
             ));
-            return None;
+            return;
         }
         Ok(date) => date,
     };
@@ -78,7 +79,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
             "Invalid frequency number: '{}' ({})",
             data.frequency.number, data.title
         ));
-        return None;
+        return;
     }
 
     let task_date_option: Option<NaiveDate> = match data.frequency.name.as_str() {
@@ -92,7 +93,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
     let mut task_date: NaiveDate = match task_date_option {
         None => {
             logging::error(format!("Unable to parse task frequency ({})", data.title));
-            return None;
+            return;
         }
         Some(date) => date,
     };
@@ -119,7 +120,7 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
                 "Unable to parse task snap_to: '{}' ({})",
                 data.snap_to, data.title
             ));
-            return None;
+            return;
         }
     };
 
@@ -128,14 +129,13 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
             .expect("Failed to subtract day.");
     }
 
-    return Some((
-        task_date,
-        Task {
-            frequency: format!("{}", data.frequency),
-            title: data.title,
-            note: data.note,
-            subtasks: data.subtasks,
-            active: data.active,
-        },
-    ));
+    let task: Task = Task {
+        frequency: format!("{}", data.frequency),
+        title: data.title,
+        note: data.note,
+        subtasks: data.subtasks,
+        active: data.active,
+    };
+
+    task_data.add_task(task_date, task);
 }

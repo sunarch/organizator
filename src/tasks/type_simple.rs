@@ -9,6 +9,7 @@ use serde;
 // internal
 use crate::logging;
 use crate::tasks::task::Task;
+use crate::tasks::task_data::TaskAddable;
 use crate::tasks::types;
 
 pub(crate) const DIR_NAME: &str = "simple";
@@ -23,16 +24,16 @@ struct Data {
     done: String,
 }
 
-pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
+pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
     let data: Data = match types::load(file_path) {
         None => {
-            return None;
+            return;
         }
         Some(data) => data,
     };
 
     if !data.done.is_empty() {
-        return None;
+        return;
     }
 
     let due_date = match NaiveDate::parse_from_str(data.due.as_str(), "%Y-%m-%d") {
@@ -41,19 +42,18 @@ pub(crate) fn parse(file_path: &Path) -> Option<(NaiveDate, Task)> {
                 "Failed to convert due date in simple task: '{}' ({})",
                 data.due, data.title
             ));
-            return None;
+            return;
         }
         Ok(date) => date,
     };
 
-    return Some((
-        due_date,
-        Task {
-            frequency: data.prefix,
-            title: data.title,
-            note: data.note,
-            subtasks: Default::default(),
-            active: data.done.is_empty(),
-        },
-    ));
+    let task: Task = Task {
+        frequency: data.prefix,
+        title: data.title,
+        note: data.note,
+        subtasks: Default::default(),
+        active: data.done.is_empty(),
+    };
+
+    task_data.add_task(due_date, task);
 }

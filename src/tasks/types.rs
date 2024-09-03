@@ -5,14 +5,13 @@
 use std::fs::File;
 use std::path::Path;
 // dependencies
-use chrono::NaiveDate;
 use serde;
 use serde_json;
 // internal
 use crate::logging;
-use crate::tasks::task::Task;
+use crate::tasks::task_data::TaskAddable;
 
-pub type FnParse = dyn Fn(&Path) -> Option<(NaiveDate, Task)>;
+pub type FnLoadTaskType = dyn Fn(&Path, &mut dyn TaskAddable);
 
 pub fn default_true() -> bool {
     return true;
