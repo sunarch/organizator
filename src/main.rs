@@ -52,7 +52,8 @@ fn main() {
         } else if argument == OPTION_TUI {
             intent = Intent::RunTUI;
         } else {
-            panic!("Unrecognized option: {argument}");
+            println!("Unrecognized option: {argument}");
+            return;
         }
     }
 
