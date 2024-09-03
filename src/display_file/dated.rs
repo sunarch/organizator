@@ -3,6 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use std::fs::File;
+use std::io::Write;
 use std::path::{Path, PathBuf};
 // internal
 use crate::dated;
@@ -27,5 +28,22 @@ pub(crate) fn print(task_data: &TaskData, data_dir_todo_output: &Path) {
         Ok(file) => file,
     };
 
-    dated::print_list(task_data, &mut Some(file));
+    dated::print_list(task_data, &output_fn, &mut Some(file));
+}
+
+fn output_fn(line: &String, file_option: &mut Option<File>) {
+    match file_option {
+        None => {
+            panic!("No file handle! (dated)");
+        }
+        Some(file) => {
+            if let Err(why) = file.write_all(line.as_bytes()) {
+                panic!("Couldn't write to output file\n{}", why);
+            }
+            if let Err(why) = file.write_all(String::from("\n").as_bytes()) {
+                panic!("Couldn't write to output file\n{}", why);
+            }
+            file.flush().expect("Unable to flush write to output file.");
+        }
+    }
 }
