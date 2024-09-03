@@ -4,6 +4,8 @@
 
 mod config;
 mod dated;
+mod display_console;
+mod display_file;
 mod display_tui;
 mod logging;
 mod tasks;
@@ -52,15 +54,15 @@ fn main() {
     let (data_dir_todo, data_dir_todo_output, _) = config::load_data_dirs();
 
     let task_data: TaskData = TaskData::load(data_dir_todo.as_ref());
-    dated::print_to_file(&task_data, data_dir_todo_output.as_ref());
+    display_file::dated::print(&task_data, data_dir_todo_output.as_ref());
 
     if print_dated {
-        dated::print_to_console(&task_data);
+        display_console::dated::print(&task_data);
         return;
     }
 
     if print_today {
-        dated::print_today_to_console(&task_data);
+        display_console::dated::print_today(&task_data);
         return;
     }
 

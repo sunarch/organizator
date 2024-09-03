@@ -6,47 +6,16 @@ use std::collections::BTreeMap;
 use std::fmt::Display;
 use std::fs::File;
 use std::io::Write;
-use std::path::{Path, PathBuf};
 // dependencies
 use chrono::{NaiveDate, NaiveWeek};
 // internal
-use crate::logging;
 use crate::tasks::task::Task;
 use crate::tasks::task_data::TaskData;
 use crate::time;
 use crate::time::timestamp;
 use crate::words;
 
-pub fn print_to_file(task_data: &TaskData, data_dir_todo_output: &Path) {
-    let output_file_name: &str = "dated.md";
-    let output_file_path: PathBuf = data_dir_todo_output.join(output_file_name);
-    logging::info(format!(
-        "Writing to output file '{}",
-        output_file_path.clone().display()
-    ));
-    let file: File = match File::create(output_file_path.clone()) {
-        Err(why) => {
-            panic!(
-                "Couldn't open output file  '{}'\n{}",
-                output_file_path.clone().display(),
-                why
-            );
-        }
-        Ok(file) => file,
-    };
-
-    print_list(task_data, &mut Some(file));
-}
-
-pub fn print_to_console(task_data: &TaskData) {
-    print_list(task_data, &mut None);
-}
-
-pub fn print_today_to_console(task_data: &TaskData) {
-    print_part_today(&task_data.dates.today, &task_data.sections.today, &mut None);
-}
-
-fn print_list(task_data: &TaskData, file_option: &mut Option<File>) {
+pub(crate) fn print_list(task_data: &TaskData, file_option: &mut Option<File>) {
     print_title(file_option);
 
     // no heading for overdue section
@@ -82,7 +51,11 @@ fn print_list(task_data: &TaskData, file_option: &mut Option<File>) {
     print_bottom_line(file_option);
 }
 
-fn print_part_today(today: &NaiveDate, task_list: &Vec<Task>, file_option: &mut Option<File>) {
+pub(crate) fn print_part_today(
+    today: &NaiveDate,
+    task_list: &Vec<Task>,
+    file_option: &mut Option<File>,
+) {
     {
         let heading: String = format!(">>>  TODAY  -  {} <<<", timestamp::day_short(today));
         print_section_heading(heading.as_str(), file_option);
