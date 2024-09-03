@@ -31,36 +31,18 @@ impl TaskData {
 impl TaskData {
     fn load_data(&mut self, data_dir_todo: &Path) {
         let dir_path_progressive: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
-        Self::load_subdir(
-            &dir_path_progressive,
-            &mut self.sections,
-            &type_progressive::parse,
-            &self.dates,
-        );
+        self.load_subdir(&dir_path_progressive, &type_progressive::parse);
 
         let dir_path_recurring: PathBuf = data_dir_todo.join(type_recurring::DIR_NAME);
-        Self::load_subdir(
-            &dir_path_recurring,
-            &mut self.sections,
-            &type_recurring::parse,
-            &self.dates,
-        );
+        self.load_subdir(&dir_path_recurring, &type_recurring::parse);
 
         let dir_path_simple: PathBuf = data_dir_todo.join(type_simple::DIR_NAME);
-        Self::load_subdir(
-            &dir_path_simple,
-            &mut self.sections,
-            &type_simple::parse,
-            &self.dates,
-        );
+        self.load_subdir(&dir_path_simple, &type_simple::parse);
     }
 
-    fn load_subdir(
-        todo_subdir: &Path,
-        task_sections: &mut TaskSections,
-        fn_parse: &types::FnParse,
-        task_dates: &TaskDates,
-    ) {
+    fn load_subdir(&mut self, todo_subdir: &Path, fn_parse: &types::FnParse) {
+        let task_dates: &TaskDates = &self.dates; // immutable reference, no need to modify here
+
         let dir_path_display: Display = todo_subdir.display();
         if !todo_subdir.exists() {
             logging::warning(format!(
@@ -94,36 +76,37 @@ impl TaskData {
                 };
 
                 if !task.active {
-                    task_sections.inactive.push(task);
+                    self.sections.inactive.push(task);
                     continue;
                 }
 
                 if task_date < task_dates.today {
                     let tasks_overdue: &mut Vec<Task> =
-                        task_sections.overdue.entry(task_date).or_default();
+                        self.sections.overdue.entry(task_date).or_default();
                     tasks_overdue.push(task);
                 } else if task_date == task_dates.today {
-                    task_sections.today.push(task);
+                    self.sections.today.push(task);
                 } else if task_date > task_dates.today
                     && task_date < task_dates.first_in_dated_full_weeks
                 {
-                    let tasks_dated_current_week: &mut Vec<Task> = task_sections
+                    let tasks_dated_current_week: &mut Vec<Task> = self
+                        .sections
                         .dated_current_week
                         .entry(task_date)
                         .or_default();
                     tasks_dated_current_week.push(task);
                 } else if task_date > task_dates.last_dated {
                     let tasks_later: &mut Vec<Task> =
-                        task_sections.later.entry(task_date).or_default();
+                        self.sections.later.entry(task_date).or_default();
                     tasks_later.push(task);
                 } else {
                     let tasks_dated: &mut Vec<Task> =
-                        task_sections.dated.entry(task_date).or_default();
+                        self.sections.dated.entry(task_date).or_default();
                     tasks_dated.push(task);
                 }
             }
         }
 
-        task_sections.sort_task_lists()
+        self.sections.sort_task_lists()
     }
 }
