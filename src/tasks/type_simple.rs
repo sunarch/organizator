@@ -4,10 +4,10 @@
 
 use std::path::Path;
 // dependencies
-use crate::logging;
 use chrono::NaiveDate;
 use serde;
 // internal
+use crate::logging;
 use crate::tasks::task::Task;
 use crate::tasks::types;
 
