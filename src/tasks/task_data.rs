@@ -54,9 +54,6 @@ impl TaskData {
         }
         logging::info(format!("Found todo subdir '{dir_path_display}'"));
 
-        let mut task_date: NaiveDate;
-        let mut task: Task;
-
         for entry in fs::read_dir(todo_subdir).expect("Failed to iterate todo subdir.") {
             let entry: DirEntry = entry.expect("Failed to iterate dir entry.");
             let entry_path: PathBuf = entry.path();
@@ -66,14 +63,14 @@ impl TaskData {
                 continue;
             }
 
-            (task_date, task) = match fn_parse(&entry_path) {
+            match fn_parse(&entry_path) {
                 None => {
                     continue;
                 }
-                Some((task_date, task)) => (task_date, task),
+                Some((task_date, task)) => {
+                    self.add_task(task_date, task)
+                },
             };
-
-            self.add_task(task_date, task)
         }
 
         self.sections.sort_task_lists()
