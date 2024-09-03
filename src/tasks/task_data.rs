@@ -4,7 +4,7 @@
 
 use std::collections::BTreeMap;
 use std::fs::{self, DirEntry};
-use std::path::{Display, PathBuf};
+use std::path::{Display, Path, PathBuf};
 // dependencies
 use chrono::{Datelike, NaiveDate, NaiveWeek};
 // internal
@@ -19,7 +19,7 @@ pub struct TaskData {
 }
 
 impl TaskData {
-    pub fn load(data_dir_todo: PathBuf) -> Self {
+    pub fn load(data_dir_todo: &Path) -> Self {
         let dates: TaskDates = TaskDates::create();
         let sections: TaskSections = TaskSections::load(data_dir_todo, &dates);
         return TaskData { dates, sections };
@@ -88,7 +88,7 @@ pub struct TaskSections {
 }
 
 impl TaskSections {
-    fn load(data_dir_todo: PathBuf, task_dates: &TaskDates) -> Self {
+    fn load(data_dir_todo: &Path, task_dates: &TaskDates) -> Self {
         let mut task_sections = TaskSections {
             overdue: Default::default(),
             today: Default::default(),
@@ -126,7 +126,7 @@ impl TaskSections {
     }
 
     fn load_subdir(
-        todo_subdir: &PathBuf,
+        todo_subdir: &Path,
         task_sections: &mut TaskSections,
         fn_parse: &types::FnParse,
         task_dates: &TaskDates,

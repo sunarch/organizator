@@ -46,8 +46,8 @@ fn main() {
 
     let (data_dir_todo, data_dir_todo_output, _) = config::load_data_dirs();
 
-    let task_data: TaskData = TaskData::load(data_dir_todo);
-    dated::print_to_file(&task_data, data_dir_todo_output);
+    let task_data: TaskData = TaskData::load(data_dir_todo.as_ref());
+    dated::print_to_file(&task_data, data_dir_todo_output.as_ref());
 
     if print_dated {
         dated::print_to_console(&task_data);

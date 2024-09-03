@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 use std::fmt::Display;
 use std::fs::File;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 // dependencies
 use chrono::{Datelike, NaiveDate, NaiveWeek};
 // internal
@@ -16,7 +16,7 @@ use crate::tasks::task_data::TaskData;
 use crate::time;
 use crate::words;
 
-pub fn print_to_file(task_data: &TaskData, data_dir_todo_output: PathBuf) {
+pub fn print_to_file(task_data: &TaskData, data_dir_todo_output: &Path) {
     let output_file_name: &str = "dated.md";
     let output_file_path: PathBuf = data_dir_todo_output.join(output_file_name);
     logging::info(format!(
