@@ -117,41 +117,31 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             .map(|subtask| subtask.is_done)
             .all(|is_done| is_done)
         {
-            let task_current_year: Task = Task {
-                meta: TaskMeta {
-                    frequency: Default::default(),
-                    time_of_day: Default::default(),
-                    subtasks: subtasks_current_year,
-                },
-                contents: TaskContents {
-                    title: data.mark_title.clone(),
-                    note: Default::default(),
-                    is_done: false,
-                    visibility: TaskVisibility::Visible,
-                },
-            };
-
+            let task_current_year: Task = create_task(subtasks_current_year, &data.mark_title);
             task_data.add_task(date_current_year, task_current_year);
         }
 
         if !subtasks_next_year.is_empty() {
-            let task_next_year: Task = Task {
-                meta: TaskMeta {
-                    frequency: Default::default(),
-                    time_of_day: Default::default(),
-                    subtasks: subtasks_next_year,
-                },
-                contents: TaskContents {
-                    title: data.mark_title.clone(),
-                    note: Default::default(),
-                    is_done: false,
-                    visibility: TaskVisibility::Visible,
-                },
-            };
-
+            let task_next_year: Task = create_task(subtasks_next_year, &data.mark_title);
             task_data.add_task(date_next_year, task_next_year);
         }
     }
+}
+
+fn create_task(subtasks: Vec<TaskContents>, mark_title: &str) -> Task {
+    return Task {
+        meta: TaskMeta {
+            frequency: Default::default(),
+            time_of_day: Default::default(),
+            subtasks,
+        },
+        contents: TaskContents {
+            title: mark_title.to_string(),
+            note: Default::default(),
+            is_done: false,
+            visibility: TaskVisibility::Visible,
+        },
+    };
 }
 
 fn subtask_title(item_title: &String, origin_year_opt: Option<i32>, task_year: i32) -> String {
