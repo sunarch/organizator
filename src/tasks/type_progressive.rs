@@ -9,7 +9,9 @@ use serde;
 // internal
 use crate::logging;
 use crate::tasks::task::Task;
+use crate::tasks::task_contents::TaskContents;
 use crate::tasks::task_data::TaskAddable;
+use crate::tasks::task_meta::TaskMeta;
 use crate::tasks::types;
 use crate::time;
 
@@ -69,11 +71,15 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
     };
 
     let task: Task = Task {
-        frequency: String::from("(PR)"),
-        title: data.title,
-        note: task_note,
-        subtasks: Default::default(),
-        active: true,
+        meta: TaskMeta {
+            frequency: String::from("(PR)"),
+            subtasks: Default::default(),
+        },
+        contents: TaskContents {
+            title: data.title,
+            note: task_note,
+            active: true,
+        },
     };
 
     task_data.add_task(task_date, task);

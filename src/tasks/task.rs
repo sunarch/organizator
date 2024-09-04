@@ -5,43 +5,35 @@
 use std::cmp::Ordering;
 use std::fmt;
 // internal
-use crate::tasks::types::Subtask;
+use crate::tasks::task_contents::TaskContents;
+use crate::tasks::task_meta::TaskMeta;
 
 pub struct Task {
-    pub frequency: String,
-    pub title: String,
-    pub note: String,
-    pub subtasks: Vec<Subtask>,
-    pub active: bool,
+    pub meta: TaskMeta,
+    pub contents: TaskContents,
 }
 
 impl fmt::Display for Task {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut display = String::new();
-        if !self.frequency.is_empty() {
-            display = format!("{} - ", self.frequency);
-        }
-        display.push_str(self.title.as_str());
-        if !self.note.is_empty() {
-            display = format!("{} ({})", display, self.note);
-        }
-        return write!(f, "{}", display);
+        return write!(f, "{}{}", self.meta, self.contents);
     }
 }
 
 impl Ord for Task {
     fn cmp(&self, other: &Self) -> Ordering {
         return match self
+            .contents
             .title
             .to_ascii_lowercase()
-            .cmp(&other.title.to_ascii_lowercase())
+            .cmp(&other.contents.title.to_ascii_lowercase())
         {
             Ordering::Greater => Ordering::Greater,
             Ordering::Less => Ordering::Less,
             Ordering::Equal => self
+                .meta
                 .frequency
                 .to_ascii_lowercase()
-                .cmp(&other.frequency.to_ascii_lowercase()),
+                .cmp(&other.meta.frequency.to_ascii_lowercase()),
         };
     }
 }
@@ -54,10 +46,10 @@ impl PartialOrd for Task {
 
 impl PartialEq for Task {
     fn eq(&self, other: &Self) -> bool {
-        self.frequency == other.frequency
-            && self.title == other.title
-            && self.note == other.note
-            && self.active == other.active
+        self.meta.frequency == other.meta.frequency
+            && self.contents.title == other.contents.title
+            && self.contents.note == other.contents.note
+            && self.contents.active == other.contents.active
     }
 }
 impl Eq for Task {}

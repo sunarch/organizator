@@ -85,7 +85,7 @@ impl TaskAddable for TaskData {
         let task_sections: &mut TaskSections = &mut self.sections;
         let task_dates: &TaskDates = &self.dates;
 
-        if !task.active {
+        if !task.contents.active {
             task_sections.inactive.push(task);
             return;
         }

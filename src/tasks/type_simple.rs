@@ -9,7 +9,9 @@ use serde;
 // internal
 use crate::logging;
 use crate::tasks::task::Task;
+use crate::tasks::task_contents::TaskContents;
 use crate::tasks::task_data::TaskAddable;
+use crate::tasks::task_meta::TaskMeta;
 use crate::tasks::types;
 
 pub(crate) const DIR_NAME: &str = "simple";
@@ -54,11 +56,15 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
         };
 
         let task: Task = Task {
-            frequency: data.prefix.clone(),
-            title: item.title,
-            note: item.note,
-            subtasks: Default::default(),
-            active: item.done.is_empty(),
+            meta: TaskMeta {
+                frequency: data.prefix.clone(),
+                subtasks: Default::default(),
+            },
+            contents: TaskContents {
+                title: item.title,
+                note: item.note,
+                active: item.done.is_empty(),
+            },
         };
 
         task_data.add_task(due_date, task);

@@ -8,7 +8,9 @@ use chrono::{Datelike, NaiveDate};
 use serde;
 // internal
 use crate::tasks::task::Task;
+use crate::tasks::task_contents::TaskContents;
 use crate::tasks::task_data::TaskAddable;
+use crate::tasks::task_meta::TaskMeta;
 use crate::tasks::types;
 use crate::tasks::types::Subtask;
 use crate::time;
@@ -121,11 +123,15 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             .expect("Failed to reduce subtasks to all_done bool")
         {
             let task_current_year: Task = Task {
-                frequency: Default::default(),
-                title: data.mark_title.clone(),
-                note: Default::default(),
-                subtasks: subtasks_current_year,
-                active: true,
+                meta: TaskMeta {
+                    frequency: Default::default(),
+                    subtasks: subtasks_current_year,
+                },
+                contents: TaskContents {
+                    title: data.mark_title.clone(),
+                    note: Default::default(),
+                    active: true,
+                },
             };
 
             task_data.add_task(date_current_year, task_current_year);
@@ -133,11 +139,15 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
 
         if !subtasks_next_year.is_empty() {
             let task_next_year: Task = Task {
-                frequency: Default::default(),
-                title: data.mark_title.clone(),
-                note: Default::default(),
-                subtasks: subtasks_next_year,
-                active: true,
+                meta: TaskMeta {
+                    frequency: Default::default(),
+                    subtasks: subtasks_next_year,
+                },
+                contents: TaskContents {
+                    title: data.mark_title.clone(),
+                    note: Default::default(),
+                    active: true,
+                },
             };
 
             task_data.add_task(date_next_year, task_next_year);

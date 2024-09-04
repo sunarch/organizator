@@ -156,12 +156,12 @@ fn print_section_dated(
 
 fn print_task_list(task_list: &Vec<Task>, output_fn: &FnOutput, file_option: &mut Option<File>) {
     for task in task_list {
-        if task.active {
+        if task.contents.active {
             output_fn(&format!("- [ ] {}", task), file_option);
         } else {
             output_fn(&format!("- {}", task), file_option);
         }
-        for subtask in &task.subtasks {
+        for subtask in &task.meta.subtasks {
             if subtask.done.is_empty() {
                 output_fn(&format!("    - [ ] {}", subtask.title), file_option);
             }
