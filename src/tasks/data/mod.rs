@@ -10,7 +10,6 @@ use std::path::{Display, Path, PathBuf};
 // dependencies
 use chrono::NaiveDate;
 // internal
-use crate::logging;
 use crate::tasks::data::dates::TaskDates;
 use crate::tasks::data::sections::TaskSections;
 use crate::tasks::task::contents::TaskVisibility;
@@ -18,6 +17,7 @@ use crate::tasks::task::Task;
 use crate::tasks::types::{
     type_marked_day, type_progressive, type_recurring, type_simple, FnLoadTaskType,
 };
+use crate::{logging, time};
 
 pub(crate) struct TaskData {
     pub(crate) dates: TaskDates,
@@ -83,6 +83,8 @@ pub(crate) trait TaskAddable {
     fn add_task(&mut self, task_date: NaiveDate, task: Task);
     fn year_current(&self) -> i32;
     fn year_next(&self) -> i32;
+    fn date_today(&self) -> NaiveDate;
+    fn date_tomorrow(&self) -> NaiveDate;
 }
 
 impl TaskAddable for TaskData {
@@ -121,5 +123,13 @@ impl TaskAddable for TaskData {
 
     fn year_next(&self) -> i32 {
         return self.dates.next_year;
+    }
+
+    fn date_today(&self) -> NaiveDate {
+        return self.dates.today;
+    }
+
+    fn date_tomorrow(&self) -> NaiveDate {
+        return time::increment_by_one_day(&self.dates.today);
     }
 }

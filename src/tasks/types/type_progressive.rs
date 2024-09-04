@@ -7,13 +7,12 @@ use std::path::Path;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 // internal
-use crate::logging;
 use crate::tasks::data::TaskAddable;
 use crate::tasks::task::contents::{TaskContents, TaskVisibility};
 use crate::tasks::task::meta::{TaskFrequency, TaskFrequencyInterval, TaskMeta, TaskTimeOfDay};
 use crate::tasks::task::Task;
 use crate::tasks::types;
-use crate::time;
+use crate::{logging, time};
 
 pub(crate) const DIR_NAME: &str = "progressive";
 
@@ -21,12 +20,17 @@ pub(crate) const DIR_NAME: &str = "progressive";
 struct Data {
     title: String,
     description: Option<String>,
+    days: Vec<DataDay>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct DataDay {
+    title: String,
     items: Vec<DataItem>,
 }
 
 #[derive(Serialize, Deserialize)]
 struct DataItem {
-    title: String,
     done: String,
 
     #[serde(default = "TaskTimeOfDay::default")]
@@ -41,56 +45,105 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
         Some(data) => data,
     };
 
-    let mut last_date_string: String = Default::default();
-    let mut task_note: String = String::new();
-    let mut task_time_of_day: TaskTimeOfDay = Default::default();
-    for item in data.items {
-        if item.done.is_empty() {
-            task_note = item.title;
-            task_time_of_day = item.time_of_day;
-            break;
-        } else {
-            last_date_string = item.done;
-        }
-    }
-    if task_note.is_empty() {
-        // no items with empty done: all items done
+    if data.days.is_empty() {
+        logging::error(format!("No days in progressive task  ({})", data.title));
         return;
     }
 
-    let last_date = match NaiveDate::parse_from_str(last_date_string.as_str(), "%Y-%m-%d") {
-        Err(_) => {
+    let mut previous_day_last_date_string_opt: Option<&String> = None;
+    let mut current_day_opt: Option<&DataDay> = None;
+
+    for day in &data.days {
+        if day.items.is_empty() {
             logging::error(format!(
-                "Failed to convert last date in progressive task: '{}' ({})",
-                last_date_string, data.title
+                "No items in progressive task day: '{}' ({})",
+                day.title, data.title
             ));
             return;
         }
-        Ok(date) => date,
+
+        if day
+            .items
+            .iter()
+            .map(|item| item.done.is_empty())
+            .any(|is_not_done| is_not_done)
+        {
+            current_day_opt = Some(day);
+            break;
+        } else {
+            match day.items.last() {
+                None => unreachable!(),
+                Some(item) => {
+                    previous_day_last_date_string_opt = Some(&item.done);
+                }
+            }
+        }
+    }
+
+    let mut last_date_opt: Option<NaiveDate> = match previous_day_last_date_string_opt {
+        None => None,
+        Some(last_date_string) => time::parsing::date_opt_from_str(
+            last_date_string,
+            "progressive task",
+            data.title.as_str(),
+        ),
+    };
+    let current_day: &DataDay = match current_day_opt {
+        None => {
+            // no items with empty done: all items done
+            return;
+        }
+        Some(day) => {
+            if let Some(last_date) = search_for_last_date(&day.items, &data.title) {
+                last_date_opt = Some(last_date);
+            }
+            day
+        }
     };
 
-    let today: NaiveDate = time::today();
-    let mut task_date: NaiveDate = today;
-    if last_date == today {
-        task_date = time::increment_by_one_day(&task_date);
-    };
+    let mut task_date: NaiveDate = task_data.date_today();
+    match last_date_opt {
+        None => {}
+        Some(last_date) => {
+            if last_date == task_date {
+                task_date = task_data.date_tomorrow();
+            }
+        }
+    }
 
-    let task: Task = Task {
-        meta: TaskMeta {
-            frequency: TaskFrequency {
-                number: None,
-                interval: TaskFrequencyInterval::Other("(PR)".to_string()),
+    for item in &current_day.items {
+        let task: Task = Task {
+            meta: TaskMeta {
+                frequency: TaskFrequency {
+                    number: None,
+                    interval: TaskFrequencyInterval::Other("(PR)".to_string()),
+                },
+                time_of_day: item.time_of_day.clone(),
+                subtasks: Default::default(),
             },
-            time_of_day: task_time_of_day,
-            subtasks: Default::default(),
-        },
-        contents: TaskContents {
-            title: data.title,
-            note: task_note,
-            is_done: false,
-            visibility: TaskVisibility::Visible,
-        },
-    };
+            contents: TaskContents {
+                title: data.title.clone(),
+                note: current_day.title.clone(),
+                is_done: !item.done.is_empty(),
+                visibility: TaskVisibility::Visible,
+            },
+        };
 
-    task_data.add_task(task_date, task);
+        task_data.add_task(task_date, task);
+    }
+}
+
+fn search_for_last_date(items: &Vec<DataItem>, note_item: &str) -> Option<NaiveDate> {
+    let mut last_date_string_search: Option<&String> = None;
+    for item in items {
+        if item.done.is_empty() {
+            break;
+        } else {
+            last_date_string_search = Some(&item.done);
+        }
+    }
+    return match last_date_string_search {
+        None => None,
+        Some(text) => time::parsing::date_opt_from_str(text, "progressive task", note_item),
+    };
 }

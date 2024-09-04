@@ -105,7 +105,7 @@ impl fmt::Display for TaskFrequencyInterval {
     }
 }
 
-#[derive(PartialEq, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Serialize, Deserialize)]
 pub(crate) enum TaskTimeOfDay {
     Morning,
     Midday,
