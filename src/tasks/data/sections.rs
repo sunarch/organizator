@@ -2,9 +2,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::tasks::task::Task;
-use chrono::NaiveDate;
 use std::collections::BTreeMap;
+// dependencies
+use chrono::NaiveDate;
+// internal
+use crate::tasks::task::Task;
 
 pub struct TaskSections {
     pub overdue: BTreeMap<NaiveDate, Vec<Task>>,
