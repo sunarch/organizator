@@ -34,23 +34,44 @@ impl Ord for Task {
             (_, _) => {}
         }
 
-        match self
-            .contents
-            .title
-            .to_ascii_lowercase()
-            .cmp(&other.contents.title.to_ascii_lowercase())
-        {
-            Ordering::Equal => {}
-            decided_value => {
-                return decided_value;
-            }
-        };
-
-        return self
+        match &self
             .meta
             .frequency
-            .to_ascii_lowercase()
-            .cmp(&other.meta.frequency.to_ascii_lowercase());
+            .interval
+            .cmp(&other.meta.frequency.interval)
+        {
+            Ordering::Equal => {
+                let frequency_number_ordering: &Ordering =
+                    &self.meta.frequency.number.cmp(&other.meta.frequency.number);
+                if *frequency_number_ordering != Ordering::Equal {
+                    return *frequency_number_ordering;
+                }
+            }
+            decided_value => return *decided_value,
+        }
+
+        {
+            let ordering: Ordering = self
+                .contents
+                .title
+                .to_ascii_lowercase()
+                .cmp(&other.contents.title.to_ascii_lowercase());
+            if ordering != Ordering::Equal {
+                return ordering;
+            }
+        }
+        {
+            let ordering: Ordering = self
+                .contents
+                .note
+                .to_ascii_lowercase()
+                .cmp(&other.contents.note.to_ascii_lowercase());
+            if ordering != Ordering::Equal {
+                return ordering;
+            }
+        }
+
+        return self.contents.is_done.cmp(&other.contents.is_done);
     }
 }
 

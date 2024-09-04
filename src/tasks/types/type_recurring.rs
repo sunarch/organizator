@@ -2,7 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use std::fmt;
 use std::path::Path;
 // dependencies
 use chrono::NaiveDate;
@@ -11,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use crate::logging;
 use crate::tasks::data::TaskAddable;
 use crate::tasks::task::contents::{TaskContents, TaskVisibility};
-use crate::tasks::task::meta::{TaskMeta, TaskTimeOfDay};
+use crate::tasks::task::meta::{TaskFrequency, TaskFrequencyInterval, TaskMeta, TaskTimeOfDay};
 use crate::tasks::task::Task;
 use crate::tasks::types;
 use crate::time;
@@ -24,7 +23,7 @@ struct Data {
     note: String,
     description: Option<String>,
 
-    frequency: DataFrequency,
+    frequency: TaskFrequency,
     last: String,
 
     #[serde(default = "TaskTimeOfDay::default")]
@@ -44,22 +43,6 @@ struct Data {
 
     #[serde(default = "types::default_false")]
     pub(crate) hidden: bool,
-}
-
-#[derive(Serialize, Deserialize)]
-pub(crate) struct DataFrequency {
-    pub(crate) number: u8,
-    pub(crate) name: String,
-}
-
-impl fmt::Display for DataFrequency {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        return if self.number == 1 {
-            write!(f, "{}ly", self.name)
-        } else {
-            write!(f, "{}-{}", self.number, self.name)
-        };
-    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -90,20 +73,26 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
         Ok(date) => date,
     };
 
-    if data.frequency.number < 1 {
-        logging::error(format!(
-            "Invalid frequency number: '{}' ({})",
-            data.frequency.number, data.title
-        ));
+    let frequency_number: u8 = match data.frequency.number {
+        None => {
+            logging::error(format!("Missing frequency number ({})", data.title));
+            return;
+        }
+        Some(number) => number,
+    };
+
+    if frequency_number < 1 {
+        logging::error(format!("Frequency number cannot be zero ({})", data.title));
         return;
     }
 
-    let task_date_option: Option<NaiveDate> = match data.frequency.name.as_str() {
-        "year" => time::add_years(&last_date, data.frequency.number),
-        "month" => time::add_months(&last_date, data.frequency.number),
-        "week" => time::add_weeks(&last_date, data.frequency.number),
-        "day" => time::add_days(&last_date, data.frequency.number),
-        _ => None,
+    let task_date_option: Option<NaiveDate> = match data.frequency.interval {
+        TaskFrequencyInterval::Other(_) => None,
+        TaskFrequencyInterval::Day => time::add_days(&last_date, frequency_number),
+        TaskFrequencyInterval::Week => time::add_weeks(&last_date, frequency_number),
+        TaskFrequencyInterval::Month => time::add_months(&last_date, frequency_number),
+        TaskFrequencyInterval::Year => time::add_years(&last_date, frequency_number),
+        TaskFrequencyInterval::None => None,
     };
 
     let mut task_date: NaiveDate = match task_date_option {
@@ -170,7 +159,7 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
 
     let task: Task = Task {
         meta: TaskMeta {
-            frequency: format!("{}", data.frequency),
+            frequency: data.frequency,
             time_of_day: data.time_of_day,
             subtasks,
         },

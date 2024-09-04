@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use crate::logging;
 use crate::tasks::data::TaskAddable;
 use crate::tasks::task::contents::{TaskContents, TaskVisibility};
-use crate::tasks::task::meta::{TaskMeta, TaskTimeOfDay};
+use crate::tasks::task::meta::{TaskFrequency, TaskFrequencyInterval, TaskMeta, TaskTimeOfDay};
 use crate::tasks::task::Task;
 use crate::tasks::types;
 use crate::time;
@@ -77,7 +77,10 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
 
     let task: Task = Task {
         meta: TaskMeta {
-            frequency: String::from("(PR)"),
+            frequency: TaskFrequency {
+                number: None,
+                interval: TaskFrequencyInterval::Other("(PR)".to_string()),
+            },
             time_of_day: task_time_of_day,
             subtasks: Default::default(),
         },

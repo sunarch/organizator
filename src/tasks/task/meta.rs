@@ -9,17 +9,16 @@ use serde::{Deserialize, Serialize};
 use crate::tasks::task::contents::TaskContents;
 
 pub(crate) struct TaskMeta {
-    pub(crate) frequency: String,
+    pub(crate) frequency: TaskFrequency,
     pub(crate) time_of_day: TaskTimeOfDay,
     pub(crate) subtasks: Vec<TaskContents>,
 }
 
 impl fmt::Display for TaskMeta {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let frequency_display: String = if self.frequency.is_empty() {
-            "".to_string()
-        } else {
-            format!("{} - ", self.frequency)
+        let frequency_display: String = match self.frequency.interval {
+            TaskFrequencyInterval::None => "".to_string(),
+            _ => format!("{} - ", self.frequency),
         };
 
         let time_of_day_mark: &str = match self.time_of_day {
@@ -41,6 +40,68 @@ impl fmt::Display for TaskMeta {
         } else {
             write!(f, "{}", display)
         };
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub(crate) struct TaskFrequency {
+    pub(crate) number: Option<u8>,
+    pub(crate) interval: TaskFrequencyInterval,
+}
+
+impl Default for TaskFrequency {
+    fn default() -> Self {
+        return TaskFrequency {
+            number: Default::default(),
+            interval: Default::default(),
+        };
+    }
+}
+
+impl fmt::Display for TaskFrequency {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        return match &self.number {
+            None => write!(f, "{}", self.interval),
+            Some(1) => write!(f, "{}ly", self.interval),
+            Some(number) => write!(f, "{}-{}", number, self.interval),
+        };
+    }
+}
+
+impl PartialEq<Self> for TaskFrequency {
+    fn eq(&self, other: &Self) -> bool {
+        self.interval == other.interval && self.number == other.number
+    }
+}
+impl Eq for TaskFrequency {}
+
+#[derive(PartialOrd, Ord, PartialEq, Eq, Serialize, Deserialize)]
+pub(crate) enum TaskFrequencyInterval {
+    Other(String),
+    Day,
+    Week,
+    Month,
+    Year,
+    None,
+}
+
+impl Default for TaskFrequencyInterval {
+    fn default() -> Self {
+        return TaskFrequencyInterval::None;
+    }
+}
+
+impl fmt::Display for TaskFrequencyInterval {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let frequency_mark: &str = match self {
+            TaskFrequencyInterval::Other(text) => text.as_str(),
+            TaskFrequencyInterval::Day => "day",
+            TaskFrequencyInterval::Week => "week",
+            TaskFrequencyInterval::Month => "month",
+            TaskFrequencyInterval::Year => "year",
+            TaskFrequencyInterval::None => "",
+        };
+        return write!(f, "{}", frequency_mark);
     }
 }
 
