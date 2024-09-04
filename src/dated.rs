@@ -157,30 +157,34 @@ fn print_section_dated(
 
 fn print_task_list(task_list: &Vec<Task>, output_fn: &FnOutput, file_option: &mut Option<File>) {
     for task in task_list {
-        let done_marker: &str = if task.contents.is_done { "x" } else { " " };
+        print_task(task, output_fn, file_option);
+    }
+}
 
-        match task.contents.visibility {
-            TaskVisibility::Visible => {
-                output_fn(&format!("- [{}] {}", done_marker, task), file_option);
-            }
-            TaskVisibility::Inactive => output_fn(&format!("- {}", task), file_option),
-            TaskVisibility::Hidden => continue,
+fn print_task(task: &Task, output_fn: &FnOutput, file_option: &mut Option<File>) {
+    let done_marker: &str = if task.contents.is_done { "x" } else { " " };
+
+    match task.contents.visibility {
+        TaskVisibility::Visible => {
+            output_fn(&format!("- [{}] {}", done_marker, task), file_option);
         }
+        TaskVisibility::Inactive => output_fn(&format!("- {}", task), file_option),
+        TaskVisibility::Hidden => return,
+    }
 
-        for subtask in &task.meta.subtasks {
-            let done_marker: &str = if subtask.is_done { "x" } else { " " };
+    for subtask in &task.meta.subtasks {
+        let done_marker: &str = if subtask.is_done { "x" } else { " " };
 
-            match subtask.visibility {
-                TaskVisibility::Visible => output_fn(
-                    &format!("    - [{}] {}", done_marker, subtask.title),
-                    file_option,
-                ),
-                TaskVisibility::Inactive => output_fn(
-                    &format!("    - ~~[{}] {}~~", done_marker, subtask.title),
-                    file_option,
-                ),
-                TaskVisibility::Hidden => continue,
-            }
+        match subtask.visibility {
+            TaskVisibility::Visible => output_fn(
+                &format!("    - [{}] {}", done_marker, subtask.title),
+                file_option,
+            ),
+            TaskVisibility::Inactive => output_fn(
+                &format!("    - ~~[{}] {}~~", done_marker, subtask.title),
+                file_option,
+            ),
+            TaskVisibility::Hidden => continue,
         }
     }
 }
