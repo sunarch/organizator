@@ -7,10 +7,10 @@ use std::path::Path;
 use chrono::{Datelike, NaiveDate};
 use serde;
 // internal
+use crate::tasks::task::contents::TaskContents;
+use crate::tasks::task::meta::TaskMeta;
 use crate::tasks::task::Task;
-use crate::tasks::task_contents::TaskContents;
 use crate::tasks::task_data::TaskAddable;
-use crate::tasks::task_meta::TaskMeta;
 use crate::tasks::types;
 use crate::tasks::types::Subtask;
 use crate::time;

@@ -3,10 +3,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 pub mod task;
-pub mod task_contents;
 pub mod task_data;
 pub mod task_dates;
-pub mod task_meta;
 pub mod task_sections;
 pub mod type_marked_day;
 pub mod type_progressive;
