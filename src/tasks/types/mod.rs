@@ -10,8 +10,8 @@ pub(crate) mod type_simple;
 use std::fs::File;
 use std::path::Path;
 // dependencies
-use serde;
-use serde_json;
+use serde::Deserialize;
+use serde_json::from_reader;
 // internal
 use crate::logging;
 use crate::tasks::data::TaskAddable;
@@ -38,7 +38,7 @@ pub(crate) fn default_vec<T>() -> Vec<T> {
     return Default::default();
 }
 
-pub(crate) fn load<Data: for<'de> serde::Deserialize<'de>>(file_path: &Path) -> Option<Data> {
+pub(crate) fn load<Data: for<'de> Deserialize<'de>>(file_path: &Path) -> Option<Data> {
     let file = match File::open(file_path) {
         Err(why) => {
             logging::error(format!(
@@ -51,7 +51,7 @@ pub(crate) fn load<Data: for<'de> serde::Deserialize<'de>>(file_path: &Path) -> 
         Ok(file) => file,
     };
 
-    match serde_json::from_reader(file) {
+    match from_reader(file) {
         Err(why) => {
             logging::error(format!(
                 "Couldn't parse todo file '{}' \n{}",

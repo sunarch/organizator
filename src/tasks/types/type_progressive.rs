@@ -5,7 +5,7 @@
 use std::path::Path;
 // dependencies
 use chrono::NaiveDate;
-use serde;
+use serde::{Deserialize, Serialize};
 // internal
 use crate::logging;
 use crate::tasks::data::TaskAddable;
@@ -17,13 +17,13 @@ use crate::time;
 
 pub(crate) const DIR_NAME: &str = "progressive";
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct ProgressiveItem {
     title: String,
     done: String,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct Data {
     title: String,
     description: String,

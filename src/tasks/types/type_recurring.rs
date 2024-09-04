@@ -6,7 +6,7 @@ use std::fmt;
 use std::path::Path;
 // dependencies
 use chrono::NaiveDate;
-use serde;
+use serde::{Deserialize, Serialize};
 // internal
 use crate::logging;
 use crate::tasks::data::TaskAddable;
@@ -18,7 +18,7 @@ use crate::time;
 
 pub(crate) const DIR_NAME: &str = "recurring";
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub(crate) struct Frequency {
     pub(crate) number: u8,
     pub(crate) name: String,
@@ -34,7 +34,7 @@ impl fmt::Display for Frequency {
     }
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub(crate) struct DataSubtask {
     pub(crate) title: String,
     pub(crate) done: String,
@@ -43,7 +43,7 @@ pub(crate) struct DataSubtask {
     pub(crate) hidden: bool,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct Data {
     title: String,
     note: String,

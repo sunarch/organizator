@@ -5,7 +5,7 @@
 use std::path::Path;
 // dependencies
 use chrono::NaiveDate;
-use serde;
+use serde::{Deserialize, Serialize};
 // internal
 use crate::tasks::data::TaskAddable;
 use crate::tasks::task::contents::{TaskContents, TaskVisibility};
@@ -16,7 +16,7 @@ use crate::time;
 
 pub(crate) const DIR_NAME: &str = "marked-day";
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct MarkedDayItem {
     title: String,
     year_last_observed: i32,

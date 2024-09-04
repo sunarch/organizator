@@ -5,7 +5,7 @@
 use std::path::Path;
 // dependencies
 use chrono::NaiveDate;
-use serde;
+use serde::{Deserialize, Serialize};
 // internal
 use crate::logging;
 use crate::tasks::data::TaskAddable;
@@ -16,7 +16,7 @@ use crate::tasks::types;
 
 pub(crate) const DIR_NAME: &str = "simple";
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct SimpleItem {
     title: String,
     note: String,
@@ -24,7 +24,7 @@ struct SimpleItem {
     done: String,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct Data {
     prefix: String,
     description: String,
