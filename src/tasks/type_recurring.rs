@@ -14,7 +14,6 @@ use crate::tasks::task::meta::TaskMeta;
 use crate::tasks::task::Task;
 use crate::tasks::task_data::TaskAddable;
 use crate::tasks::types;
-use crate::tasks::types::Subtask;
 use crate::time;
 
 pub(crate) const DIR_NAME: &str = "recurring";
@@ -36,6 +35,15 @@ impl fmt::Display for Frequency {
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
+pub(crate) struct DataSubtask {
+    pub(crate) title: String,
+    pub(crate) done: String,
+
+    #[serde(default = "types::default_false")]
+    pub(crate) hidden: bool,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
 struct Data {
     title: String,
     note: String,
@@ -51,7 +59,7 @@ struct Data {
     buffer_days: i32,
 
     #[serde(default = "types::default_vec")]
-    subtasks: Vec<Subtask>,
+    subtasks: Vec<DataSubtask>,
 
     #[serde(default = "types::default_true")]
     active: bool,
