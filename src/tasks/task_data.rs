@@ -12,9 +12,9 @@ use crate::tasks::task::contents::TaskVisibility;
 use crate::tasks::task::Task;
 use crate::tasks::task_dates::TaskDates;
 use crate::tasks::task_sections::TaskSections;
-use crate::tasks::types::FnLoadTaskType;
-use crate::tasks::{type_marked_day, type_progressive, type_recurring, type_simple};
-
+use crate::tasks::types::{
+    type_marked_day, type_progressive, type_recurring, type_simple, FnLoadTaskType,
+};
 pub struct TaskData {
     pub dates: TaskDates,
     pub sections: TaskSections,

@@ -2,6 +2,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+pub mod type_marked_day;
+pub mod type_progressive;
+pub mod type_recurring;
+pub mod type_simple;
+
 use std::fs::File;
 use std::path::Path;
 // dependencies
