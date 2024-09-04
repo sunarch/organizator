@@ -8,6 +8,7 @@ use std::fs::File;
 // dependencies
 use chrono::{NaiveDate, NaiveWeek};
 // internal
+use crate::tasks::task::contents::TaskVisibility;
 use crate::tasks::task::Task;
 use crate::tasks::task_data::TaskData;
 use crate::time;
@@ -156,17 +157,30 @@ fn print_section_dated(
 
 fn print_task_list(task_list: &Vec<Task>, output_fn: &FnOutput, file_option: &mut Option<File>) {
     for task in task_list {
-        if task.contents.active {
-            output_fn(&format!("- [ ] {}", task), file_option);
-        } else {
-            output_fn(&format!("- {}", task), file_option);
+        let done_marker: &str = if task.contents.is_done { "x" } else { " " };
+
+        match task.contents.visibility {
+            TaskVisibility::Visible => {
+                output_fn(&format!("- [{}] {}", done_marker, task), file_option);
+            }
+            TaskVisibility::Inactive => output_fn(&format!("- {}", task), file_option),
+            TaskVisibility::Hidden => continue,
         }
+
         for subtask in &task.meta.subtasks {
-            let done_marker: &str = if subtask.active { " " } else { "x" };
-            output_fn(
-                &format!("    - [{}] {}", done_marker, subtask.title),
-                file_option,
-            );
+            let done_marker: &str = if subtask.is_done { "x" } else { " " };
+
+            match subtask.visibility {
+                TaskVisibility::Visible => output_fn(
+                    &format!("    - [{}] {}", done_marker, subtask.title),
+                    file_option,
+                ),
+                TaskVisibility::Inactive => output_fn(
+                    &format!("    - ~~[{}] {}~~", done_marker, subtask.title),
+                    file_option,
+                ),
+                TaskVisibility::Hidden => continue,
+            }
         }
     }
 }

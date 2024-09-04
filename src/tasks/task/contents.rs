@@ -7,7 +7,15 @@ use std::fmt;
 pub struct TaskContents {
     pub title: String,
     pub note: String,
-    pub active: bool,
+    pub is_done: bool,
+    pub visibility: TaskVisibility,
+}
+
+#[derive(PartialEq)]
+pub enum TaskVisibility {
+    Visible,
+    Inactive,
+    Hidden,
 }
 
 impl fmt::Display for TaskContents {

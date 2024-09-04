@@ -17,6 +17,10 @@ pub fn default_true() -> bool {
     return true;
 }
 
+pub fn default_false() -> bool {
+    return false;
+}
+
 pub fn default_zero_i32() -> i32 {
     return 0;
 }
@@ -33,6 +37,9 @@ pub fn default_vec<T>() -> Vec<T> {
 pub(crate) struct Subtask {
     pub(crate) title: String,
     pub(crate) done: String,
+
+    #[serde(default = "default_false")]
+    pub(crate) hidden: bool,
 }
 
 pub(crate) fn load<Data: for<'de> serde::Deserialize<'de>>(file_path: &Path) -> Option<Data> {

@@ -9,7 +9,7 @@ use chrono::NaiveDate;
 use serde;
 // internal
 use crate::logging;
-use crate::tasks::task::contents::TaskContents;
+use crate::tasks::task::contents::{TaskContents, TaskVisibility};
 use crate::tasks::task::meta::TaskMeta;
 use crate::tasks::task::Task;
 use crate::tasks::task_data::TaskAddable;
@@ -55,6 +55,9 @@ struct Data {
 
     #[serde(default = "types::default_true")]
     active: bool,
+
+    #[serde(default = "types::default_false")]
+    pub(crate) hidden: bool,
 }
 
 pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
@@ -137,9 +140,22 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
         .map(|subtask| TaskContents {
             title: subtask.title.clone(),
             note: "".to_string(),
-            active: subtask.done.is_empty(),
+            is_done: !subtask.done.is_empty(),
+            visibility: if subtask.hidden {
+                TaskVisibility::Hidden
+            } else {
+                TaskVisibility::Visible
+            },
         })
         .collect();
+
+    let mut task_visibility: TaskVisibility = TaskVisibility::Visible;
+    if !data.active {
+        task_visibility = TaskVisibility::Inactive;
+    }
+    if data.hidden {
+        task_visibility = TaskVisibility::Hidden;
+    }
 
     let task: Task = Task {
         meta: TaskMeta {
@@ -149,7 +165,8 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
         contents: TaskContents {
             title: data.title,
             note: data.note,
-            active: data.active,
+            is_done: false,
+            visibility: task_visibility,
         },
     };
 

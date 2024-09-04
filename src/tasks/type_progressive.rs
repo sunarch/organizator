@@ -8,7 +8,7 @@ use chrono::NaiveDate;
 use serde;
 // internal
 use crate::logging;
-use crate::tasks::task::contents::TaskContents;
+use crate::tasks::task::contents::{TaskContents, TaskVisibility};
 use crate::tasks::task::meta::TaskMeta;
 use crate::tasks::task::Task;
 use crate::tasks::task_data::TaskAddable;
@@ -78,7 +78,8 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
         contents: TaskContents {
             title: data.title,
             note: task_note,
-            active: true,
+            is_done: false,
+            visibility: TaskVisibility::Visible,
         },
     };
 

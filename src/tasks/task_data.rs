@@ -8,6 +8,7 @@ use std::path::{Display, Path, PathBuf};
 use chrono::NaiveDate;
 // internal
 use crate::logging;
+use crate::tasks::task::contents::TaskVisibility;
 use crate::tasks::task::Task;
 use crate::tasks::task_dates::TaskDates;
 use crate::tasks::task_sections::TaskSections;
@@ -85,7 +86,7 @@ impl TaskAddable for TaskData {
         let task_sections: &mut TaskSections = &mut self.sections;
         let task_dates: &TaskDates = &self.dates;
 
-        if !task.contents.active {
+        if task.contents.visibility == TaskVisibility::Inactive {
             task_sections.inactive.push(task);
             return;
         }

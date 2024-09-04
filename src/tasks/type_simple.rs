@@ -8,7 +8,7 @@ use chrono::NaiveDate;
 use serde;
 // internal
 use crate::logging;
-use crate::tasks::task::contents::TaskContents;
+use crate::tasks::task::contents::{TaskContents, TaskVisibility};
 use crate::tasks::task::meta::TaskMeta;
 use crate::tasks::task::Task;
 use crate::tasks::task_data::TaskAddable;
@@ -55,6 +55,13 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             Ok(date) => date,
         };
 
+        let is_done: bool = !item.done.is_empty();
+        let visibility: TaskVisibility = if is_done {
+            TaskVisibility::Hidden
+        } else {
+            TaskVisibility::Visible
+        };
+
         let task: Task = Task {
             meta: TaskMeta {
                 frequency: data.prefix.clone(),
@@ -63,7 +70,8 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             contents: TaskContents {
                 title: item.title,
                 note: item.note,
-                active: item.done.is_empty(),
+                is_done,
+                visibility,
             },
         };
 

@@ -52,7 +52,7 @@ impl PartialEq for Task {
         self.meta.frequency == other.meta.frequency
             && self.contents.title == other.contents.title
             && self.contents.note == other.contents.note
-            && self.contents.active == other.contents.active
+            && self.contents.is_done == other.contents.is_done
     }
 }
 impl Eq for Task {}

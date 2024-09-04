@@ -7,7 +7,7 @@ use std::path::Path;
 use chrono::NaiveDate;
 use serde;
 // internal
-use crate::tasks::task::contents::TaskContents;
+use crate::tasks::task::contents::{TaskContents, TaskVisibility};
 use crate::tasks::task::meta::TaskMeta;
 use crate::tasks::task::Task;
 use crate::tasks::task_data::TaskAddable;
@@ -91,21 +91,23 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
                 Some(date) => date,
             };
 
-            let is_done: bool = date_last_observed > date_current_year;
+            let is_done_for_current_year: bool = date_last_observed > date_current_year;
 
             let subtask_current_year: TaskContents = TaskContents {
                 title: subtask_title(&item.title, item.year, task_data.year_current()),
                 note: Default::default(),
-                active: !is_done,
+                is_done: is_done_for_current_year,
+                visibility: TaskVisibility::Visible,
             };
 
             subtasks_current_year.push(subtask_current_year);
 
-            if is_done {
+            if is_done_for_current_year {
                 let subtask_next_year: TaskContents = TaskContents {
                     title: subtask_title(&item.title, item.year, task_data.year_next()),
                     note: Default::default(),
-                    active: true,
+                    is_done: false,
+                    visibility: TaskVisibility::Visible,
                 };
 
                 subtasks_next_year.push(subtask_next_year);
@@ -114,9 +116,8 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
 
         if !subtasks_current_year
             .iter()
-            .map(|subtask| !subtask.active)
-            .reduce(|inactive_self, inactive_other| inactive_self && inactive_other)
-            .expect("Failed to reduce subtasks to all inactive bool")
+            .map(|subtask| subtask.is_done)
+            .all(|is_done| is_done)
         {
             let task_current_year: Task = Task {
                 meta: TaskMeta {
@@ -126,7 +127,8 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
                 contents: TaskContents {
                     title: data.mark_title.clone(),
                     note: Default::default(),
-                    active: true,
+                    is_done: false,
+                    visibility: TaskVisibility::Visible,
                 },
             };
 
@@ -142,7 +144,8 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
                 contents: TaskContents {
                     title: data.mark_title.clone(),
                     note: Default::default(),
-                    active: true,
+                    is_done: false,
+                    visibility: TaskVisibility::Visible,
                 },
             };
 
