@@ -15,7 +15,7 @@ use crate::time;
 use crate::time::timestamp;
 use crate::words;
 
-pub type FnOutput = dyn Fn(&String, &mut Option<File>);
+pub(crate) type FnOutput = dyn Fn(&String, &mut Option<File>);
 
 pub(crate) fn print_list(
     task_data: &TaskData,

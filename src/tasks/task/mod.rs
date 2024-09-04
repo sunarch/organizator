@@ -2,8 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-pub mod contents;
-pub mod meta;
+pub(crate) mod contents;
+pub(crate) mod meta;
 
 use std::cmp::Ordering;
 use std::fmt;
@@ -11,9 +11,9 @@ use std::fmt;
 use crate::tasks::task::contents::TaskContents;
 use crate::tasks::task::meta::TaskMeta;
 
-pub struct Task {
-    pub meta: TaskMeta,
-    pub contents: TaskContents,
+pub(crate) struct Task {
+    pub(crate) meta: TaskMeta,
+    pub(crate) contents: TaskContents,
 }
 
 impl fmt::Display for Task {

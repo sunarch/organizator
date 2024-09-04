@@ -2,8 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-pub mod dates;
-pub mod sections;
+pub(crate) mod dates;
+pub(crate) mod sections;
 
 use std::fs::{self, DirEntry};
 use std::path::{Display, Path, PathBuf};
@@ -19,13 +19,13 @@ use crate::tasks::types::{
     type_marked_day, type_progressive, type_recurring, type_simple, FnLoadTaskType,
 };
 
-pub struct TaskData {
-    pub dates: TaskDates,
-    pub sections: TaskSections,
+pub(crate) struct TaskData {
+    pub(crate) dates: TaskDates,
+    pub(crate) sections: TaskSections,
 }
 
 impl TaskData {
-    pub fn load(data_dir_todo: &Path) -> Self {
+    pub(crate) fn load(data_dir_todo: &Path) -> Self {
         let dates: TaskDates = TaskDates::create();
         let sections: TaskSections = Default::default();
         let mut data: TaskData = TaskData { dates, sections };

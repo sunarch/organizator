@@ -6,9 +6,9 @@ use std::fmt;
 // internal
 use crate::tasks::task::contents::TaskContents;
 
-pub struct TaskMeta {
-    pub frequency: String,
-    pub subtasks: Vec<TaskContents>,
+pub(crate) struct TaskMeta {
+    pub(crate) frequency: String,
+    pub(crate) subtasks: Vec<TaskContents>,
 }
 
 impl fmt::Display for TaskMeta {

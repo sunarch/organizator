@@ -4,15 +4,15 @@
 
 use std::fmt;
 
-pub struct TaskContents {
-    pub title: String,
-    pub note: String,
-    pub is_done: bool,
-    pub visibility: TaskVisibility,
+pub(crate) struct TaskContents {
+    pub(crate) title: String,
+    pub(crate) note: String,
+    pub(crate) is_done: bool,
+    pub(crate) visibility: TaskVisibility,
 }
 
 #[derive(PartialEq)]
-pub enum TaskVisibility {
+pub(crate) enum TaskVisibility {
     Visible,
     Inactive,
     Hidden,

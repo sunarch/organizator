@@ -7,14 +7,14 @@ use chrono::{Datelike, NaiveDate, NaiveWeek};
 // internal
 use crate::time;
 
-pub struct TaskDates {
-    pub today: NaiveDate,
-    pub current_year: i32,
-    pub next_year: i32,
-    pub first_in_dated_full_weeks: NaiveDate,
-    pub last_dated: NaiveDate,
-    pub dated_weeks_current_year: Vec<NaiveWeek>,
-    pub dated_weeks_next_year: Vec<NaiveWeek>,
+pub(crate) struct TaskDates {
+    pub(crate) today: NaiveDate,
+    pub(crate) current_year: i32,
+    pub(crate) next_year: i32,
+    pub(crate) first_in_dated_full_weeks: NaiveDate,
+    pub(crate) last_dated: NaiveDate,
+    pub(crate) dated_weeks_current_year: Vec<NaiveWeek>,
+    pub(crate) dated_weeks_next_year: Vec<NaiveWeek>,
 }
 
 enum DatedWeeksPart {
@@ -23,7 +23,7 @@ enum DatedWeeksPart {
 }
 
 impl TaskDates {
-    pub fn create() -> Self {
+    pub(crate) fn create() -> Self {
         let today: NaiveDate = time::today();
         let first_in_dated_full_weeks: NaiveDate = time::next_monday(&today);
         let last_dated: NaiveDate = time::first_sunday_after_12_months(&today);

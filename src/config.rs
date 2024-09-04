@@ -142,7 +142,7 @@ fn load_data_dir_single(
     return data_dir;
 }
 
-pub fn load_data_dirs() -> (PathBuf, PathBuf, PathBuf) {
+pub(crate) fn load_data_dirs() -> (PathBuf, PathBuf, PathBuf) {
     let config_dir: PathBuf = load_dir();
 
     let data_dir_todo: PathBuf =

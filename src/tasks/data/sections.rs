@@ -8,13 +8,13 @@ use chrono::NaiveDate;
 // internal
 use crate::tasks::task::Task;
 
-pub struct TaskSections {
-    pub overdue: BTreeMap<NaiveDate, Vec<Task>>,
-    pub today: Vec<Task>,
-    pub dated_current_week: BTreeMap<NaiveDate, Vec<Task>>,
-    pub dated: BTreeMap<NaiveDate, Vec<Task>>,
-    pub later: BTreeMap<NaiveDate, Vec<Task>>,
-    pub inactive: Vec<Task>,
+pub(crate) struct TaskSections {
+    pub(crate) overdue: BTreeMap<NaiveDate, Vec<Task>>,
+    pub(crate) today: Vec<Task>,
+    pub(crate) dated_current_week: BTreeMap<NaiveDate, Vec<Task>>,
+    pub(crate) dated: BTreeMap<NaiveDate, Vec<Task>>,
+    pub(crate) later: BTreeMap<NaiveDate, Vec<Task>>,
+    pub(crate) inactive: Vec<Task>,
 }
 
 impl Default for TaskSections {
