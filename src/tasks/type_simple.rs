@@ -15,13 +15,18 @@ use crate::tasks::types;
 pub(crate) const DIR_NAME: &str = "simple";
 
 #[derive(serde::Serialize, serde::Deserialize)]
-struct Data {
+struct SimpleItem {
     title: String,
     note: String,
-    description: String,
-    prefix: String,
     due: String,
     done: String,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+struct Data {
+    prefix: String,
+    description: String,
+    items: Vec<SimpleItem>,
 }
 
 pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
@@ -32,28 +37,30 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
         Some(data) => data,
     };
 
-    if !data.done.is_empty() {
-        return;
-    }
-
-    let due_date = match NaiveDate::parse_from_str(data.due.as_str(), "%Y-%m-%d") {
-        Err(_) => {
-            logging::error(format!(
-                "Failed to convert due date in simple task: '{}' ({})",
-                data.due, data.title
-            ));
-            return;
+    for item in data.items {
+        if !item.done.is_empty() {
+            continue;
         }
-        Ok(date) => date,
-    };
 
-    let task: Task = Task {
-        frequency: data.prefix,
-        title: data.title,
-        note: data.note,
-        subtasks: Default::default(),
-        active: data.done.is_empty(),
-    };
+        let due_date = match NaiveDate::parse_from_str(item.due.as_str(), "%Y-%m-%d") {
+            Err(_) => {
+                logging::error(format!(
+                    "Failed to convert due date in simple task: '{}' ({})",
+                    item.due, item.title
+                ));
+                return;
+            }
+            Ok(date) => date,
+        };
 
-    task_data.add_task(due_date, task);
+        let task: Task = Task {
+            frequency: data.prefix.clone(),
+            title: item.title,
+            note: item.note,
+            subtasks: Default::default(),
+            active: item.done.is_empty(),
+        };
+
+        task_data.add_task(due_date, task);
+    }
 }
