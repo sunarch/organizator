@@ -55,10 +55,10 @@ pub(crate) fn print_list(
         file_option,
     );
 
-    print_section_heading("later", output_fn, file_option);
+    print_section_heading(words::LATER, output_fn, file_option);
     print_section_general(&task_data.sections.later, output_fn, file_option);
 
-    print_section_heading("inactive", output_fn, file_option);
+    print_section_heading(words::INACTIVE, output_fn, file_option);
     print_section_list(&task_data.sections.inactive, output_fn, file_option);
 
     print_bottom_line(output_fn, file_option);
@@ -71,14 +71,29 @@ pub(crate) fn print_part_today(
     file_option: &mut Option<File>,
 ) {
     {
-        let heading: String = format!(">>>  TODAY  -  {} <<<", timestamp::day_short(today));
+        let heading: String = format!(
+            ">>>  {}  -  {} <<<",
+            words::TODAY.to_uppercase(),
+            timestamp::day_short(today)
+        );
         print_section_heading(heading.as_str(), output_fn, file_option);
     }
     print_section_list(task_list, output_fn, file_option);
 }
 
 fn print_title(output_fn: &FnOutput, file_option: &mut Option<File>) {
-    let line: String = format!("# 🗓️ {}", words::DATED_TITLE);
+    #[allow(clippy::const_is_empty)]
+    let icon_spacing: &str = if words::DATED_TITLE_ICON.is_empty() {
+        ""
+    } else {
+        " "
+    };
+    let line: String = format!(
+        "# {}️{}️{}",
+        words::DATED_TITLE_ICON,
+        icon_spacing,
+        words::DATED_TITLE
+    );
     output_fn(&line, file_option);
 }
 
