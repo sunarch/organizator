@@ -17,18 +17,18 @@ use crate::tasks::types;
 pub(crate) const DIR_NAME: &str = "simple";
 
 #[derive(Serialize, Deserialize)]
-struct SimpleItem {
+struct Data {
+    prefix: String,
+    description: String,
+    items: Vec<DataItem>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct DataItem {
     title: String,
     note: String,
     due: String,
     done: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Data {
-    prefix: String,
-    description: String,
-    items: Vec<SimpleItem>,
 }
 
 pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {

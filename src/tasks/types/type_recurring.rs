@@ -19,37 +19,12 @@ use crate::time;
 pub(crate) const DIR_NAME: &str = "recurring";
 
 #[derive(Serialize, Deserialize)]
-pub(crate) struct Frequency {
-    pub(crate) number: u8,
-    pub(crate) name: String,
-}
-
-impl fmt::Display for Frequency {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        return if self.number == 1 {
-            write!(f, "{}ly", self.name)
-        } else {
-            write!(f, "{}-{}", self.number, self.name)
-        };
-    }
-}
-
-#[derive(Serialize, Deserialize)]
-pub(crate) struct DataSubtask {
-    pub(crate) title: String,
-    pub(crate) done: String,
-
-    #[serde(default = "types::default_false")]
-    pub(crate) hidden: bool,
-}
-
-#[derive(Serialize, Deserialize)]
 struct Data {
     title: String,
     note: String,
     description: String,
 
-    frequency: Frequency,
+    frequency: DataFrequency,
     last: String,
 
     #[serde(default = "types::default_string")]
@@ -63,6 +38,31 @@ struct Data {
 
     #[serde(default = "types::default_true")]
     active: bool,
+
+    #[serde(default = "types::default_false")]
+    pub(crate) hidden: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+pub(crate) struct DataFrequency {
+    pub(crate) number: u8,
+    pub(crate) name: String,
+}
+
+impl fmt::Display for DataFrequency {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        return if self.number == 1 {
+            write!(f, "{}ly", self.name)
+        } else {
+            write!(f, "{}-{}", self.number, self.name)
+        };
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub(crate) struct DataSubtask {
+    pub(crate) title: String,
+    pub(crate) done: String,
 
     #[serde(default = "types::default_false")]
     pub(crate) hidden: bool,

@@ -18,16 +18,16 @@ use crate::time;
 pub(crate) const DIR_NAME: &str = "progressive";
 
 #[derive(Serialize, Deserialize)]
-struct ProgressiveItem {
-    title: String,
-    done: String,
-}
-
-#[derive(Serialize, Deserialize)]
 struct Data {
     title: String,
     description: String,
-    items: Vec<ProgressiveItem>,
+    items: Vec<DataItem>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct DataItem {
+    title: String,
+    done: String,
 }
 
 pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {

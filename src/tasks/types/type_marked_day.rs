@@ -16,27 +16,25 @@ use crate::time;
 
 pub(crate) const DIR_NAME: &str = "marked-day";
 
-#[derive(Serialize, Deserialize)]
-struct MarkedDayItem {
-    title: String,
-    year_last_observed: i32,
-
-    //#[serde(default = "types::default_zero_i32")]
-    year: Option<i32>,
-}
-
-#[derive(serde::Serialize, serde::Deserialize)]
-struct MarkedDayDay {
-    month: u32,
-    day: u32,
-    items: Vec<MarkedDayItem>,
-}
-
 #[derive(serde::Serialize, serde::Deserialize)]
 struct Data {
     mark_title: String,
     description: String,
-    days: Vec<MarkedDayDay>,
+    days: Vec<DataDay>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+struct DataDay {
+    month: u32,
+    day: u32,
+    items: Vec<DataItem>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct DataItem {
+    title: String,
+    year: Option<i32>,
+    year_last_observed: i32,
 }
 
 pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
