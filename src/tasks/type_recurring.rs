@@ -131,10 +131,20 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
             .expect("Failed to subtract day.");
     }
 
+    let subtasks: Vec<TaskContents> = data
+        .subtasks
+        .iter()
+        .map(|subtask| TaskContents {
+            title: subtask.title.clone(),
+            note: "".to_string(),
+            active: subtask.done.is_empty(),
+        })
+        .collect();
+
     let task: Task = Task {
         meta: TaskMeta {
             frequency: format!("{}", data.frequency),
-            subtasks: data.subtasks,
+            subtasks,
         },
         contents: TaskContents {
             title: data.title,

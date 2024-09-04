@@ -162,7 +162,7 @@ fn print_task_list(task_list: &Vec<Task>, output_fn: &FnOutput, file_option: &mu
             output_fn(&format!("- {}", task), file_option);
         }
         for subtask in &task.meta.subtasks {
-            if subtask.done.is_empty() {
+            if subtask.active {
                 output_fn(&format!("    - [ ] {}", subtask.title), file_option);
             }
         }

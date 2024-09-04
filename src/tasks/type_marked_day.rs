@@ -4,7 +4,7 @@
 
 use std::path::Path;
 // dependencies
-use chrono::{Datelike, NaiveDate};
+use chrono::NaiveDate;
 use serde;
 // internal
 use crate::tasks::task::contents::TaskContents;
@@ -12,7 +12,6 @@ use crate::tasks::task::meta::TaskMeta;
 use crate::tasks::task::Task;
 use crate::tasks::task_data::TaskAddable;
 use crate::tasks::types;
-use crate::tasks::types::Subtask;
 use crate::time;
 
 pub(crate) const DIR_NAME: &str = "marked-day";
@@ -75,8 +74,8 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             Some(date) => date,
         };
 
-        let mut subtasks_current_year: Vec<Subtask> = Default::default();
-        let mut subtasks_next_year: Vec<Subtask> = Default::default();
+        let mut subtasks_current_year: Vec<TaskContents> = Default::default();
+        let mut subtasks_next_year: Vec<TaskContents> = Default::default();
 
         for item in day.items {
             let date_last_observed = match time::parsing::date_opt_from_ymd(
@@ -92,24 +91,21 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
                 Some(date) => date,
             };
 
-            let done: String = if date_last_observed > date_current_year {
-                date_current_year.year().to_string()
-            } else {
-                "".to_string()
-            };
-            let is_done: bool = !done.is_empty();
+            let is_done: bool = date_last_observed > date_current_year;
 
-            let subtask_current_year: Subtask = Subtask {
+            let subtask_current_year: TaskContents = TaskContents {
                 title: subtask_title(&item.title, item.year, task_data.year_current()),
-                done,
+                note: Default::default(),
+                active: !is_done,
             };
 
             subtasks_current_year.push(subtask_current_year);
 
             if is_done {
-                let subtask_next_year: Subtask = Subtask {
+                let subtask_next_year: TaskContents = TaskContents {
                     title: subtask_title(&item.title, item.year, task_data.year_next()),
-                    done: "".to_string(),
+                    note: Default::default(),
+                    active: true,
                 };
 
                 subtasks_next_year.push(subtask_next_year);
@@ -118,9 +114,9 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
 
         if !subtasks_current_year
             .iter()
-            .map(|subtask| !subtask.done.is_empty())
-            .reduce(|done_self, done_other| done_self && done_other)
-            .expect("Failed to reduce subtasks to all_done bool")
+            .map(|subtask| !subtask.active)
+            .reduce(|inactive_self, inactive_other| inactive_self && inactive_other)
+            .expect("Failed to reduce subtasks to all inactive bool")
         {
             let task_current_year: Task = Task {
                 meta: TaskMeta {
