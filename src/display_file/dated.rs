@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 // internal
 use crate::dated;
 use crate::logging;
-use crate::tasks::task_data::TaskData;
+use crate::tasks::data::TaskData;
 
 pub(crate) fn print(task_data: &TaskData, data_dir_todo_output: &Path) {
     let output_file_name: &str = "dated.md";

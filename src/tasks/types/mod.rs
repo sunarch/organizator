@@ -14,7 +14,7 @@ use serde;
 use serde_json;
 // internal
 use crate::logging;
-use crate::tasks::task_data::TaskAddable;
+use crate::tasks::data::TaskAddable;
 
 pub type FnLoadTaskType = dyn Fn(&Path, &mut dyn TaskAddable);
 

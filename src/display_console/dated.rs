@@ -5,7 +5,7 @@
 use std::fs::File;
 // internal
 use crate::dated;
-use crate::tasks::task_data::TaskData;
+use crate::tasks::data::TaskData;
 
 pub(crate) fn print(task_data: &TaskData) {
     dated::print_list(task_data, &output_fn, &mut None);

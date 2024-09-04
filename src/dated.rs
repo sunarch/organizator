@@ -8,9 +8,9 @@ use std::fs::File;
 // dependencies
 use chrono::{NaiveDate, NaiveWeek};
 // internal
+use crate::tasks::data::TaskData;
 use crate::tasks::task::contents::TaskVisibility;
 use crate::tasks::task::Task;
-use crate::tasks::task_data::TaskData;
 use crate::time;
 use crate::time::timestamp;
 use crate::words;

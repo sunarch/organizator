@@ -2,19 +2,23 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+pub mod dates;
+pub mod sections;
+
 use std::fs::{self, DirEntry};
 use std::path::{Display, Path, PathBuf};
 // dependencies
 use chrono::NaiveDate;
 // internal
 use crate::logging;
+use crate::tasks::data::dates::TaskDates;
+use crate::tasks::data::sections::TaskSections;
 use crate::tasks::task::contents::TaskVisibility;
 use crate::tasks::task::Task;
-use crate::tasks::task_dates::TaskDates;
-use crate::tasks::task_sections::TaskSections;
 use crate::tasks::types::{
     type_marked_day, type_progressive, type_recurring, type_simple, FnLoadTaskType,
 };
+
 pub struct TaskData {
     pub dates: TaskDates,
     pub sections: TaskSections,

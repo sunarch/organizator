@@ -13,7 +13,7 @@ mod time;
 mod words;
 
 // internal
-use crate::tasks::task_data::TaskData;
+use crate::tasks::data::TaskData;
 
 const OPTION_DEBUG: &str = "--debug";
 const OPTION_VERSION_SHORT: &str = "-v";
