@@ -19,7 +19,7 @@ pub(crate) const DIR_NAME: &str = "simple";
 #[derive(Serialize, Deserialize)]
 struct Data {
     prefix: String,
-    description: String,
+    description: Option<String>,
     items: Vec<DataItem>,
 }
 

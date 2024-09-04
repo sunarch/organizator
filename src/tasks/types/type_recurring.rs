@@ -22,7 +22,7 @@ pub(crate) const DIR_NAME: &str = "recurring";
 struct Data {
     title: String,
     note: String,
-    description: String,
+    description: Option<String>,
 
     frequency: DataFrequency,
     last: String,

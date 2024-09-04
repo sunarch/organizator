@@ -20,7 +20,7 @@ pub(crate) const DIR_NAME: &str = "progressive";
 #[derive(Serialize, Deserialize)]
 struct Data {
     title: String,
-    description: String,
+    description: Option<String>,
     items: Vec<DataItem>,
 }
 

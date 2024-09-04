@@ -19,7 +19,7 @@ pub(crate) const DIR_NAME: &str = "marked-day";
 #[derive(serde::Serialize, serde::Deserialize)]
 struct Data {
     mark_title: String,
-    description: String,
+    description: Option<String>,
     days: Vec<DataDay>,
 }
 
