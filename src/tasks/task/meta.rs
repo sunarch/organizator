@@ -34,7 +34,7 @@ impl fmt::Display for TaskMeta {
             }
         };
 
-        let display: String = format!("{}{}", frequency_display, time_of_day_display);
+        let display: String = format!("{}{}", time_of_day_display, frequency_display);
         return if display.is_empty() {
             write!(f, "")
         } else {
