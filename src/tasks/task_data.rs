@@ -12,7 +12,7 @@ use crate::tasks::task::Task;
 use crate::tasks::task_dates::TaskDates;
 use crate::tasks::task_sections::TaskSections;
 use crate::tasks::types::FnLoadTaskType;
-use crate::tasks::{type_progressive, type_recurring, type_simple};
+use crate::tasks::{type_marked_day, type_progressive, type_recurring, type_simple};
 
 pub struct TaskData {
     pub dates: TaskDates,
@@ -24,6 +24,10 @@ impl TaskData {
         let dates: TaskDates = TaskDates::create();
         let sections: TaskSections = Default::default();
         let mut data: TaskData = TaskData { dates, sections };
+        {
+            let dir_path: PathBuf = data_dir_todo.join(type_marked_day::DIR_NAME);
+            data.load_subdir(&dir_path, &type_marked_day::load);
+        }
         {
             let dir_path: PathBuf = data_dir_todo.join(type_progressive::DIR_NAME);
             data.load_subdir(&dir_path, &type_progressive::load_one);
@@ -72,6 +76,8 @@ impl TaskData {
 
 pub(crate) trait TaskAddable {
     fn add_task(&mut self, task_date: NaiveDate, task: Task);
+    fn year_current(&self) -> i32;
+    fn year_next(&self) -> i32;
 }
 
 impl TaskAddable for TaskData {
@@ -102,5 +108,13 @@ impl TaskAddable for TaskData {
             let tasks_dated: &mut Vec<Task> = task_sections.dated.entry(task_date).or_default();
             tasks_dated.push(task);
         }
+    }
+
+    fn year_current(&self) -> i32 {
+        return self.dates.current_year;
+    }
+
+    fn year_next(&self) -> i32 {
+        return self.dates.next_year;
     }
 }
