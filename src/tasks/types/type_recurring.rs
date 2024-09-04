@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use crate::logging;
 use crate::tasks::data::TaskAddable;
 use crate::tasks::task::contents::{TaskContents, TaskVisibility};
-use crate::tasks::task::meta::TaskMeta;
+use crate::tasks::task::meta::{TaskMeta, TaskTimeOfDay};
 use crate::tasks::task::Task;
 use crate::tasks::types;
 use crate::time;
@@ -26,6 +26,9 @@ struct Data {
 
     frequency: DataFrequency,
     last: String,
+
+    #[serde(default = "TaskTimeOfDay::default")]
+    time_of_day: TaskTimeOfDay,
 
     #[serde(default = "types::default_string")]
     snap_to: String,
@@ -168,6 +171,7 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
     let task: Task = Task {
         meta: TaskMeta {
             frequency: format!("{}", data.frequency),
+            time_of_day: data.time_of_day,
             subtasks,
         },
         contents: TaskContents {

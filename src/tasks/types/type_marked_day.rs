@@ -120,6 +120,7 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             let task_current_year: Task = Task {
                 meta: TaskMeta {
                     frequency: Default::default(),
+                    time_of_day: Default::default(),
                     subtasks: subtasks_current_year,
                 },
                 contents: TaskContents {
@@ -137,6 +138,7 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             let task_next_year: Task = Task {
                 meta: TaskMeta {
                     frequency: Default::default(),
+                    time_of_day: Default::default(),
                     subtasks: subtasks_next_year,
                 },
                 contents: TaskContents {

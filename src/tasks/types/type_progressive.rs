@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use crate::logging;
 use crate::tasks::data::TaskAddable;
 use crate::tasks::task::contents::{TaskContents, TaskVisibility};
-use crate::tasks::task::meta::TaskMeta;
+use crate::tasks::task::meta::{TaskMeta, TaskTimeOfDay};
 use crate::tasks::task::Task;
 use crate::tasks::types;
 use crate::time;
@@ -28,6 +28,9 @@ struct Data {
 struct DataItem {
     title: String,
     done: String,
+
+    #[serde(default = "TaskTimeOfDay::default")]
+    time_of_day: TaskTimeOfDay,
 }
 
 pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
@@ -40,9 +43,11 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
 
     let mut last_date_string: String = Default::default();
     let mut task_note: String = String::new();
+    let mut task_time_of_day: TaskTimeOfDay = Default::default();
     for item in data.items {
         if item.done.is_empty() {
             task_note = item.title;
+            task_time_of_day = item.time_of_day;
             break;
         } else {
             last_date_string = item.done;
@@ -73,6 +78,7 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
     let task: Task = Task {
         meta: TaskMeta {
             frequency: String::from("(PR)"),
+            time_of_day: task_time_of_day,
             subtasks: Default::default(),
         },
         contents: TaskContents {
