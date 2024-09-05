@@ -33,7 +33,7 @@ enum View {
 
 impl Default for View {
     fn default() -> Self {
-        return View::Dated;
+        return View::Today;
     }
 }
 
