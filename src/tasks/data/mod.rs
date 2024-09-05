@@ -92,9 +92,15 @@ impl TaskAddable for TaskData {
         let task_sections: &mut TaskSections = &mut self.sections;
         let task_dates: &TaskDates = &self.dates;
 
-        if task.contents.visibility == TaskVisibility::Inactive {
-            task_sections.inactive.push(task);
-            return;
+        match task.contents.visibility {
+            TaskVisibility::Visible => {}
+            TaskVisibility::Inactive => {
+                task_sections.inactive.push(task);
+                return;
+            }
+            TaskVisibility::Hidden => {
+                return;
+            }
         }
 
         if task_date < task_dates.today {
