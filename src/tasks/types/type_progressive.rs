@@ -88,6 +88,7 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
             data.title.as_str(),
         ),
     };
+    let mut all_done_for_current_day: bool = true; // default, changed below
     let current_day: &DataDay = match current_day_opt {
         None => {
             // no items with empty done: all items done
@@ -96,6 +97,7 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
         Some(day) => {
             if let Some(last_date) = search_for_last_date(&day.items, &data.title) {
                 last_date_opt = Some(last_date);
+                all_done_for_current_day = false;
             }
             day
         }
@@ -105,7 +107,7 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
     match last_date_opt {
         None => {}
         Some(last_date) => {
-            if last_date == task_date {
+            if last_date == task_date && all_done_for_current_day {
                 task_date = task_data.date_tomorrow();
             }
         }
