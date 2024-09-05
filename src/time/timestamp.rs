@@ -34,7 +34,7 @@ pub fn week(date: &NaiveDate) -> String {
         )
     };
 
-    return format!("#### {:?} ({})", date_monday.iso_week(), date_range_display);
+    return format!("{:?} ({})", date_monday.iso_week(), date_range_display);
 }
 
 pub fn day(date: &NaiveDate) -> String {

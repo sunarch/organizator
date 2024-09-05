@@ -121,7 +121,7 @@ fn print_section_heading<T: Display>(
 
 fn print_week_heading(date: &NaiveDate, output_fn: &FnOutput, file_option: &mut Option<File>) {
     print_empty_line(output_fn, file_option);
-    output_fn(&timestamp::week(date), file_option);
+    output_fn(&format!("#### {}", timestamp::week(date)), file_option);
 }
 
 fn print_day_heading(date: &NaiveDate, output_fn: &FnOutput, file_option: &mut Option<File>) {
