@@ -179,8 +179,17 @@ fn add_task(task: &Task, lines: &mut Vec<Line>) {
     let done_marker: &str = if task.contents.is_done { "x" } else { " " };
 
     match task.contents.visibility {
-        TaskVisibility::Visible => lines.push(Line::from(format!("- [{}] {}", done_marker, task))),
-        TaskVisibility::Inactive => lines.push(Line::from(format!("- {}", task))),
+        TaskVisibility::Visible => lines.push(Line::from(format!(
+            "- [{}] {} {}",
+            done_marker,
+            task.meta.markers_table(),
+            task
+        ))),
+        TaskVisibility::Inactive => lines.push(Line::from(format!(
+            "- {} {}",
+            task.meta.markers_table(),
+            task
+        ))),
         TaskVisibility::Hidden => {
             return Default::default();
         }

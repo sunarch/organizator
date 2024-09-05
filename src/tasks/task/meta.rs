@@ -16,30 +16,29 @@ pub(crate) struct TaskMeta {
 
 impl fmt::Display for TaskMeta {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let frequency_display: String = match self.frequency.interval {
-            TaskFrequencyInterval::None => "".to_string(),
-            _ => format!("{} - ", self.frequency),
-        };
+        let mut display: String = Default::default();
 
-        let time_of_day_mark: &str = match self.time_of_day {
-            TaskTimeOfDay::Any => "",
-            TaskTimeOfDay::Morning => "M",
-            TaskTimeOfDay::Midday => "D",
-            TaskTimeOfDay::Evening => "E",
-        };
-        let time_of_day_display: String = match self.time_of_day {
-            TaskTimeOfDay::Any => "".to_string(),
-            _ => {
-                format!("({}) ", time_of_day_mark)
-            }
-        };
+        if self.frequency.interval != TaskFrequencyInterval::None {
+            display = format!("{}{} - ", display, self.frequency);
+        }
 
-        let display: String = format!("{}{}", time_of_day_display, frequency_display);
-        return if display.is_empty() {
-            write!(f, "")
-        } else {
-            write!(f, "{}", display)
-        };
+        return write!(f, "{}", display);
+    }
+}
+
+impl TaskMeta {
+    pub(crate) fn markers_table(&self) -> String {
+        return format!("|{}|", self.time_of_day);
+    }
+
+    pub(crate) fn markers_prefix(&self) -> String {
+        let mut display: String = Default::default();
+
+        if self.time_of_day != TaskTimeOfDay::Any {
+            display = format!("{} ({})", display, self.time_of_day);
+        }
+
+        return display.trim().to_string();
     }
 }
 
@@ -116,5 +115,17 @@ pub(crate) enum TaskTimeOfDay {
 impl Default for TaskTimeOfDay {
     fn default() -> Self {
         return TaskTimeOfDay::Any;
+    }
+}
+
+impl fmt::Display for TaskTimeOfDay {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let time_of_day_mark: &str = match self {
+            TaskTimeOfDay::Any => " ",
+            TaskTimeOfDay::Morning => "M",
+            TaskTimeOfDay::Midday => "D",
+            TaskTimeOfDay::Evening => "E",
+        };
+        write!(f, "{}", time_of_day_mark)
     }
 }

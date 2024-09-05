@@ -184,9 +184,20 @@ fn print_task(task: &Task, output_fn: &FnOutput, file_option: &mut Option<File>)
 
     match task.contents.visibility {
         TaskVisibility::Visible => {
-            output_fn(&format!("- [{}] {}", done_marker, task), file_option);
+            output_fn(
+                &format!(
+                    "- [{}] {} {}",
+                    done_marker,
+                    task.meta.markers_prefix(),
+                    task
+                ),
+                file_option,
+            );
         }
-        TaskVisibility::Inactive => output_fn(&format!("- {}", task), file_option),
+        TaskVisibility::Inactive => output_fn(
+            &format!("- {} {}", task.meta.markers_prefix(), task),
+            file_option,
+        ),
         TaskVisibility::Hidden => return,
     }
 
