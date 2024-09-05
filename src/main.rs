@@ -66,7 +66,7 @@ fn main() {
         Intent::FileUpdateOnly => {}
         Intent::PrintDated => display_console::dated::print(&task_data),
         Intent::PrintToday => display_console::dated::print_today(&task_data),
-        Intent::RunTUI => display_tui::run().expect("Error running TUI"),
+        Intent::RunTUI => display_tui::run(&task_data).expect("Error running TUI"),
     }
 }
 
