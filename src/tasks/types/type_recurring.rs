@@ -105,6 +105,11 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
 
     let today: NaiveDate = time::today();
 
+    if data.buffer_days != 0 {
+        task_date = time::adjust_by_buffer_days(&task_date, data.buffer_days)
+            .expect("Failed to subtract day.");
+    }
+
     match data.snap_to.as_str() {
         "none" | "" => {}
         "today" => {
@@ -128,11 +133,6 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
             return;
         }
     };
-
-    if data.buffer_days != 0 {
-        task_date = time::adjust_by_buffer_days(&task_date, data.buffer_days)
-            .expect("Failed to subtract day.");
-    }
 
     let subtasks: Vec<TaskContents> = data
         .subtasks
