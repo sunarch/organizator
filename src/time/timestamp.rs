@@ -7,7 +7,7 @@ use chrono::{DateTime, Datelike, Days, Local, NaiveDate, Weekday};
 // internal
 use crate::time;
 
-pub fn week(date: &NaiveDate) -> String {
+pub fn week(date: &NaiveDate, align_to_middle: bool) -> String {
     let date_monday: NaiveDate = if date.weekday() == Weekday::Mon {
         *date
     } else {
@@ -34,7 +34,14 @@ pub fn week(date: &NaiveDate) -> String {
         )
     };
 
-    return format!("{:?} ({})", date_monday.iso_week(), date_range_display);
+    return match align_to_middle {
+        false => format!("{:?} ({})", date_monday.iso_week(), date_range_display),
+        true => format!(
+            "{: >13} {: <20}",
+            format!("{:?}", date_monday.iso_week()),
+            format!("({})", date_range_display)
+        ),
+    };
 }
 
 pub fn day(date: &NaiveDate) -> String {
