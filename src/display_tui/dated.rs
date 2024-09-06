@@ -182,30 +182,35 @@ fn add_task(task: &Task, lines: &mut Vec<Line>) {
         TaskVisibility::Visible => lines.push(Line::from(format!(
             "- [{}] {} {}",
             done_marker,
-            task.meta.markers_table(),
-            task
+            task.meta.format_as_table_row(),
+            task.contents
         ))),
         TaskVisibility::Inactive => lines.push(Line::from(format!(
             "- {} {}",
-            task.meta.markers_table(),
-            task
+            task.meta.format_as_table_row(),
+            task.contents
         ))),
         TaskVisibility::Hidden => {
             return Default::default();
         }
     }
 
+    const SUBTASK_INDENT: usize = 21;
     for subtask in &task.meta.subtasks {
         let done_marker: &str = if subtask.is_done { "x" } else { " " };
 
         match subtask.visibility {
             TaskVisibility::Visible => lines.push(Line::from(format!(
-                "    - [{}] {}",
-                done_marker, subtask.title
+                "{}- [{}] {}",
+                " ".repeat(SUBTASK_INDENT),
+                done_marker,
+                subtask.title
             ))),
             TaskVisibility::Inactive => lines.push(Line::from(format!(
-                "    - ~~[{}] {}~~",
-                done_marker, subtask.title
+                "{}- ~~[{}] {}~~",
+                " ".repeat(SUBTASK_INDENT),
+                done_marker,
+                subtask.title
             ))),
             TaskVisibility::Hidden => continue,
         }

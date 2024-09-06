@@ -18,27 +18,35 @@ impl fmt::Display for TaskMeta {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut display: String = Default::default();
 
-        if self.frequency.interval != TaskFrequencyInterval::None {
-            display = format!("{}{} - ", display, self.frequency);
-        }
-
-        return write!(f, "{}", display);
-    }
-}
-
-impl TaskMeta {
-    pub(crate) fn markers_table(&self) -> String {
-        return format!("|{}|", self.time_of_day);
-    }
-
-    pub(crate) fn markers_prefix(&self) -> String {
-        let mut display: String = Default::default();
-
         if self.time_of_day != TaskTimeOfDay::Any {
             display = format!("{} ({})", display, self.time_of_day);
         }
 
-        return display.trim().to_string();
+        if self.frequency.interval != TaskFrequencyInterval::None {
+            display = format!("{} {} - ", display, self.frequency);
+        }
+
+        return write!(f, "{}", display.trim_start());
+    }
+}
+
+impl TaskMeta {
+    pub(crate) fn format_as_table_row(&self) -> String {
+        let frequency_number_display = match self.frequency.number {
+            None => " ".repeat(3),
+            Some(1) => " ".repeat(3),
+            Some(number) => format!("{: >2}-", number),
+        };
+        let frequency_interval_display = match self.frequency.number {
+            None => " ".repeat(7),
+            Some(1) => format!("{: <7}", format!("{}ly", self.frequency.interval)),
+            Some(_) => format!("{: <7}", format!("{}  ", self.frequency.interval)),
+        };
+
+        return format!(
+            "|{}|{}{}|",
+            self.time_of_day, frequency_number_display, frequency_interval_display
+        );
     }
 }
 
