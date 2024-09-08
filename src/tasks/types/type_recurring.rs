@@ -103,7 +103,7 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
         Some(date) => date,
     };
 
-    let today: NaiveDate = time::today();
+    let today: NaiveDate = task_data.date_today();
 
     if data.buffer_days != 0 {
         task_date = time::adjust_by_buffer_days(&task_date, data.buffer_days)
