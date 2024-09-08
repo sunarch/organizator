@@ -39,7 +39,7 @@ impl TaskMeta {
         };
         let frequency_interval_display = match self.frequency.number {
             None => " ".repeat(7),
-            Some(1) => format!("{: <7}", format!("{}ly", self.frequency.interval)),
+            Some(1) => format!("{: <7}", self.frequency.interval.format_frequency_one()),
             Some(_) => format!("{: <7}", format!("{}  ", self.frequency.interval)),
         };
 
@@ -69,7 +69,7 @@ impl fmt::Display for TaskFrequency {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         return match &self.number {
             None => write!(f, "{}", self.interval),
-            Some(1) => write!(f, "{}ly", self.interval),
+            Some(1) => write!(f, "{}", self.interval.format_frequency_one()),
             Some(number) => write!(f, "{}-{}", number, self.interval),
         };
     }
@@ -109,6 +109,17 @@ impl fmt::Display for TaskFrequencyInterval {
             TaskFrequencyInterval::None => "",
         };
         return write!(f, "{}", frequency_mark);
+    }
+}
+
+impl TaskFrequencyInterval {
+    fn format_frequency_one(&self) -> String {
+        return match self {
+            TaskFrequencyInterval::Other(text) => text.clone(),
+            TaskFrequencyInterval::None => "".to_string(),
+            TaskFrequencyInterval::Day => "daily".to_string(),
+            _ => format!("{}ly", self),
+        };
     }
 }
 
