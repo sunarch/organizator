@@ -58,6 +58,8 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             Ok(date) => date,
         };
 
+        let title: String = format!("{}  >>  {}", data.prefix, item.title);
+
         let is_done: bool = !item.done.is_empty();
         let visibility: TaskVisibility = if is_done {
             TaskVisibility::Hidden
@@ -69,13 +71,13 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             meta: TaskMeta {
                 frequency: TaskFrequency {
                     number: None,
-                    interval: TaskFrequencyInterval::Other(data.prefix.clone()),
+                    interval: TaskFrequencyInterval::None,
                 },
                 time_of_day: item.time_of_day,
                 subtasks: Default::default(),
             },
             contents: TaskContents {
-                title: item.title,
+                title,
                 note: item.note,
                 is_done,
                 visibility,
