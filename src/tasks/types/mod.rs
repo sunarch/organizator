@@ -30,10 +30,6 @@ pub(crate) fn default_zero_i32() -> i32 {
     return 0;
 }
 
-pub(crate) fn default_string() -> String {
-    return Default::default();
-}
-
 pub(crate) fn default_vec<T>() -> Vec<T> {
     return Default::default();
 }

@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use std::fmt::{Display, Formatter};
 use std::path::Path;
 // dependencies
 use chrono::NaiveDate;
@@ -26,11 +27,10 @@ struct Data {
     frequency: TaskFrequency,
     last: String,
 
+    snap_to: Option<DataSnapTo>,
+
     #[serde(default = "TaskTimeOfDay::default")]
     time_of_day: TaskTimeOfDay,
-
-    #[serde(default = "types::default_string")]
-    snap_to: String,
 
     #[serde(default = "types::default_zero_i32")]
     buffer_days: i32,
@@ -52,6 +52,36 @@ pub(crate) struct DataSubtask {
 
     #[serde(default = "types::default_false")]
     pub(crate) hidden: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+enum DataSnapTo {
+    ToBeDetermined,
+    Today,
+    Mon,
+    Tue,
+    Wed,
+    Thu,
+    Fri,
+    Sat,
+    Sun,
+}
+
+impl Display for DataSnapTo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let display: &str = match self {
+            DataSnapTo::ToBeDetermined => "TBD",
+            DataSnapTo::Today => "Today",
+            DataSnapTo::Mon => "Mon",
+            DataSnapTo::Tue => "Tue",
+            DataSnapTo::Wed => "Wed",
+            DataSnapTo::Thu => "Thu",
+            DataSnapTo::Fri => "Fri",
+            DataSnapTo::Sat => "Sat",
+            DataSnapTo::Sun => "Sun",
+        };
+        return write!(f, "{}", display);
+    }
 }
 
 pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
@@ -110,29 +140,30 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
             .expect("Failed to subtract day.");
     }
 
-    match data.snap_to.as_str() {
-        "none" | "" => {}
-        "today" => {
-            if task_date < today {
-                task_date = today;
+    if let Some(snap_to) = data.snap_to {
+        match snap_to {
+            DataSnapTo::ToBeDetermined => {}
+            DataSnapTo::Today => {
+                if task_date < today {
+                    task_date = today;
+                }
+            }
+            DataSnapTo::Mon
+            | DataSnapTo::Tue
+            | DataSnapTo::Wed
+            | DataSnapTo::Thu
+            | DataSnapTo::Fri
+            | DataSnapTo::Sat
+            | DataSnapTo::Sun => {
+                if task_date < today {
+                    task_date = today;
+                }
+                while !time::weekday_abbrev(&task_date).eq(&format!("{}", snap_to)) {
+                    task_date = time::increment_by_one_day(&task_date);
+                }
             }
         }
-        "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun" => {
-            if task_date < today {
-                task_date = today;
-            }
-            while !time::weekday_abbrev(&task_date).eq(&data.snap_to) {
-                task_date = time::increment_by_one_day(&task_date);
-            }
-        }
-        _ => {
-            logging::error(format!(
-                "Unable to parse task snap_to: '{}' ({})",
-                data.snap_to, data.title
-            ));
-            return;
-        }
-    };
+    }
 
     let subtasks: Vec<TaskContents> = data
         .subtasks
