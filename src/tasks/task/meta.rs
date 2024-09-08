@@ -37,11 +37,15 @@ impl TaskMeta {
             Some(1) => " ".repeat(3),
             Some(number) => format!("{: >2}-", number),
         };
-        let frequency_interval_display = match self.frequency.number {
+        let mut frequency_interval_display = match self.frequency.number {
             None => " ".repeat(7),
             Some(1) => format!("{: <7}", self.frequency.interval.format_frequency_one()),
             Some(_) => format!("{: <7}", format!("{}  ", self.frequency.interval)),
         };
+
+        if let TaskFrequencyInterval::Other(text) = &self.frequency.interval {
+            frequency_interval_display = format!("{: <7}", text);
+        }
 
         return format!(
             "|{}|{}{}|",
