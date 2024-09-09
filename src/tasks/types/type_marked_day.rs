@@ -35,6 +35,7 @@ struct DataItem {
     title: String,
     year: Option<i32>,
     year_last_observed: i32,
+    hidden: Option<bool>,
 }
 
 pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
@@ -76,6 +77,10 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
         let mut subtasks_next_year: Vec<TaskContents> = Default::default();
 
         for item in day.items {
+            if item.hidden == Some(true) {
+                continue;
+            }
+
             let date_last_observed = match time::parsing::date_opt_from_ymd(
                 item.year_last_observed,
                 day.month,
@@ -116,6 +121,7 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             .iter()
             .map(|subtask| subtask.is_done)
             .all(|is_done| is_done)
+            && !subtasks_current_year.is_empty()
         {
             let task_current_year: Task = create_task(subtasks_current_year, &data.mark_title);
             task_data.add_task(date_current_year, task_current_year);
