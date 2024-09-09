@@ -2,10 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use std::fmt::{Display, Formatter};
 use std::path::Path;
 // dependencies
-use chrono::NaiveDate;
+use chrono::{Datelike, NaiveDate, Weekday};
 use serde::{Deserialize, Serialize};
 // internal
 use crate::logging;
@@ -28,6 +27,7 @@ struct Data {
     last: String,
 
     snap_to: Option<DataSnapTo>,
+    pivot: Option<DataPivot>,
 
     #[serde(default = "TaskTimeOfDay::default")]
     time_of_day: TaskTimeOfDay,
@@ -58,6 +58,15 @@ pub(crate) struct DataSubtask {
 enum DataSnapTo {
     ToBeDetermined,
     Today,
+}
+
+#[derive(Serialize, Deserialize)]
+struct DataPivot {
+    weekday: Option<DataWeekday>,
+}
+
+#[derive(Serialize, Deserialize)]
+enum DataWeekday {
     Mon,
     Tue,
     Wed,
@@ -67,20 +76,17 @@ enum DataSnapTo {
     Sun,
 }
 
-impl Display for DataSnapTo {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let display: &str = match self {
-            DataSnapTo::ToBeDetermined => "TBD",
-            DataSnapTo::Today => "Today",
-            DataSnapTo::Mon => "Mon",
-            DataSnapTo::Tue => "Tue",
-            DataSnapTo::Wed => "Wed",
-            DataSnapTo::Thu => "Thu",
-            DataSnapTo::Fri => "Fri",
-            DataSnapTo::Sat => "Sat",
-            DataSnapTo::Sun => "Sun",
+impl DataWeekday {
+    fn to_chrono_weekday(&self) -> Weekday {
+        return match self {
+            DataWeekday::Mon => Weekday::Mon,
+            DataWeekday::Tue => Weekday::Tue,
+            DataWeekday::Wed => Weekday::Wed,
+            DataWeekday::Thu => Weekday::Thu,
+            DataWeekday::Fri => Weekday::Fri,
+            DataWeekday::Sat => Weekday::Sat,
+            DataWeekday::Sun => Weekday::Sun,
         };
-        return write!(f, "{}", display);
     }
 }
 
@@ -135,6 +141,14 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
 
     let today: NaiveDate = task_data.date_today();
 
+    if let Some(pivot) = data.pivot {
+        if let Some(weekday) = pivot.weekday {
+            while task_date.weekday() != weekday.to_chrono_weekday() {
+                task_date = time::increment_by_one_day(&task_date);
+            }
+        }
+    }
+
     if data.buffer_days != 0 {
         task_date = time::adjust_by_buffer_days(&task_date, data.buffer_days)
             .expect("Failed to subtract day.");
@@ -142,26 +156,12 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
 
     if let Some(snap_to) = data.snap_to {
         match snap_to {
-            DataSnapTo::ToBeDetermined => {}
             DataSnapTo::Today => {
                 if task_date < today {
                     task_date = today;
                 }
             }
-            DataSnapTo::Mon
-            | DataSnapTo::Tue
-            | DataSnapTo::Wed
-            | DataSnapTo::Thu
-            | DataSnapTo::Fri
-            | DataSnapTo::Sat
-            | DataSnapTo::Sun => {
-                if task_date < today {
-                    task_date = today;
-                }
-                while !time::weekday_abbrev(&task_date).eq(&format!("{}", snap_to)) {
-                    task_date = time::increment_by_one_day(&task_date);
-                }
-            }
+            DataSnapTo::ToBeDetermined => {}
         }
     }
 
