@@ -10,7 +10,9 @@ use serde::{Deserialize, Serialize};
 use crate::logging;
 use crate::tasks::data::TaskAddable;
 use crate::tasks::task::contents::{TaskContents, TaskVisibility};
-use crate::tasks::task::meta::{TaskFrequency, TaskFrequencyInterval, TaskMeta, TaskTimeOfDay};
+use crate::tasks::task::meta::{
+    TaskFrequency, TaskFrequencyInterval, TaskMeta, TaskMetaDisplayOptions, TaskTimeOfDay,
+};
 use crate::tasks::task::Task;
 use crate::tasks::types;
 
@@ -58,6 +60,9 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             Ok(date) => date,
         };
 
+        let today: NaiveDate = task_data.date_today();
+        let overdue: bool = due_date < today;
+
         let title: String = format!("{}  >>  {}", data.prefix, item.title);
 
         let is_done: bool = !item.done.is_empty();
@@ -74,7 +79,11 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
                     interval: TaskFrequencyInterval::None,
                 },
                 time_of_day: item.time_of_day,
+                overdue,
                 subtasks: Default::default(),
+                display_options: TaskMetaDisplayOptions {
+                    overdue_mark: due_date == today,
+                },
             },
             contents: TaskContents {
                 title,

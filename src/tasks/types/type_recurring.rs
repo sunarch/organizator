@@ -10,7 +10,9 @@ use serde::{Deserialize, Serialize};
 use crate::logging;
 use crate::tasks::data::TaskAddable;
 use crate::tasks::task::contents::{TaskContents, TaskVisibility};
-use crate::tasks::task::meta::{TaskFrequency, TaskFrequencyInterval, TaskMeta, TaskTimeOfDay};
+use crate::tasks::task::meta::{
+    TaskFrequency, TaskFrequencyInterval, TaskMeta, TaskMetaDisplayOptions, TaskTimeOfDay,
+};
 use crate::tasks::task::Task;
 use crate::tasks::types;
 use crate::time;
@@ -154,6 +156,8 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
             .expect("Failed to subtract day.");
     }
 
+    let overdue: bool = task_date < today;
+
     if let Some(snap_to) = data.snap_to {
         match snap_to {
             DataSnapTo::Today => {
@@ -192,7 +196,11 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
         meta: TaskMeta {
             frequency: data.frequency,
             time_of_day: data.time_of_day,
+            overdue,
             subtasks,
+            display_options: TaskMetaDisplayOptions {
+                overdue_mark: task_date == today && data.active,
+            },
         },
         contents: TaskContents {
             title: data.title,

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 // internal
 use crate::tasks::data::TaskAddable;
 use crate::tasks::task::contents::{TaskContents, TaskVisibility};
-use crate::tasks::task::meta::TaskMeta;
+use crate::tasks::task::meta::{TaskMeta, TaskMetaDisplayOptions};
 use crate::tasks::task::Task;
 use crate::tasks::types;
 use crate::time;
@@ -117,29 +117,46 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             }
         }
 
+        let today: NaiveDate = task_data.date_today();
+
         if !subtasks_current_year
             .iter()
             .map(|subtask| subtask.is_done)
             .all(|is_done| is_done)
             && !subtasks_current_year.is_empty()
         {
-            let task_current_year: Task = create_task(subtasks_current_year, &data.mark_title);
+            let overdue: bool = date_current_year < today;
+            let is_today: bool = date_next_year == today;
+            let task_current_year: Task =
+                create_task(subtasks_current_year, overdue, is_today, &data.mark_title);
             task_data.add_task(date_current_year, task_current_year);
         }
 
         if !subtasks_next_year.is_empty() {
-            let task_next_year: Task = create_task(subtasks_next_year, &data.mark_title);
+            let overdue: bool = date_next_year < today;
+            let is_today: bool = date_next_year == today;
+            let task_next_year: Task =
+                create_task(subtasks_next_year, overdue, is_today, &data.mark_title);
             task_data.add_task(date_next_year, task_next_year);
         }
     }
 }
 
-fn create_task(subtasks: Vec<TaskContents>, mark_title: &str) -> Task {
+fn create_task(
+    subtasks: Vec<TaskContents>,
+    overdue: bool,
+    is_today: bool,
+    mark_title: &str,
+) -> Task {
     return Task {
         meta: TaskMeta {
             frequency: Default::default(),
             time_of_day: Default::default(),
+            overdue,
             subtasks,
+            display_options: TaskMetaDisplayOptions {
+                overdue_mark: is_today,
+            },
         },
         contents: TaskContents {
             title: mark_title.to_string(),

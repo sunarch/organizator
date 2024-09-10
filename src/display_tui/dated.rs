@@ -235,7 +235,7 @@ fn add_task(task: &Task, lines: &mut Vec<Line>) {
         }
     }
 
-    const SUBTASK_INDENT: usize = 21;
+    const SUBTASK_INDENT: usize = 24; // manual from meta width
     for subtask in &task.meta.subtasks {
         let done_marker: &str = if subtask.is_done { "x" } else { " " };
 

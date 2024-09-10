@@ -7,12 +7,15 @@ use std::path::Path;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 // internal
+use crate::logging;
 use crate::tasks::data::TaskAddable;
 use crate::tasks::task::contents::{TaskContents, TaskVisibility};
-use crate::tasks::task::meta::{TaskFrequency, TaskFrequencyInterval, TaskMeta, TaskTimeOfDay};
+use crate::tasks::task::meta::{
+    TaskFrequency, TaskFrequencyInterval, TaskMeta, TaskMetaDisplayOptions, TaskTimeOfDay,
+};
 use crate::tasks::task::Task;
 use crate::tasks::types;
-use crate::{logging, time};
+use crate::time;
 
 pub(crate) const DIR_NAME: &str = "progressive";
 
@@ -121,7 +124,11 @@ pub(crate) fn load_one(file_path: &Path, task_data: &mut dyn TaskAddable) {
                     interval: TaskFrequencyInterval::Other("(PR)".to_string()),
                 },
                 time_of_day: item.time_of_day.clone(),
+                overdue: false,
                 subtasks: Default::default(),
+                display_options: TaskMetaDisplayOptions {
+                    overdue_mark: task_date == task_data.date_today(),
+                },
             },
             contents: TaskContents {
                 title: data.title.clone(),

@@ -11,7 +11,9 @@ use crate::tasks::task::contents::TaskContents;
 pub(crate) struct TaskMeta {
     pub(crate) frequency: TaskFrequency,
     pub(crate) time_of_day: TaskTimeOfDay,
+    pub(crate) overdue: bool,
     pub(crate) subtasks: Vec<TaskContents>,
+    pub(crate) display_options: TaskMetaDisplayOptions,
 }
 
 impl fmt::Display for TaskMeta {
@@ -23,7 +25,15 @@ impl fmt::Display for TaskMeta {
         }
 
         if self.frequency.interval != TaskFrequencyInterval::None {
-            display = format!("{} {} - ", display, self.frequency);
+            display = format!("{} {} ", display, self.frequency);
+        }
+
+        if self.overdue && self.display_options.overdue_mark {
+            display.push_str("(OD) ");
+        }
+
+        if !display.is_empty() {
+            display.push_str("- ");
         }
 
         return write!(f, "{}", display.trim_start());
@@ -32,12 +42,14 @@ impl fmt::Display for TaskMeta {
 
 impl TaskMeta {
     pub(crate) fn format_as_table_row(&self) -> String {
-        let frequency_number_display = match self.frequency.number {
+        let overdue_display: &str = if self.overdue { "OD" } else { "  " };
+
+        let frequency_number_display: String = match self.frequency.number {
             None => " ".repeat(3),
             Some(1) => " ".repeat(3),
             Some(number) => format!("{: >2}-", number),
         };
-        let mut frequency_interval_display = match self.frequency.number {
+        let mut frequency_interval_display: String = match self.frequency.number {
             None => " ".repeat(7),
             Some(1) => format!("{: <7}", self.frequency.interval.format_frequency_one()),
             Some(_) => format!("{: <7}", format!("{}  ", self.frequency.interval)),
@@ -47,10 +59,19 @@ impl TaskMeta {
             frequency_interval_display = format!("{: <7}", text);
         }
 
-        return format!(
-            "|{}|{}{}|",
-            self.time_of_day, frequency_number_display, frequency_interval_display
-        );
+        return match self.display_options.overdue_mark {
+            true => format!(
+                "|{}|{}{}|{}|",
+                self.time_of_day,
+                frequency_number_display,
+                frequency_interval_display,
+                overdue_display
+            ),
+            false => format!(
+                "|{}|{}{}|",
+                self.time_of_day, frequency_number_display, frequency_interval_display
+            ),
+        };
     }
 }
 
@@ -151,4 +172,8 @@ impl fmt::Display for TaskTimeOfDay {
         };
         write!(f, "{}", time_of_day_mark)
     }
+}
+
+pub(crate) struct TaskMetaDisplayOptions {
+    pub(crate) overdue_mark: bool,
 }
