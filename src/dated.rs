@@ -188,14 +188,19 @@ fn print_task(task: &Task, output_fn: &FnOutput, file_option: &mut Option<File>)
 
     for subtask in &task.meta.subtasks {
         let done_marker: &str = if subtask.is_done { "x" } else { " " };
+        let note: String = if subtask.note.is_empty() {
+            Default::default()
+        } else {
+            format!(" ({})", subtask.note)
+        };
 
         match subtask.visibility {
             TaskVisibility::Visible => output_fn(
-                &format!("    - [{}] {}", done_marker, subtask.title),
+                &format!("    - [{}] {}{}", done_marker, subtask.title, note),
                 file_option,
             ),
             TaskVisibility::Inactive => output_fn(
-                &format!("    - ~~[{}] {}~~", done_marker, subtask.title),
+                &format!("    - ~~[{}] {}{}~~", done_marker, subtask.title, note),
                 file_option,
             ),
             TaskVisibility::Hidden => continue,

@@ -238,19 +238,26 @@ fn add_task(task: &Task, lines: &mut Vec<Line>) {
     const SUBTASK_INDENT: usize = 24; // manual from meta width
     for subtask in &task.meta.subtasks {
         let done_marker: &str = if subtask.is_done { "x" } else { " " };
+        let note: String = if subtask.note.is_empty() {
+            Default::default()
+        } else {
+            format!(" ({})", subtask.note)
+        };
 
         match subtask.visibility {
             TaskVisibility::Visible => lines.push(Line::from(format!(
-                "{}- [{}] {}",
+                "{}- [{}] {}{}",
                 " ".repeat(SUBTASK_INDENT),
                 done_marker,
-                subtask.title
+                subtask.title,
+                note
             ))),
             TaskVisibility::Inactive => lines.push(Line::from(format!(
-                "{}- ~~[{}] {}~~",
+                "{}- ~~[{}] {}{}~~",
                 " ".repeat(SUBTASK_INDENT),
                 done_marker,
-                subtask.title
+                subtask.title,
+                note
             ))),
             TaskVisibility::Hidden => continue,
         }

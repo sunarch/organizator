@@ -33,6 +33,7 @@ struct DataDay {
 #[derive(Serialize, Deserialize)]
 struct DataItem {
     title: String,
+    note: Option<String>,
     year: Option<i32>,
     year_last_observed: i32,
     hidden: Option<bool>,
@@ -81,6 +82,8 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
                 continue;
             }
 
+            let subtask_note: String = item.note.unwrap_or_else(Default::default);
+
             let date_last_observed = match time::parsing::date_opt_from_ymd(
                 item.year_last_observed,
                 day.month,
@@ -98,7 +101,7 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
 
             let subtask_current_year: TaskContents = TaskContents {
                 title: subtask_title(&item.title, item.year, task_data.year_current()),
-                note: Default::default(),
+                note: subtask_note.clone(),
                 is_done: is_done_for_current_year,
                 visibility: TaskVisibility::Visible,
             };
@@ -108,7 +111,7 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             if is_done_for_current_year {
                 let subtask_next_year: TaskContents = TaskContents {
                     title: subtask_title(&item.title, item.year, task_data.year_next()),
-                    note: Default::default(),
+                    note: subtask_note.clone(),
                     is_done: false,
                     visibility: TaskVisibility::Visible,
                 };
