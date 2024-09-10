@@ -7,3 +7,10 @@ pub(crate) const DATED_TITLE: &str = "repeating - dated";
 pub(crate) const TODAY: &str = "today";
 pub(crate) const LATER: &str = "later";
 pub(crate) const INACTIVE: &str = "inactive";
+
+// TUI
+
+pub(crate) const QUIT_NOTE: &str = "press 'q' to quit";
+
+pub(crate) const TITLE_ALL_DATED: &str = "all dated";
+pub(crate) const TITLE_TODAY: &str = "today";

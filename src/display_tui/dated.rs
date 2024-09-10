@@ -9,27 +9,40 @@ use chrono::{NaiveDate, NaiveWeek};
 use ratatui::layout::Alignment;
 use ratatui::style::{Modifier, Style, Stylize};
 use ratatui::text::{Line, Span};
-use ratatui::widgets::{Paragraph, Wrap};
+use ratatui::widgets::block::Title;
+use ratatui::widgets::{Block, Paragraph, Wrap};
 // internal
 use crate::tasks::data::TaskData;
 use crate::tasks::task::contents::TaskVisibility;
 use crate::tasks::task::Task;
+use crate::time;
 use crate::time::timestamp;
-use crate::{time, words};
+use crate::words;
 
-fn par(lines: Vec<Line>) -> (Paragraph, usize) {
+fn par<'a>(lines: Vec<Line<'a>>, title: &'a str) -> (Paragraph<'a>, usize) {
     let line_count: usize = lines.len();
+    const PROGRAM_NAME: &str = env!("CARGO_PKG_NAME");
     return (
         Paragraph::new(lines)
             .style(Style::new().white().on_black())
             .alignment(Alignment::Left)
             .wrap(Wrap { trim: false })
-            .scroll((1, 0)),
+            .scroll((1, 0))
+            .block(
+                Block::bordered()
+                    .title(par_create_title(title, Alignment::Left))
+                    .title(par_create_title(PROGRAM_NAME, Alignment::Center))
+                    .title(par_create_title(words::QUIT_NOTE, Alignment::Right)),
+            ),
         line_count,
     );
 }
 
-pub(crate) fn par_of_dated(task_data: &TaskData) -> (Paragraph, usize) {
+fn par_create_title(text: &str, alignment: Alignment) -> Title {
+    return Title::from(format!("[ {} ]", text)).alignment(alignment);
+}
+
+pub(crate) fn par_of_all_dated(task_data: &TaskData) -> (Paragraph, usize) {
     let mut lines: Vec<Line> = Default::default();
 
     add_title(&mut lines);
@@ -64,7 +77,7 @@ pub(crate) fn par_of_dated(task_data: &TaskData) -> (Paragraph, usize) {
     add_section_heading(words::INACTIVE, &mut lines);
     add_section_list(&task_data.sections.inactive, &mut lines);
 
-    return par(lines);
+    return par(lines, words::TITLE_ALL_DATED);
 }
 
 pub(crate) fn par_of_today(task_data: &TaskData) -> (Paragraph, usize) {
@@ -76,7 +89,7 @@ pub(crate) fn par_of_today(task_data: &TaskData) -> (Paragraph, usize) {
         &mut lines,
     );
 
-    return par(lines);
+    return par(lines, words::TITLE_TODAY);
 }
 
 pub(crate) fn part_today(today: &NaiveDate, task_list: &Vec<Task>, lines: &mut Vec<Line>) {
