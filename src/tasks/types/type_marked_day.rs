@@ -94,7 +94,7 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
                 Some(date) => date,
             };
 
-            let is_done_for_current_year: bool = date_last_observed > date_current_year;
+            let is_done_for_current_year: bool = date_last_observed >= date_current_year;
 
             let subtask_current_year: TaskContents = TaskContents {
                 title: subtask_title(&item.title, item.year, task_data.year_current()),
