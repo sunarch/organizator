@@ -129,7 +129,7 @@ pub(crate) fn load(file_path: &Path, task_data: &mut dyn TaskAddable) {
             && !subtasks_current_year.is_empty()
         {
             let overdue: bool = date_current_year < today;
-            let is_today: bool = date_next_year == today;
+            let is_today: bool = date_current_year == today;
             let task_current_year: Task =
                 create_task(subtasks_current_year, overdue, is_today, &data.mark_title);
             task_data.add_task(date_current_year, task_current_year);
