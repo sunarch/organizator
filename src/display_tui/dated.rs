@@ -56,7 +56,7 @@ pub(crate) fn par_of_all_dated(task_data: &TaskData) -> (Paragraph, usize) {
     );
 
     add_section_heading(task_data.dates.current_year, &mut lines);
-    part_rest_of_the_week(&task_data.sections.dated_current_week, &mut lines);
+    part_rest_of_the_week(&task_data.sections.rest_of_the_week, &mut lines);
     add_section_dated(
         &task_data.sections.dated,
         &task_data.dates.dated_weeks_current_year,
@@ -119,7 +119,7 @@ pub(crate) fn part_today(today: &NaiveDate, task_list: &Vec<Task>, lines: &mut V
 pub(crate) fn par_of_rest_of_the_week(task_data: &TaskData) -> (Paragraph, usize) {
     let mut lines: Vec<Line> = Default::default();
 
-    part_rest_of_the_week(&task_data.sections.dated_current_week, &mut lines);
+    part_rest_of_the_week(&task_data.sections.rest_of_the_week, &mut lines);
 
     return par(lines, words::TITLE_REST_OF_THE_WEEK);
 }

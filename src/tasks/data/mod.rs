@@ -109,11 +109,9 @@ impl TaskAddable for TaskData {
         } else if task_date == task_dates.today {
             task_sections.today.push(task);
         } else if task_date > task_dates.today && task_date < task_dates.first_in_dated_full_weeks {
-            let tasks_dated_current_week: &mut Vec<Task> = task_sections
-                .dated_current_week
-                .entry(task_date)
-                .or_default();
-            tasks_dated_current_week.push(task);
+            let tasks_rest_of_the_week: &mut Vec<Task> =
+                task_sections.rest_of_the_week.entry(task_date).or_default();
+            tasks_rest_of_the_week.push(task);
         } else if task_date > task_dates.last_dated {
             let tasks_later: &mut Vec<Task> = task_sections.later.entry(task_date).or_default();
             tasks_later.push(task);

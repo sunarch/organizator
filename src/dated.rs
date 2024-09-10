@@ -35,11 +35,7 @@ pub(crate) fn print_list(
     );
 
     print_section_heading(task_data.dates.current_year, output_fn, file_option);
-    print_section_general(
-        &task_data.sections.dated_current_week,
-        output_fn,
-        file_option,
-    );
+    print_section_general(&task_data.sections.rest_of_the_week, output_fn, file_option);
     print_section_dated(
         &task_data.sections.dated,
         &task_data.dates.dated_weeks_current_year,

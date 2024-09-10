@@ -11,7 +11,7 @@ use crate::tasks::task::Task;
 pub(crate) struct TaskSections {
     pub(crate) overdue: BTreeMap<NaiveDate, Vec<Task>>,
     pub(crate) today: Vec<Task>,
-    pub(crate) dated_current_week: BTreeMap<NaiveDate, Vec<Task>>,
+    pub(crate) rest_of_the_week: BTreeMap<NaiveDate, Vec<Task>>,
     pub(crate) dated: BTreeMap<NaiveDate, Vec<Task>>,
     pub(crate) later: BTreeMap<NaiveDate, Vec<Task>>,
     pub(crate) inactive: Vec<Task>,
@@ -22,7 +22,7 @@ impl Default for TaskSections {
         return TaskSections {
             overdue: Default::default(),
             today: Default::default(),
-            dated_current_week: Default::default(),
+            rest_of_the_week: Default::default(),
             dated: Default::default(),
             later: Default::default(),
             inactive: Default::default(),
@@ -38,7 +38,7 @@ impl TaskSections {
         {
             self.today.sort();
         }
-        for task_list in self.dated_current_week.values_mut() {
+        for task_list in self.rest_of_the_week.values_mut() {
             task_list.sort();
         }
         for task_list in self.dated.values_mut() {
