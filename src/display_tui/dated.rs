@@ -47,8 +47,7 @@ pub(crate) fn par_of_all_dated(task_data: &TaskData) -> (Paragraph, usize) {
 
     add_title(&mut lines);
 
-    // no heading for overdue section
-    add_section_general(&task_data.sections.overdue, &mut lines);
+    part_overdue(&task_data.sections.overdue, &mut lines);
 
     part_today(
         &task_data.dates.today,
@@ -57,7 +56,7 @@ pub(crate) fn par_of_all_dated(task_data: &TaskData) -> (Paragraph, usize) {
     );
 
     add_section_heading(task_data.dates.current_year, &mut lines);
-    add_section_general(&task_data.sections.dated_current_week, &mut lines);
+    part_rest_of_the_week(&task_data.sections.dated_current_week, &mut lines);
     add_section_dated(
         &task_data.sections.dated,
         &task_data.dates.dated_weeks_current_year,
@@ -78,6 +77,19 @@ pub(crate) fn par_of_all_dated(task_data: &TaskData) -> (Paragraph, usize) {
     add_section_list(&task_data.sections.inactive, &mut lines);
 
     return par(lines, words::TITLE_ALL_DATED);
+}
+
+pub(crate) fn par_of_overdue(task_data: &TaskData) -> (Paragraph, usize) {
+    let mut lines: Vec<Line> = Default::default();
+
+    part_overdue(&task_data.sections.overdue, &mut lines);
+
+    return par(lines, words::TITLE_OVERDUE);
+}
+
+pub(crate) fn part_overdue(task_map: &BTreeMap<NaiveDate, Vec<Task>>, lines: &mut Vec<Line>) {
+    // no heading for overdue section
+    add_section_general(task_map, lines);
 }
 
 pub(crate) fn par_of_today(task_data: &TaskData) -> (Paragraph, usize) {
@@ -102,6 +114,21 @@ pub(crate) fn part_today(today: &NaiveDate, task_list: &Vec<Task>, lines: &mut V
         add_section_heading(heading.as_str(), lines);
     }
     add_section_list(task_list, lines);
+}
+
+pub(crate) fn par_of_rest_of_the_week(task_data: &TaskData) -> (Paragraph, usize) {
+    let mut lines: Vec<Line> = Default::default();
+
+    part_rest_of_the_week(&task_data.sections.dated_current_week, &mut lines);
+
+    return par(lines, words::TITLE_REST_OF_THE_WEEK);
+}
+
+pub(crate) fn part_rest_of_the_week(
+    task_map: &BTreeMap<NaiveDate, Vec<Task>>,
+    lines: &mut Vec<Line>,
+) {
+    add_section_general(task_map, lines);
 }
 
 fn add_title(lines: &mut Vec<Line>) {
