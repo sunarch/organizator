@@ -46,32 +46,6 @@ fn par_create_title(text: &str, alignment: Alignment, to_bold: bool) -> Title {
     return Title::from(line).alignment(alignment);
 }
 
-pub(crate) fn par_of_later_and_other(task_data: &TaskData) -> (Paragraph, usize) {
-    let mut lines: Vec<Line> = Default::default();
-
-    add_section_heading(task_data.dates.current_year, &mut lines);
-    add_section_dated(
-        &task_data.sections.dated,
-        &task_data.dates.dated_weeks_current_year,
-        &mut lines,
-    );
-
-    add_section_heading(task_data.dates.next_year, &mut lines);
-    add_section_dated(
-        &task_data.sections.dated,
-        &task_data.dates.dated_weeks_next_year,
-        &mut lines,
-    );
-
-    add_section_heading(words::LATER, &mut lines);
-    add_section_general(&task_data.sections.later, &mut lines);
-
-    add_section_heading(words::INACTIVE, &mut lines);
-    add_section_list(&task_data.sections.inactive, &mut lines);
-
-    return par(lines, words::TITLE_LATER_AND_OTHER);
-}
-
 pub(crate) fn par_of_overdue(task_data: &TaskData) -> (Paragraph, usize) {
     let mut lines: Vec<Line> = Default::default();
 
@@ -111,6 +85,32 @@ pub(crate) fn par_of_rest_of_the_week(task_data: &TaskData) -> (Paragraph, usize
     add_section_general(&task_data.sections.rest_of_the_week, &mut lines);
 
     return par(lines, words::TITLE_REST_OF_THE_WEEK);
+}
+
+pub(crate) fn par_of_later_and_other(task_data: &TaskData) -> (Paragraph, usize) {
+    let mut lines: Vec<Line> = Default::default();
+
+    add_section_heading(task_data.dates.current_year, &mut lines);
+    add_section_dated(
+        &task_data.sections.dated,
+        &task_data.dates.dated_weeks_current_year,
+        &mut lines,
+    );
+
+    add_section_heading(task_data.dates.next_year, &mut lines);
+    add_section_dated(
+        &task_data.sections.dated,
+        &task_data.dates.dated_weeks_next_year,
+        &mut lines,
+    );
+
+    add_section_heading(words::LATER, &mut lines);
+    add_section_general(&task_data.sections.later, &mut lines);
+
+    add_section_heading(words::INACTIVE, &mut lines);
+    add_section_list(&task_data.sections.inactive, &mut lines);
+
+    return par(lines, words::TITLE_LATER_AND_OTHER);
 }
 
 fn add_section_heading<T: Display>(text: T, lines: &mut Vec<Line>) {
