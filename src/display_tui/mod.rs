@@ -3,6 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 pub(crate) mod dated;
+mod tui_view;
 
 use std::io;
 use std::time::Duration;
@@ -20,21 +21,9 @@ use ratatui::{
     Frame, Terminal,
 };
 // internal
+use crate::display_tui::tui_view::View;
 use crate::logging;
 use crate::tasks::data::TaskData;
-
-enum View {
-    Overdue,
-    Today,
-    RestOfTheWeek,
-    LaterAndOther,
-}
-
-impl Default for View {
-    fn default() -> Self {
-        return View::Today;
-    }
-}
 
 pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
     logging::info("Running TUI ...".to_string());
@@ -189,30 +178,12 @@ pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
                                 );
                             }
                         },
-                        KeyCode::Char('h') | KeyCode::Left => match current_view {
-                            View::Overdue => {}
-                            View::Today => {
-                                current_view = View::Overdue;
-                            }
-                            View::RestOfTheWeek => {
-                                current_view = View::Today;
-                            }
-                            View::LaterAndOther => {
-                                current_view = View::RestOfTheWeek;
-                            }
-                        },
-                        KeyCode::Char('l') | KeyCode::Right => match current_view {
-                            View::Overdue => {
-                                current_view = View::Today;
-                            }
-                            View::Today => {
-                                current_view = View::RestOfTheWeek;
-                            }
-                            View::RestOfTheWeek => {
-                                current_view = View::LaterAndOther;
-                            }
-                            View::LaterAndOther => {}
-                        },
+                        KeyCode::Char('h') | KeyCode::Left => {
+                            current_view = current_view.prev();
+                        }
+                        KeyCode::Char('l') | KeyCode::Right => {
+                            current_view = current_view.next();
+                        }
                         KeyCode::Char('1') => {
                             current_view = View::Overdue;
                         }
