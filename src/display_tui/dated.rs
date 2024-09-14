@@ -49,8 +49,6 @@ fn par_create_title(text: &str, alignment: Alignment, to_bold: bool) -> Title {
 pub(crate) fn par_of_all_dated(task_data: &TaskData) -> (Paragraph, usize) {
     let mut lines: Vec<Line> = Default::default();
 
-    add_title(&mut lines);
-
     part_overdue(&task_data.sections.overdue, &mut lines);
 
     part_today(
@@ -141,25 +139,6 @@ pub(crate) fn part_rest_of_the_week(
     lines: &mut Vec<Line>,
 ) {
     add_section_general(task_map, lines);
-}
-
-fn add_title(lines: &mut Vec<Line>) {
-    #[allow(clippy::const_is_empty)]
-    let icon_spacing: &str = if words::DATED_TITLE_ICON.is_empty() {
-        ""
-    } else {
-        " "
-    };
-
-    add_empty_line(lines);
-    lines.push(
-        Line::from(vec![
-            Span::raw(words::DATED_TITLE_ICON),
-            Span::raw(icon_spacing),
-            Span::styled(words::DATED_TITLE, Modifier::BOLD),
-        ])
-        .centered(),
-    );
 }
 
 fn add_section_heading<T: Display>(text: T, lines: &mut Vec<Line>) {
