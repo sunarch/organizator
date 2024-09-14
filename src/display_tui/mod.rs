@@ -25,6 +25,8 @@ use crate::display_tui::tui_view::View;
 use crate::logging;
 use crate::tasks::data::TaskData;
 
+const EVENT_POLL_TIMEOUT: Duration = Duration::from_millis(16);
+
 pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
     logging::info("Running TUI ...".to_string());
 
@@ -108,7 +110,7 @@ pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
             }
         })?;
 
-        if event::poll(Duration::from_millis(16))? {
+        if event::poll(EVENT_POLL_TIMEOUT)? {
             if let event::Event::Key(key) = event::read()? {
                 if key.kind == KeyEventKind::Press {
                     match key.code {
