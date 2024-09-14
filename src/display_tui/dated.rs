@@ -75,24 +75,24 @@ pub(crate) fn par_of_later_and_other(task_data: &TaskData) -> (Paragraph, usize)
 pub(crate) fn par_of_overdue(task_data: &TaskData) -> (Paragraph, usize) {
     let mut lines: Vec<Line> = Default::default();
 
-    part_overdue(&task_data.sections.overdue, &mut lines);
+    // no heading for overdue section
+    add_section_general(&task_data.sections.overdue, &mut lines);
 
     return par(lines, words::TITLE_OVERDUE);
-}
-
-pub(crate) fn part_overdue(task_map: &BTreeMap<NaiveDate, Vec<Task>>, lines: &mut Vec<Line>) {
-    // no heading for overdue section
-    add_section_general(task_map, lines);
 }
 
 pub(crate) fn par_of_today(task_data: &TaskData) -> (Paragraph, usize) {
     let mut lines: Vec<Line> = Default::default();
 
-    part_today(
-        &task_data.dates.today,
-        &task_data.sections.today,
-        &mut lines,
-    );
+    {
+        let heading: String = format!(
+            ">>>  {}  -  {} <<<",
+            words::TODAY.to_uppercase(),
+            timestamp::day_short(&task_data.dates.today)
+        );
+        add_section_heading(heading.as_str(), &mut lines);
+    }
+    add_section_list(&task_data.sections.today, &mut lines);
 
     if task_data.sections.today.is_empty() {
         add_empty_line(&mut lines);
@@ -105,31 +105,12 @@ pub(crate) fn par_of_today(task_data: &TaskData) -> (Paragraph, usize) {
     return par(lines, words::TITLE_TODAY);
 }
 
-pub(crate) fn part_today(today: &NaiveDate, task_list: &Vec<Task>, lines: &mut Vec<Line>) {
-    {
-        let heading: String = format!(
-            ">>>  {}  -  {} <<<",
-            words::TODAY.to_uppercase(),
-            timestamp::day_short(today)
-        );
-        add_section_heading(heading.as_str(), lines);
-    }
-    add_section_list(task_list, lines);
-}
-
 pub(crate) fn par_of_rest_of_the_week(task_data: &TaskData) -> (Paragraph, usize) {
     let mut lines: Vec<Line> = Default::default();
 
-    part_rest_of_the_week(&task_data.sections.rest_of_the_week, &mut lines);
+    add_section_general(&task_data.sections.rest_of_the_week, &mut lines);
 
     return par(lines, words::TITLE_REST_OF_THE_WEEK);
-}
-
-pub(crate) fn part_rest_of_the_week(
-    task_map: &BTreeMap<NaiveDate, Vec<Task>>,
-    lines: &mut Vec<Line>,
-) {
-    add_section_general(task_map, lines);
 }
 
 fn add_section_heading<T: Display>(text: T, lines: &mut Vec<Line>) {
