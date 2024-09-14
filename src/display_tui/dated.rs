@@ -101,6 +101,14 @@ pub(crate) fn par_of_today(task_data: &TaskData) -> (Paragraph, usize) {
         &mut lines,
     );
 
+    if task_data.sections.today.is_empty() {
+        add_empty_line(&mut lines);
+        add_empty_line(&mut lines);
+        add_empty_line(&mut lines);
+        const EMPTY_MESSAGE: &str = "All done for today :)";
+        lines.push(Line::from(vec![Span::styled(EMPTY_MESSAGE, Modifier::BOLD)]).centered());
+    }
+
     return par(lines, words::TITLE_TODAY);
 }
 
