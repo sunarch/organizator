@@ -12,7 +12,7 @@ pub(crate) const INACTIVE: &str = "inactive";
 
 pub(crate) const QUIT_NOTE: &str = "press 'q' to quit";
 
-pub(crate) const TITLE_ALL_DATED: &str = "all dated";
 pub(crate) const TITLE_OVERDUE: &str = "overdue";
 pub(crate) const TITLE_TODAY: &str = "today";
 pub(crate) const TITLE_REST_OF_THE_WEEK: &str = "rest of the week";
+pub(crate) const TITLE_LATER_AND_OTHER: &str = "later & other";

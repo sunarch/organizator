@@ -46,19 +46,10 @@ fn par_create_title(text: &str, alignment: Alignment, to_bold: bool) -> Title {
     return Title::from(line).alignment(alignment);
 }
 
-pub(crate) fn par_of_all_dated(task_data: &TaskData) -> (Paragraph, usize) {
+pub(crate) fn par_of_later_and_other(task_data: &TaskData) -> (Paragraph, usize) {
     let mut lines: Vec<Line> = Default::default();
 
-    part_overdue(&task_data.sections.overdue, &mut lines);
-
-    part_today(
-        &task_data.dates.today,
-        &task_data.sections.today,
-        &mut lines,
-    );
-
     add_section_heading(task_data.dates.current_year, &mut lines);
-    part_rest_of_the_week(&task_data.sections.rest_of_the_week, &mut lines);
     add_section_dated(
         &task_data.sections.dated,
         &task_data.dates.dated_weeks_current_year,
@@ -78,7 +69,7 @@ pub(crate) fn par_of_all_dated(task_data: &TaskData) -> (Paragraph, usize) {
     add_section_heading(words::INACTIVE, &mut lines);
     add_section_list(&task_data.sections.inactive, &mut lines);
 
-    return par(lines, words::TITLE_ALL_DATED);
+    return par(lines, words::TITLE_LATER_AND_OTHER);
 }
 
 pub(crate) fn par_of_overdue(task_data: &TaskData) -> (Paragraph, usize) {

@@ -24,10 +24,10 @@ use crate::logging;
 use crate::tasks::data::TaskData;
 
 enum View {
-    AllDated,
     Overdue,
     Today,
     RestOfTheWeek,
+    LaterAndOther,
 }
 
 impl Default for View {
@@ -46,11 +46,6 @@ pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
 
     let mut current_view: View = Default::default();
 
-    let (par_of_dated, len_of_dated) = dated::par_of_all_dated(task_data);
-    let mut vertical_scroll_of_dated: usize = 0;
-    let mut scrollbar_state_of_dated: ScrollbarState =
-        ScrollbarState::new(len_of_dated).position(vertical_scroll_of_dated);
-
     let (par_of_overdue, len_of_overdue) = dated::par_of_overdue(task_data);
     let mut vertical_scroll_of_overdue: usize = 0;
     let mut scrollbar_state_of_overdue: ScrollbarState =
@@ -67,6 +62,11 @@ pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
     let mut scrollbar_state_of_rest_of_the_week: ScrollbarState =
         ScrollbarState::new(len_of_rest_of_the_week).position(vertical_scroll_of_rest_of_the_week);
 
+    let (par_of_later_and_other, len_of_later_and_other) = dated::par_of_later_and_other(task_data);
+    let mut vertical_scroll_of_later_and_other: usize = 0;
+    let mut scrollbar_state_of_later_and_other: ScrollbarState =
+        ScrollbarState::new(len_of_later_and_other).position(vertical_scroll_of_later_and_other);
+
     loop {
         terminal.draw(|frame: &mut Frame| {
             let area: Rect = frame.area();
@@ -76,16 +76,6 @@ pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
                 horizontal: 0,
             });
             match current_view {
-                View::AllDated => {
-                    render_screen(
-                        frame,
-                        area,
-                        area_inner,
-                        &par_of_dated,
-                        vertical_scroll_of_dated,
-                        &mut scrollbar_state_of_dated,
-                    );
-                }
                 View::Overdue => {
                     render_screen(
                         frame,
@@ -116,6 +106,16 @@ pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
                         &mut scrollbar_state_of_rest_of_the_week,
                     );
                 }
+                View::LaterAndOther => {
+                    render_screen(
+                        frame,
+                        area,
+                        area_inner,
+                        &par_of_later_and_other,
+                        vertical_scroll_of_later_and_other,
+                        &mut scrollbar_state_of_later_and_other,
+                    );
+                }
             }
         })?;
 
@@ -123,18 +123,11 @@ pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
             if let event::Event::Key(key) = event::read()? {
                 if key.kind == KeyEventKind::Press {
                     match key.code {
-                        KeyCode::Char('d') => {
-                            current_view = View::AllDated;
-                        }
                         KeyCode::Char('t') => {
                             current_view = View::Today;
                         }
                         KeyCode::Char('q') => break,
                         KeyCode::Char('j') | KeyCode::Down => match current_view {
-                            View::AllDated => {
-                                (vertical_scroll_of_dated, scrollbar_state_of_dated) =
-                                    scroll_down(vertical_scroll_of_dated, scrollbar_state_of_dated);
-                            }
                             View::Overdue => {
                                 (vertical_scroll_of_overdue, scrollbar_state_of_overdue) =
                                     scroll_down(
@@ -155,12 +148,17 @@ pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
                                     scrollbar_state_of_today,
                                 );
                             }
+                            View::LaterAndOther => {
+                                (
+                                    vertical_scroll_of_later_and_other,
+                                    scrollbar_state_of_later_and_other,
+                                ) = scroll_down(
+                                    vertical_scroll_of_later_and_other,
+                                    scrollbar_state_of_later_and_other,
+                                );
+                            }
                         },
                         KeyCode::Char('k') | KeyCode::Up => match current_view {
-                            View::AllDated => {
-                                (vertical_scroll_of_dated, scrollbar_state_of_dated) =
-                                    scroll_up(vertical_scroll_of_dated, scrollbar_state_of_dated);
-                            }
                             View::Overdue => {
                                 (vertical_scroll_of_overdue, scrollbar_state_of_overdue) =
                                     scroll_up(
@@ -181,42 +179,51 @@ pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
                                     scrollbar_state_of_today,
                                 );
                             }
+                            View::LaterAndOther => {
+                                (
+                                    vertical_scroll_of_later_and_other,
+                                    scrollbar_state_of_later_and_other,
+                                ) = scroll_up(
+                                    vertical_scroll_of_later_and_other,
+                                    scrollbar_state_of_later_and_other,
+                                );
+                            }
                         },
                         KeyCode::Char('h') | KeyCode::Left => match current_view {
-                            View::AllDated => {}
-                            View::Overdue => {
-                                current_view = View::AllDated;
-                            }
+                            View::Overdue => {}
                             View::Today => {
                                 current_view = View::Overdue;
                             }
                             View::RestOfTheWeek => {
                                 current_view = View::Today;
                             }
+                            View::LaterAndOther => {
+                                current_view = View::RestOfTheWeek;
+                            }
                         },
                         KeyCode::Char('l') | KeyCode::Right => match current_view {
-                            View::AllDated => {
-                                current_view = View::Overdue;
-                            }
                             View::Overdue => {
                                 current_view = View::Today;
                             }
                             View::Today => {
                                 current_view = View::RestOfTheWeek;
                             }
-                            View::RestOfTheWeek => {}
+                            View::RestOfTheWeek => {
+                                current_view = View::LaterAndOther;
+                            }
+                            View::LaterAndOther => {}
                         },
                         KeyCode::Char('1') => {
-                            current_view = View::AllDated;
-                        }
-                        KeyCode::Char('2') => {
                             current_view = View::Overdue;
                         }
-                        KeyCode::Char('3') => {
+                        KeyCode::Char('2') => {
                             current_view = View::Today;
                         }
-                        KeyCode::Char('4') => {
+                        KeyCode::Char('3') => {
                             current_view = View::RestOfTheWeek;
+                        }
+                        KeyCode::Char('4') => {
+                            current_view = View::LaterAndOther;
                         }
                         _ => {}
                     }
