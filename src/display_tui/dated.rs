@@ -30,8 +30,8 @@ fn par<'a>(lines: Vec<Line<'a>>, title: &'a str) -> (Paragraph<'a>, usize) {
             .scroll((1, 0))
             .block(
                 Block::bordered()
-                    .title(par_create_title(title, Alignment::Left))
-                    .title(par_create_title(PROGRAM_NAME, Alignment::Center))
+                    .title(par_create_title(PROGRAM_NAME, Alignment::Left))
+                    .title(par_create_title(title, Alignment::Center))
                     .title(par_create_title(words::QUIT_NOTE, Alignment::Right)),
             ),
         line_count,
