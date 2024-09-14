@@ -30,16 +30,20 @@ fn par<'a>(lines: Vec<Line<'a>>, title: &'a str) -> (Paragraph<'a>, usize) {
             .scroll((1, 0))
             .block(
                 Block::bordered()
-                    .title(par_create_title(PROGRAM_NAME, Alignment::Left))
-                    .title(par_create_title(title, Alignment::Center))
-                    .title(par_create_title(words::QUIT_NOTE, Alignment::Right)),
+                    .title(par_create_title(PROGRAM_NAME, Alignment::Left, false))
+                    .title(par_create_title(title, Alignment::Center, true))
+                    .title(par_create_title(words::QUIT_NOTE, Alignment::Right, false)),
             ),
         line_count,
     );
 }
 
-fn par_create_title(text: &str, alignment: Alignment) -> Title {
-    return Title::from(format!("[ {} ]", text)).alignment(alignment);
+fn par_create_title(text: &str, alignment: Alignment, to_bold: bool) -> Title {
+    let mut line: Line = Line::from(format!("[ {} ]", text));
+    if to_bold {
+        line = line.bold();
+    }
+    return Title::from(line).alignment(alignment);
 }
 
 pub(crate) fn par_of_all_dated(task_data: &TaskData) -> (Paragraph, usize) {
