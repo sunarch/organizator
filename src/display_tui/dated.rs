@@ -47,7 +47,7 @@ impl DatedView {
     }
 }
 
-fn par<'a>(lines: Vec<Line<'a>>, title: &'a str) -> (Paragraph<'a>, usize) {
+fn par<'a>(lines: Vec<Line<'a>>, title: &'a str) -> (Paragraph<'a>, DatedView) {
     let line_count: usize = lines.len();
     const PROGRAM_NAME: &str = env!("CARGO_PKG_NAME");
     return (
@@ -62,7 +62,7 @@ fn par<'a>(lines: Vec<Line<'a>>, title: &'a str) -> (Paragraph<'a>, usize) {
                     .title(par_create_title(title, Alignment::Center, true))
                     .title(par_create_title(words::QUIT_NOTE, Alignment::Right, false)),
             ),
-        line_count,
+        DatedView::new(line_count),
     );
 }
 
@@ -74,7 +74,7 @@ fn par_create_title(text: &str, alignment: Alignment, to_bold: bool) -> Title {
     return Title::from(line).alignment(alignment);
 }
 
-pub(crate) fn par_of_overdue(task_data: &TaskData) -> (Paragraph, usize) {
+pub(super) fn par_of_overdue(task_data: &TaskData) -> (Paragraph, DatedView) {
     let mut lines: Vec<Line> = Default::default();
 
     // no heading for overdue section
@@ -83,7 +83,7 @@ pub(crate) fn par_of_overdue(task_data: &TaskData) -> (Paragraph, usize) {
     return par(lines, words::TITLE_OVERDUE);
 }
 
-pub(crate) fn par_of_today(task_data: &TaskData) -> (Paragraph, usize) {
+pub(super) fn par_of_today(task_data: &TaskData) -> (Paragraph, DatedView) {
     let mut lines: Vec<Line> = Default::default();
 
     {
@@ -112,7 +112,7 @@ pub(crate) fn par_of_today(task_data: &TaskData) -> (Paragraph, usize) {
     return par(lines, words::TITLE_TODAY);
 }
 
-pub(crate) fn par_of_rest_of_the_week(task_data: &TaskData) -> (Paragraph, usize) {
+pub(super) fn par_of_rest_of_the_week(task_data: &TaskData) -> (Paragraph, DatedView) {
     let mut lines: Vec<Line> = Default::default();
 
     add_section_general(&task_data.sections.rest_of_the_week, &mut lines);
@@ -120,7 +120,7 @@ pub(crate) fn par_of_rest_of_the_week(task_data: &TaskData) -> (Paragraph, usize
     return par(lines, words::TITLE_REST_OF_THE_WEEK);
 }
 
-pub(crate) fn par_of_later_and_other(task_data: &TaskData) -> (Paragraph, usize) {
+pub(super) fn par_of_later_and_other(task_data: &TaskData) -> (Paragraph, DatedView) {
     let mut lines: Vec<Line> = Default::default();
 
     add_section_heading(task_data.dates.current_year, &mut lines);

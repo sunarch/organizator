@@ -100,57 +100,38 @@ impl Tui {
         mut terminal: DefaultTerminal,
         task_data: &TaskData,
     ) -> Result<(), io::Error> {
-        let (par_of_overdue, len_of_overdue) = dated::par_of_overdue(task_data);
-        self.view_overdue = DatedView::new(len_of_overdue);
+        let par_of_overdue: Paragraph;
+        let par_of_today: Paragraph;
+        let par_of_rest_of_the_week: Paragraph;
+        let par_of_later_and_other: Paragraph;
 
-        let (par_of_today, len_of_today) = dated::par_of_today(task_data);
-        self.view_today = DatedView::new(len_of_today);
-
-        let (par_of_rest_of_the_week, len_of_rest_of_the_week) =
+        (par_of_overdue, self.view_overdue) = dated::par_of_overdue(task_data);
+        (par_of_today, self.view_today) = dated::par_of_today(task_data);
+        (par_of_rest_of_the_week, self.view_rest_of_the_week) =
             dated::par_of_rest_of_the_week(task_data);
-        self.view_rest_of_the_week = DatedView::new(len_of_rest_of_the_week);
-
-        let (par_of_later_and_other, len_of_later_and_other) =
+        (par_of_later_and_other, self.view_later_and_other) =
             dated::par_of_later_and_other(task_data);
-        self.view_later_and_other = DatedView::new(len_of_later_and_other);
 
         loop {
             terminal.draw(|frame: &mut Frame| {
                 let area: Rect = frame.area();
 
-                match self.current_view {
-                    CurrentView::Overdue => {
-                        self.render_paragraph(
-                            frame,
-                            area,
-                            &par_of_overdue,
-                            self.view_overdue.vertical_scroll,
-                        );
-                    }
-                    CurrentView::Today => {
-                        self.render_paragraph(
-                            frame,
-                            area,
-                            &par_of_today,
-                            self.view_today.vertical_scroll,
-                        );
-                    }
-                    CurrentView::RestOfTheWeek => {
-                        self.render_paragraph(
-                            frame,
-                            area,
+                {
+                    let (paragraph, vertical_scroll) = match self.current_view {
+                        CurrentView::Overdue => {
+                            (&par_of_overdue, self.view_overdue.vertical_scroll)
+                        }
+                        CurrentView::Today => (&par_of_today, self.view_today.vertical_scroll),
+                        CurrentView::RestOfTheWeek => (
                             &par_of_rest_of_the_week,
                             self.view_rest_of_the_week.vertical_scroll,
-                        );
-                    }
-                    CurrentView::LaterAndOther => {
-                        self.render_paragraph(
-                            frame,
-                            area,
+                        ),
+                        CurrentView::LaterAndOther => (
                             &par_of_later_and_other,
                             self.view_later_and_other.vertical_scroll,
-                        );
-                    }
+                        ),
+                    };
+                    self.render_paragraph(frame, area, paragraph, vertical_scroll);
                 }
 
                 self.render_scrollbar(frame, area);
@@ -188,13 +169,10 @@ impl Tui {
         &mut self,
         frame: &mut Frame,
         area: Rect,
-        par_of_screen: &Paragraph,
+        paragraph: &Paragraph,
         vertical_scroll: usize,
     ) {
-        frame.render_widget(
-            par_of_screen.clone().scroll((vertical_scroll as u16, 0)),
-            area,
-        );
+        frame.render_widget(paragraph.clone().scroll((vertical_scroll as u16, 0)), area);
     }
 
     fn render_scrollbar(&mut self, frame: &mut Frame, area: Rect) {
