@@ -153,19 +153,7 @@ impl Tui {
     fn draw(&mut self, frame: &mut Frame, par_map: &HashMap<CurrentView, &Paragraph>) {
         let area: Rect = frame.area();
 
-        {
-            let paragraph: &Paragraph = par_map
-                .get(&self.current_view)
-                .expect("Unable to get Paragraph from map of references");
-            let vertical_scroll: usize = match self.current_view {
-                CurrentView::Overdue => self.view_overdue.vertical_scroll,
-                CurrentView::Today => self.view_today.vertical_scroll,
-                CurrentView::RestOfTheWeek => self.view_rest_of_the_week.vertical_scroll,
-                CurrentView::LaterAndOther => self.view_later_and_other.vertical_scroll,
-            };
-            self.render_paragraph(frame, area, paragraph, vertical_scroll);
-        }
-
+        self.render_paragraph(frame, area, par_map);
         self.render_scrollbar(frame, area);
     }
 
@@ -173,9 +161,17 @@ impl Tui {
         &mut self,
         frame: &mut Frame,
         area: Rect,
-        paragraph: &Paragraph,
-        vertical_scroll: usize,
+        par_map: &HashMap<CurrentView, &Paragraph>,
     ) {
+        let paragraph: &Paragraph = par_map
+            .get(&self.current_view)
+            .expect("Unable to get Paragraph from map of references");
+        let vertical_scroll: usize = match self.current_view {
+            CurrentView::Overdue => self.view_overdue.vertical_scroll,
+            CurrentView::Today => self.view_today.vertical_scroll,
+            CurrentView::RestOfTheWeek => self.view_rest_of_the_week.vertical_scroll,
+            CurrentView::LaterAndOther => self.view_later_and_other.vertical_scroll,
+        };
         frame.render_widget(paragraph.clone().scroll((vertical_scroll as u16, 0)), area);
     }
 
