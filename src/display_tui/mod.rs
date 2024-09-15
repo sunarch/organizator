@@ -65,7 +65,9 @@ impl Tui {
         };
         match direction {
             ScrollDirection::Forward => {
-                view.vertical_scroll = view.vertical_scroll.saturating_add(1);
+                view.vertical_scroll = view
+                    .content_length
+                    .min(view.vertical_scroll.saturating_add(1));
             }
             ScrollDirection::Backward => {
                 view.vertical_scroll = view.vertical_scroll.saturating_sub(1);
@@ -80,22 +82,18 @@ impl Tui {
         task_data: &TaskData,
     ) -> Result<(), io::Error> {
         let (par_of_overdue, len_of_overdue) = dated::par_of_overdue(task_data);
-        self.view_overdue.scrollbar_state =
-            ScrollbarState::new(len_of_overdue).position(self.view_overdue.vertical_scroll);
+        self.view_overdue = TuiView::new(len_of_overdue);
 
         let (par_of_today, len_of_today) = dated::par_of_today(task_data);
-        self.view_today.scrollbar_state =
-            ScrollbarState::new(len_of_today).position(self.view_today.vertical_scroll);
+        self.view_today = TuiView::new(len_of_today);
 
         let (par_of_rest_of_the_week, len_of_rest_of_the_week) =
             dated::par_of_rest_of_the_week(task_data);
-        self.view_rest_of_the_week.scrollbar_state = ScrollbarState::new(len_of_rest_of_the_week)
-            .position(self.view_rest_of_the_week.vertical_scroll);
+        self.view_rest_of_the_week = TuiView::new(len_of_rest_of_the_week);
 
         let (par_of_later_and_other, len_of_later_and_other) =
             dated::par_of_later_and_other(task_data);
-        self.view_later_and_other.scrollbar_state = ScrollbarState::new(len_of_later_and_other)
-            .position(self.view_later_and_other.vertical_scroll);
+        self.view_later_and_other = TuiView::new(len_of_later_and_other);
 
         loop {
             terminal.draw(|frame: &mut Frame| {

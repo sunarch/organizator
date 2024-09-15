@@ -5,7 +5,10 @@
 // dependencies
 use ratatui::widgets::ScrollbarState;
 
+const INITIAL_SCROLL: usize = 0;
+
 pub(super) struct TuiView {
+    pub(super) content_length: usize,
     pub(super) vertical_scroll: usize,
     pub(super) scrollbar_state: ScrollbarState,
 }
@@ -13,8 +16,19 @@ pub(super) struct TuiView {
 impl Default for TuiView {
     fn default() -> Self {
         return Self {
+            content_length: Default::default(),
             vertical_scroll: Default::default(),
             scrollbar_state: Default::default(),
+        };
+    }
+}
+
+impl TuiView {
+    pub(super) fn new(content_length: usize) -> Self {
+        return Self {
+            content_length,
+            vertical_scroll: INITIAL_SCROLL,
+            scrollbar_state: ScrollbarState::new(content_length).position(INITIAL_SCROLL),
         };
     }
 }
