@@ -8,15 +8,13 @@ mod tui_current_view;
 use std::io;
 use std::time::Duration;
 // dependencies
-use ratatui::layout::Margin;
+use ratatui::crossterm::event::{self, KeyCode, KeyEventKind};
+use ratatui::layout::{Margin, Rect};
 use ratatui::widgets::{
     Paragraph, ScrollDirection, Scrollbar, ScrollbarOrientation, ScrollbarState,
 };
-use ratatui::{
-    crossterm::event::{self, KeyCode, KeyEventKind},
-    layout::Rect,
-    DefaultTerminal, Frame,
-};
+use ratatui::DefaultTerminal;
+use ratatui::Frame;
 // internal
 use crate::display_tui::dated::DatedView;
 use crate::display_tui::tui_current_view::CurrentView;

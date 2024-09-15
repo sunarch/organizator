@@ -9,8 +9,7 @@ use chrono::{NaiveDate, NaiveWeek};
 use ratatui::layout::Alignment;
 use ratatui::style::{Modifier, Style, Stylize};
 use ratatui::text::{Line, Span};
-use ratatui::widgets::block::Title;
-use ratatui::widgets::{Block, Paragraph, ScrollbarState, Wrap};
+use ratatui::widgets::{block::Title, Block, Paragraph, ScrollbarState, Wrap};
 // internal
 use crate::tasks::data::TaskData;
 use crate::tasks::task::contents::TaskVisibility;
