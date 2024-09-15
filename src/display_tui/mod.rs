@@ -92,53 +92,38 @@ impl Tui {
         loop {
             terminal.draw(|frame: &mut Frame| {
                 let area: Rect = frame.area();
-                let area_inner: Rect = area.inner(Margin {
-                    // using an inner vertical margin of 1 unit makes the scrollbar inside the block
-                    vertical: 1,
-                    horizontal: 0,
-                });
+
                 match self.current_view {
                     View::Overdue => {
                         render_screen(
                             frame,
                             area,
-                            area_inner,
                             &par_of_overdue,
                             self.vertical_scroll_of_overdue,
-                            &mut self.scrollbar_state_of_overdue,
                         );
                     }
                     View::Today => {
-                        render_screen(
-                            frame,
-                            area,
-                            area_inner,
-                            &par_of_today,
-                            self.vertical_scroll_of_today,
-                            &mut self.scrollbar_state_of_today,
-                        );
+                        render_screen(frame, area, &par_of_today, self.vertical_scroll_of_today);
                     }
                     View::RestOfTheWeek => {
                         render_screen(
                             frame,
                             area,
-                            area_inner,
                             &par_of_rest_of_the_week,
                             self.vertical_scroll_of_rest_of_the_week,
-                            &mut self.scrollbar_state_of_rest_of_the_week,
                         );
                     }
                     View::LaterAndOther => {
                         render_screen(
                             frame,
                             area,
-                            area_inner,
                             &par_of_later_and_other,
                             self.vertical_scroll_of_later_and_other,
-                            &mut self.scrollbar_state_of_later_and_other,
                         );
                     }
                 }
+
+                self.render_scrollbar(frame, area);
             })?;
 
             if event::poll(EVENT_POLL_TIMEOUT)? {
@@ -252,21 +237,35 @@ impl Tui {
 
         return Ok(());
     }
+
+    fn render_scrollbar(&mut self, frame: &mut Frame, area: Rect) {
+        let scrollbar_state: &mut ScrollbarState = match self.current_view {
+            View::Overdue => &mut self.scrollbar_state_of_overdue,
+            View::Today => &mut self.scrollbar_state_of_today,
+            View::RestOfTheWeek => &mut self.scrollbar_state_of_rest_of_the_week,
+            View::LaterAndOther => &mut self.scrollbar_state_of_later_and_other,
+        };
+
+        frame.render_stateful_widget(
+            Scrollbar::default()
+                .orientation(ScrollbarOrientation::VerticalRight)
+                .begin_symbol(Some("↑"))
+                .end_symbol(Some("↓")),
+            area.inner(Margin {
+                // using an inner vertical margin of 1 unit makes the scrollbar inside the block
+                vertical: 1,
+                horizontal: 0,
+            }),
+            scrollbar_state,
+        );
+    }
 }
 
-fn render_screen(
-    frame: &mut Frame,
-    area: Rect,
-    area_inner: Rect,
-    par_of_screen: &Paragraph,
-    vertical_scroll: usize,
-    scrollbar_state: &mut ScrollbarState,
-) {
+fn render_screen(frame: &mut Frame, area: Rect, par_of_screen: &Paragraph, vertical_scroll: usize) {
     frame.render_widget(
         par_of_screen.clone().scroll((vertical_scroll as u16, 0)),
         area,
     );
-    frame.render_stateful_widget(create_scrollbar(), area_inner, scrollbar_state);
 }
 
 fn scroll_up(vertical_scroll: usize, scrollbar_state: ScrollbarState) -> (usize, ScrollbarState) {
@@ -281,10 +280,4 @@ fn scroll_down(vertical_scroll: usize, scrollbar_state: ScrollbarState) -> (usiz
         vertical_scroll.saturating_add(1),
         scrollbar_state.position(vertical_scroll),
     );
-}
-
-fn create_scrollbar() -> Scrollbar<'static> {
-    return Scrollbar::new(ScrollbarOrientation::VerticalRight)
-        .begin_symbol(Some("↑"))
-        .end_symbol(Some("↓"));
 }
