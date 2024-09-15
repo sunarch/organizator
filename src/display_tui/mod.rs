@@ -66,13 +66,17 @@ impl Tui {
         self.current_view = self.current_view.next();
     }
 
-    fn scroll(&mut self, direction: ScrollDirection) {
-        let view: &mut DatedView = match self.current_view {
+    fn get_view(&mut self) -> &mut DatedView {
+        return match self.current_view {
             CurrentView::Overdue => &mut self.view_overdue,
             CurrentView::Today => &mut self.view_today,
             CurrentView::RestOfTheWeek => &mut self.view_rest_of_the_week,
             CurrentView::LaterAndOther => &mut self.view_later_and_other,
         };
+    }
+
+    fn scroll(&mut self, direction: ScrollDirection) {
+        let view: &mut DatedView = self.get_view();
         match direction {
             ScrollDirection::Forward => {
                 view.vertical_scroll = view
@@ -92,6 +96,27 @@ impl Tui {
 
     fn scroll_up(&mut self) {
         self.scroll(ScrollDirection::Backward);
+    }
+
+    fn scroll_end(&mut self, direction: ScrollDirection) {
+        let view: &mut DatedView = self.get_view();
+        match direction {
+            ScrollDirection::Forward => {
+                view.vertical_scroll = view.content_length.saturating_sub(1);
+            }
+            ScrollDirection::Backward => {
+                view.vertical_scroll = 0;
+            }
+        }
+        view.scrollbar_state = view.scrollbar_state.position(view.vertical_scroll);
+    }
+
+    fn scroll_bottom(&mut self) {
+        self.scroll_end(ScrollDirection::Forward);
+    }
+
+    fn scroll_top(&mut self) {
+        self.scroll_end(ScrollDirection::Backward);
     }
 
     fn run(
@@ -149,6 +174,9 @@ impl Tui {
                 KeyCode::Char('j') | KeyCode::Down => self.scroll_down(),
                 KeyCode::Char('k') | KeyCode::Up => self.scroll_up(),
                 KeyCode::Char('l') | KeyCode::Right => self.current_view_next(),
+
+                KeyCode::End => self.scroll_bottom(),
+                KeyCode::Home => self.scroll_top(),
 
                 KeyCode::Char('1') => self.current_view_set(CurrentView::Overdue),
                 KeyCode::Char('2') => self.current_view_set(CurrentView::Today),
