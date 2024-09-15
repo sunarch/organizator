@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use std::io;
 use std::time::Duration;
 // dependencies
-use ratatui::crossterm::event::{self, KeyCode, KeyEventKind};
+use ratatui::crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::layout::{Margin, Rect};
 use ratatui::widgets::{
     Paragraph, ScrollDirection, Scrollbar, ScrollbarOrientation, ScrollbarState,
@@ -121,33 +121,47 @@ impl Tui {
 
         loop {
             if event::poll(EVENT_POLL_TIMEOUT)? {
-                if let event::Event::Key(key) = event::read()? {
-                    if key.kind == KeyEventKind::Press {
-                        match key.code {
-                            KeyCode::Char('q') => break,
-
-                            KeyCode::Char('h') | KeyCode::Left => self.current_view_prev(),
-                            KeyCode::Char('j') | KeyCode::Down => self.scroll_down(),
-                            KeyCode::Char('k') | KeyCode::Up => self.scroll_up(),
-                            KeyCode::Char('l') | KeyCode::Right => self.current_view_next(),
-
-                            KeyCode::Char('1') => self.current_view_set(CurrentView::Overdue),
-                            KeyCode::Char('2') => self.current_view_set(CurrentView::Today),
-                            KeyCode::Char('3') => self.current_view_set(CurrentView::RestOfTheWeek),
-                            KeyCode::Char('4') => self.current_view_set(CurrentView::LaterAndOther),
-
-                            KeyCode::Char('t') => self.current_view_set(CurrentView::Today),
-
-                            _ => {}
+                match event::read()? {
+                    Event::Key(key_event) => {
+                        let to_quit: bool = self.handle_key_event(key_event);
+                        if to_quit {
+                            break;
                         }
+                        terminal.draw(|frame: &mut Frame| self.draw(frame, &par_map))?;
                     }
-
-                    terminal.draw(|frame: &mut Frame| self.draw(frame, &par_map))?;
+                    Event::Resize(_, _) => {
+                        terminal.draw(|frame: &mut Frame| self.draw(frame, &par_map))?;
+                    }
+                    _ => {}
                 }
             }
         }
 
         return Ok(());
+    }
+
+    fn handle_key_event(&mut self, key_event: KeyEvent) -> bool {
+        if key_event.kind == KeyEventKind::Press {
+            match key_event.code {
+                KeyCode::Char('q') => return true,
+
+                KeyCode::Char('h') | KeyCode::Left => self.current_view_prev(),
+                KeyCode::Char('j') | KeyCode::Down => self.scroll_down(),
+                KeyCode::Char('k') | KeyCode::Up => self.scroll_up(),
+                KeyCode::Char('l') | KeyCode::Right => self.current_view_next(),
+
+                KeyCode::Char('1') => self.current_view_set(CurrentView::Overdue),
+                KeyCode::Char('2') => self.current_view_set(CurrentView::Today),
+                KeyCode::Char('3') => self.current_view_set(CurrentView::RestOfTheWeek),
+                KeyCode::Char('4') => self.current_view_set(CurrentView::LaterAndOther),
+
+                KeyCode::Char('t') => self.current_view_set(CurrentView::Today),
+
+                _ => {}
+            }
+        }
+
+        return false;
     }
 
     fn draw(&mut self, frame: &mut Frame, par_map: &HashMap<CurrentView, &Paragraph>) {
