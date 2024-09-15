@@ -31,39 +31,63 @@ pub(crate) fn run(task_data: &TaskData) -> Result<(), io::Error> {
     tui_result
 }
 
-struct Tui {}
+struct Tui {
+    current_view: View,
+
+    vertical_scroll_of_overdue: usize,
+    scrollbar_state_of_overdue: ScrollbarState,
+
+    vertical_scroll_of_today: usize,
+    scrollbar_state_of_today: ScrollbarState,
+
+    vertical_scroll_of_rest_of_the_week: usize,
+    scrollbar_state_of_rest_of_the_week: ScrollbarState,
+
+    vertical_scroll_of_later_and_other: usize,
+    scrollbar_state_of_later_and_other: ScrollbarState,
+}
 
 impl Tui {
     fn new() -> Self {
-        return Self {};
+        return Self {
+            current_view: Default::default(),
+
+            vertical_scroll_of_overdue: 0,
+            scrollbar_state_of_overdue: Default::default(),
+
+            vertical_scroll_of_today: 0,
+            scrollbar_state_of_today: Default::default(),
+
+            vertical_scroll_of_rest_of_the_week: 0,
+            scrollbar_state_of_rest_of_the_week: Default::default(),
+
+            vertical_scroll_of_later_and_other: 0,
+            scrollbar_state_of_later_and_other: Default::default(),
+        };
     }
 
-    fn run(&self, mut terminal: DefaultTerminal, task_data: &TaskData) -> Result<(), io::Error> {
-        let mut current_view: View = Default::default();
-
+    fn run(
+        &mut self,
+        mut terminal: DefaultTerminal,
+        task_data: &TaskData,
+    ) -> Result<(), io::Error> {
         let (par_of_overdue, len_of_overdue) = dated::par_of_overdue(task_data);
-        let mut vertical_scroll_of_overdue: usize = 0;
-        let mut scrollbar_state_of_overdue: ScrollbarState =
-            ScrollbarState::new(len_of_overdue).position(vertical_scroll_of_overdue);
+        self.scrollbar_state_of_overdue =
+            ScrollbarState::new(len_of_overdue).position(self.vertical_scroll_of_overdue);
 
         let (par_of_today, len_of_today) = dated::par_of_today(task_data);
-        let mut vertical_scroll_of_today: usize = 0;
-        let mut scrollbar_state_of_today: ScrollbarState =
-            ScrollbarState::new(len_of_today).position(vertical_scroll_of_today);
+        self.scrollbar_state_of_today =
+            ScrollbarState::new(len_of_today).position(self.vertical_scroll_of_today);
 
         let (par_of_rest_of_the_week, len_of_rest_of_the_week) =
             dated::par_of_rest_of_the_week(task_data);
-        let mut vertical_scroll_of_rest_of_the_week: usize = 0;
-        let mut scrollbar_state_of_rest_of_the_week: ScrollbarState =
-            ScrollbarState::new(len_of_rest_of_the_week)
-                .position(vertical_scroll_of_rest_of_the_week);
+        self.scrollbar_state_of_rest_of_the_week = ScrollbarState::new(len_of_rest_of_the_week)
+            .position(self.vertical_scroll_of_rest_of_the_week);
 
         let (par_of_later_and_other, len_of_later_and_other) =
             dated::par_of_later_and_other(task_data);
-        let mut vertical_scroll_of_later_and_other: usize = 0;
-        let mut scrollbar_state_of_later_and_other: ScrollbarState =
-            ScrollbarState::new(len_of_later_and_other)
-                .position(vertical_scroll_of_later_and_other);
+        self.scrollbar_state_of_later_and_other = ScrollbarState::new(len_of_later_and_other)
+            .position(self.vertical_scroll_of_later_and_other);
 
         loop {
             terminal.draw(|frame: &mut Frame| {
@@ -73,15 +97,15 @@ impl Tui {
                     vertical: 1,
                     horizontal: 0,
                 });
-                match current_view {
+                match self.current_view {
                     View::Overdue => {
                         render_screen(
                             frame,
                             area,
                             area_inner,
                             &par_of_overdue,
-                            vertical_scroll_of_overdue,
-                            &mut scrollbar_state_of_overdue,
+                            self.vertical_scroll_of_overdue,
+                            &mut self.scrollbar_state_of_overdue,
                         );
                     }
                     View::Today => {
@@ -90,8 +114,8 @@ impl Tui {
                             area,
                             area_inner,
                             &par_of_today,
-                            vertical_scroll_of_today,
-                            &mut scrollbar_state_of_today,
+                            self.vertical_scroll_of_today,
+                            &mut self.scrollbar_state_of_today,
                         );
                     }
                     View::RestOfTheWeek => {
@@ -100,8 +124,8 @@ impl Tui {
                             area,
                             area_inner,
                             &par_of_rest_of_the_week,
-                            vertical_scroll_of_rest_of_the_week,
-                            &mut scrollbar_state_of_rest_of_the_week,
+                            self.vertical_scroll_of_rest_of_the_week,
+                            &mut self.scrollbar_state_of_rest_of_the_week,
                         );
                     }
                     View::LaterAndOther => {
@@ -110,8 +134,8 @@ impl Tui {
                             area,
                             area_inner,
                             &par_of_later_and_other,
-                            vertical_scroll_of_later_and_other,
-                            &mut scrollbar_state_of_later_and_other,
+                            self.vertical_scroll_of_later_and_other,
+                            &mut self.scrollbar_state_of_later_and_other,
                         );
                     }
                 }
@@ -122,94 +146,102 @@ impl Tui {
                     if key.kind == KeyEventKind::Press {
                         match key.code {
                             KeyCode::Char('t') => {
-                                current_view = View::Today;
+                                self.current_view = View::Today;
                             }
                             KeyCode::Char('q') => break,
-                            KeyCode::Char('j') | KeyCode::Down => match current_view {
+                            KeyCode::Char('j') | KeyCode::Down => match self.current_view {
                                 View::Overdue => {
-                                    (vertical_scroll_of_overdue, scrollbar_state_of_overdue) =
-                                        scroll_down(
-                                            vertical_scroll_of_overdue,
-                                            scrollbar_state_of_overdue,
-                                        );
+                                    (
+                                        self.vertical_scroll_of_overdue,
+                                        self.scrollbar_state_of_overdue,
+                                    ) = scroll_down(
+                                        self.vertical_scroll_of_overdue,
+                                        self.scrollbar_state_of_overdue,
+                                    );
                                 }
                                 View::Today => {
-                                    (vertical_scroll_of_today, scrollbar_state_of_today) =
-                                        scroll_down(
-                                            vertical_scroll_of_today,
-                                            scrollbar_state_of_today,
-                                        );
+                                    (
+                                        self.vertical_scroll_of_today,
+                                        self.scrollbar_state_of_today,
+                                    ) = scroll_down(
+                                        self.vertical_scroll_of_today,
+                                        self.scrollbar_state_of_today,
+                                    );
                                 }
                                 View::RestOfTheWeek => {
                                     (
-                                        vertical_scroll_of_rest_of_the_week,
-                                        scrollbar_state_of_rest_of_the_week,
+                                        self.vertical_scroll_of_rest_of_the_week,
+                                        self.scrollbar_state_of_rest_of_the_week,
                                     ) = scroll_down(
-                                        vertical_scroll_of_rest_of_the_week,
-                                        scrollbar_state_of_rest_of_the_week,
+                                        self.vertical_scroll_of_rest_of_the_week,
+                                        self.scrollbar_state_of_rest_of_the_week,
                                     );
                                 }
                                 View::LaterAndOther => {
                                     (
-                                        vertical_scroll_of_later_and_other,
-                                        scrollbar_state_of_later_and_other,
+                                        self.vertical_scroll_of_later_and_other,
+                                        self.scrollbar_state_of_later_and_other,
                                     ) = scroll_down(
-                                        vertical_scroll_of_later_and_other,
-                                        scrollbar_state_of_later_and_other,
+                                        self.vertical_scroll_of_later_and_other,
+                                        self.scrollbar_state_of_later_and_other,
                                     );
                                 }
                             },
-                            KeyCode::Char('k') | KeyCode::Up => match current_view {
+                            KeyCode::Char('k') | KeyCode::Up => match self.current_view {
                                 View::Overdue => {
-                                    (vertical_scroll_of_overdue, scrollbar_state_of_overdue) =
-                                        scroll_up(
-                                            vertical_scroll_of_overdue,
-                                            scrollbar_state_of_overdue,
-                                        );
+                                    (
+                                        self.vertical_scroll_of_overdue,
+                                        self.scrollbar_state_of_overdue,
+                                    ) = scroll_up(
+                                        self.vertical_scroll_of_overdue,
+                                        self.scrollbar_state_of_overdue,
+                                    );
                                 }
                                 View::Today => {
-                                    (vertical_scroll_of_today, scrollbar_state_of_today) =
-                                        scroll_up(
-                                            vertical_scroll_of_today,
-                                            scrollbar_state_of_today,
-                                        );
+                                    (
+                                        self.vertical_scroll_of_today,
+                                        self.scrollbar_state_of_today,
+                                    ) = scroll_up(
+                                        self.vertical_scroll_of_today,
+                                        self.scrollbar_state_of_today,
+                                    );
                                 }
                                 View::RestOfTheWeek => {
                                     (
-                                        vertical_scroll_of_rest_of_the_week,
-                                        scrollbar_state_of_rest_of_the_week,
+                                        self.vertical_scroll_of_rest_of_the_week,
+                                        self.scrollbar_state_of_rest_of_the_week,
                                     ) = scroll_up(
-                                        vertical_scroll_of_rest_of_the_week,
-                                        scrollbar_state_of_rest_of_the_week,
+                                        self.vertical_scroll_of_rest_of_the_week,
+                                        self.scrollbar_state_of_rest_of_the_week,
                                     );
                                 }
                                 View::LaterAndOther => {
                                     (
-                                        vertical_scroll_of_later_and_other,
-                                        scrollbar_state_of_later_and_other,
+                                        self.vertical_scroll_of_later_and_other,
+                                        self.scrollbar_state_of_later_and_other,
                                     ) = scroll_up(
-                                        vertical_scroll_of_later_and_other,
-                                        scrollbar_state_of_later_and_other,
+                                        self.vertical_scroll_of_later_and_other,
+                                        self.scrollbar_state_of_later_and_other,
                                     );
                                 }
                             },
                             KeyCode::Char('h') | KeyCode::Left => {
-                                current_view = current_view.prev();
+                                self.current_view = self.current_view.prev();
                             }
                             KeyCode::Char('l') | KeyCode::Right => {
-                                current_view = current_view.next();
+                                self.current_view = self.current_view.next();
                             }
                             KeyCode::Char('1') => {
-                                current_view = View::Overdue;
+                                self.current_view = View::Overdue;
                             }
                             KeyCode::Char('2') => {
-                                current_view = View::Today;
+                                self.current_view = View::Today;
                             }
                             KeyCode::Char('3') => {
-                                current_view = View::RestOfTheWeek;
+                                self.current_view = View::RestOfTheWeek;
                             }
                             KeyCode::Char('4') => {
-                                current_view = View::LaterAndOther;
+                                self.current_view = View::LaterAndOther;
                             }
                             _ => {}
                         }
