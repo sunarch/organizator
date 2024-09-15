@@ -23,6 +23,8 @@ use crate::logging;
 use crate::tasks::data::TaskData;
 
 const EVENT_POLL_TIMEOUT: Duration = Duration::from_millis(16);
+const DEFAULT_SCROLL_AMOUNT: usize = 1;
+const DEFAULT_SCROLL_PG_OVERLAP: usize = DEFAULT_SCROLL_AMOUNT + 3;
 
 pub(crate) fn run(task_data: &TaskData) -> Result<(), io::Error> {
     logging::info("Running TUI ...".to_string());
@@ -35,6 +37,7 @@ pub(crate) fn run(task_data: &TaskData) -> Result<(), io::Error> {
 
 struct Tui {
     current_view: CurrentView,
+    current_height: u16,
 
     view_overdue: DatedView,
     view_today: DatedView,
@@ -46,6 +49,7 @@ impl Tui {
     fn new() -> Self {
         return Self {
             current_view: Default::default(),
+            current_height: 1,
 
             view_overdue: Default::default(),
             view_today: Default::default(),
@@ -75,27 +79,41 @@ impl Tui {
         };
     }
 
-    fn scroll(&mut self, direction: ScrollDirection) {
+    fn scroll(&mut self, direction: ScrollDirection, amount: usize) {
         let view: &mut DatedView = self.get_view();
         match direction {
             ScrollDirection::Forward => {
                 view.vertical_scroll = view
                     .content_length
-                    .min(view.vertical_scroll.saturating_add(1));
+                    .min(view.vertical_scroll.saturating_add(amount));
             }
             ScrollDirection::Backward => {
-                view.vertical_scroll = view.vertical_scroll.saturating_sub(1);
+                view.vertical_scroll = view.vertical_scroll.saturating_sub(amount);
             }
         }
         view.scrollbar_state = view.scrollbar_state.position(view.vertical_scroll);
     }
 
     fn scroll_down(&mut self) {
-        self.scroll(ScrollDirection::Forward);
+        self.scroll(ScrollDirection::Forward, DEFAULT_SCROLL_AMOUNT);
     }
 
     fn scroll_up(&mut self) {
-        self.scroll(ScrollDirection::Backward);
+        self.scroll(ScrollDirection::Backward, DEFAULT_SCROLL_AMOUNT);
+    }
+
+    fn scroll_pg_down(&mut self) {
+        self.scroll(
+            ScrollDirection::Forward,
+            (self.current_height as usize).saturating_sub(DEFAULT_SCROLL_PG_OVERLAP),
+        );
+    }
+
+    fn scroll_pg_up(&mut self) {
+        self.scroll(
+            ScrollDirection::Backward,
+            (self.current_height as usize).saturating_sub(DEFAULT_SCROLL_PG_OVERLAP),
+        );
     }
 
     fn scroll_end(&mut self, direction: ScrollDirection) {
@@ -178,6 +196,9 @@ impl Tui {
                 KeyCode::End => self.scroll_bottom(),
                 KeyCode::Home => self.scroll_top(),
 
+                KeyCode::PageDown => self.scroll_pg_down(),
+                KeyCode::PageUp => self.scroll_pg_up(),
+
                 KeyCode::Char('1') => self.current_view_set(CurrentView::Overdue),
                 KeyCode::Char('2') => self.current_view_set(CurrentView::Today),
                 KeyCode::Char('3') => self.current_view_set(CurrentView::RestOfTheWeek),
@@ -194,6 +215,7 @@ impl Tui {
 
     fn draw(&mut self, frame: &mut Frame, par_map: &HashMap<CurrentView, &Paragraph>) {
         let area: Rect = frame.area();
+        self.current_height = area.height;
 
         self.render_paragraph(frame, area, par_map);
         self.render_scrollbar(frame, area);
