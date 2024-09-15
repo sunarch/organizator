@@ -3,7 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 pub(crate) mod dated;
-mod tui_view;
+mod tui_current_view;
 
 use std::io;
 use std::time::Duration;
@@ -18,7 +18,7 @@ use ratatui::{
     DefaultTerminal, Frame,
 };
 // internal
-use crate::display_tui::tui_view::View;
+use crate::display_tui::tui_current_view::CurrentView;
 use crate::logging;
 use crate::tasks::data::TaskData;
 
@@ -34,7 +34,7 @@ pub(crate) fn run(task_data: &TaskData) -> Result<(), io::Error> {
 }
 
 struct Tui {
-    current_view: View,
+    current_view: CurrentView,
 
     vertical_scroll_of_overdue: usize,
     scrollbar_state_of_overdue: ScrollbarState,
@@ -70,19 +70,19 @@ impl Tui {
 
     fn scroll(&mut self, direction: ScrollDirection) {
         let (vertical_scroll, scrollbar_state) = match self.current_view {
-            View::Overdue => (
+            CurrentView::Overdue => (
                 &mut self.vertical_scroll_of_overdue,
                 &mut self.scrollbar_state_of_overdue,
             ),
-            View::Today => (
+            CurrentView::Today => (
                 &mut self.vertical_scroll_of_today,
                 &mut self.scrollbar_state_of_today,
             ),
-            View::RestOfTheWeek => (
+            CurrentView::RestOfTheWeek => (
                 &mut self.vertical_scroll_of_rest_of_the_week,
                 &mut self.scrollbar_state_of_rest_of_the_week,
             ),
-            View::LaterAndOther => (
+            CurrentView::LaterAndOther => (
                 &mut self.vertical_scroll_of_later_and_other,
                 &mut self.scrollbar_state_of_later_and_other,
             ),
@@ -126,7 +126,7 @@ impl Tui {
                 let area: Rect = frame.area();
 
                 match self.current_view {
-                    View::Overdue => {
+                    CurrentView::Overdue => {
                         render_screen(
                             frame,
                             area,
@@ -134,10 +134,10 @@ impl Tui {
                             self.vertical_scroll_of_overdue,
                         );
                     }
-                    View::Today => {
+                    CurrentView::Today => {
                         render_screen(frame, area, &par_of_today, self.vertical_scroll_of_today);
                     }
-                    View::RestOfTheWeek => {
+                    CurrentView::RestOfTheWeek => {
                         render_screen(
                             frame,
                             area,
@@ -145,7 +145,7 @@ impl Tui {
                             self.vertical_scroll_of_rest_of_the_week,
                         );
                     }
-                    View::LaterAndOther => {
+                    CurrentView::LaterAndOther => {
                         render_screen(
                             frame,
                             area,
@@ -163,7 +163,7 @@ impl Tui {
                     if key.kind == KeyEventKind::Press {
                         match key.code {
                             KeyCode::Char('t') => {
-                                self.current_view = View::Today;
+                                self.current_view = CurrentView::Today;
                             }
                             KeyCode::Char('q') => break,
                             KeyCode::Char('j') | KeyCode::Down => {
@@ -179,16 +179,16 @@ impl Tui {
                                 self.current_view = self.current_view.next();
                             }
                             KeyCode::Char('1') => {
-                                self.current_view = View::Overdue;
+                                self.current_view = CurrentView::Overdue;
                             }
                             KeyCode::Char('2') => {
-                                self.current_view = View::Today;
+                                self.current_view = CurrentView::Today;
                             }
                             KeyCode::Char('3') => {
-                                self.current_view = View::RestOfTheWeek;
+                                self.current_view = CurrentView::RestOfTheWeek;
                             }
                             KeyCode::Char('4') => {
-                                self.current_view = View::LaterAndOther;
+                                self.current_view = CurrentView::LaterAndOther;
                             }
                             _ => {}
                         }
@@ -202,10 +202,10 @@ impl Tui {
 
     fn render_scrollbar(&mut self, frame: &mut Frame, area: Rect) {
         let scrollbar_state: &mut ScrollbarState = match self.current_view {
-            View::Overdue => &mut self.scrollbar_state_of_overdue,
-            View::Today => &mut self.scrollbar_state_of_today,
-            View::RestOfTheWeek => &mut self.scrollbar_state_of_rest_of_the_week,
-            View::LaterAndOther => &mut self.scrollbar_state_of_later_and_other,
+            CurrentView::Overdue => &mut self.scrollbar_state_of_overdue,
+            CurrentView::Today => &mut self.scrollbar_state_of_today,
+            CurrentView::RestOfTheWeek => &mut self.scrollbar_state_of_rest_of_the_week,
+            CurrentView::LaterAndOther => &mut self.scrollbar_state_of_later_and_other,
         };
 
         frame.render_stateful_widget(
