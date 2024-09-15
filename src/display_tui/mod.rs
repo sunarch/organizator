@@ -4,6 +4,7 @@
 
 pub(crate) mod dated;
 mod tui_current_view;
+mod tui_view;
 
 use std::io;
 use std::time::Duration;
@@ -19,6 +20,7 @@ use ratatui::{
 };
 // internal
 use crate::display_tui::tui_current_view::CurrentView;
+use crate::display_tui::tui_view::TuiView;
 use crate::logging;
 use crate::tasks::data::TaskData;
 
@@ -36,17 +38,10 @@ pub(crate) fn run(task_data: &TaskData) -> Result<(), io::Error> {
 struct Tui {
     current_view: CurrentView,
 
-    vertical_scroll_of_overdue: usize,
-    scrollbar_state_of_overdue: ScrollbarState,
-
-    vertical_scroll_of_today: usize,
-    scrollbar_state_of_today: ScrollbarState,
-
-    vertical_scroll_of_rest_of_the_week: usize,
-    scrollbar_state_of_rest_of_the_week: ScrollbarState,
-
-    vertical_scroll_of_later_and_other: usize,
-    scrollbar_state_of_later_and_other: ScrollbarState,
+    view_overdue: TuiView,
+    view_today: TuiView,
+    view_rest_of_the_week: TuiView,
+    view_later_and_other: TuiView,
 }
 
 impl Tui {
@@ -54,48 +49,29 @@ impl Tui {
         return Self {
             current_view: Default::default(),
 
-            vertical_scroll_of_overdue: 0,
-            scrollbar_state_of_overdue: Default::default(),
-
-            vertical_scroll_of_today: 0,
-            scrollbar_state_of_today: Default::default(),
-
-            vertical_scroll_of_rest_of_the_week: 0,
-            scrollbar_state_of_rest_of_the_week: Default::default(),
-
-            vertical_scroll_of_later_and_other: 0,
-            scrollbar_state_of_later_and_other: Default::default(),
+            view_overdue: Default::default(),
+            view_today: Default::default(),
+            view_rest_of_the_week: Default::default(),
+            view_later_and_other: Default::default(),
         };
     }
 
     fn scroll(&mut self, direction: ScrollDirection) {
-        let (vertical_scroll, scrollbar_state) = match self.current_view {
-            CurrentView::Overdue => (
-                &mut self.vertical_scroll_of_overdue,
-                &mut self.scrollbar_state_of_overdue,
-            ),
-            CurrentView::Today => (
-                &mut self.vertical_scroll_of_today,
-                &mut self.scrollbar_state_of_today,
-            ),
-            CurrentView::RestOfTheWeek => (
-                &mut self.vertical_scroll_of_rest_of_the_week,
-                &mut self.scrollbar_state_of_rest_of_the_week,
-            ),
-            CurrentView::LaterAndOther => (
-                &mut self.vertical_scroll_of_later_and_other,
-                &mut self.scrollbar_state_of_later_and_other,
-            ),
+        let view: &mut TuiView = match self.current_view {
+            CurrentView::Overdue => &mut self.view_overdue,
+            CurrentView::Today => &mut self.view_today,
+            CurrentView::RestOfTheWeek => &mut self.view_rest_of_the_week,
+            CurrentView::LaterAndOther => &mut self.view_later_and_other,
         };
         match direction {
             ScrollDirection::Forward => {
-                *vertical_scroll = vertical_scroll.saturating_add(1);
+                view.vertical_scroll = view.vertical_scroll.saturating_add(1);
             }
             ScrollDirection::Backward => {
-                *vertical_scroll = vertical_scroll.saturating_sub(1);
+                view.vertical_scroll = view.vertical_scroll.saturating_sub(1);
             }
         }
-        *scrollbar_state = scrollbar_state.position(*vertical_scroll);
+        view.scrollbar_state = view.scrollbar_state.position(view.vertical_scroll);
     }
 
     fn run(
@@ -104,22 +80,22 @@ impl Tui {
         task_data: &TaskData,
     ) -> Result<(), io::Error> {
         let (par_of_overdue, len_of_overdue) = dated::par_of_overdue(task_data);
-        self.scrollbar_state_of_overdue =
-            ScrollbarState::new(len_of_overdue).position(self.vertical_scroll_of_overdue);
+        self.view_overdue.scrollbar_state =
+            ScrollbarState::new(len_of_overdue).position(self.view_overdue.vertical_scroll);
 
         let (par_of_today, len_of_today) = dated::par_of_today(task_data);
-        self.scrollbar_state_of_today =
-            ScrollbarState::new(len_of_today).position(self.vertical_scroll_of_today);
+        self.view_today.scrollbar_state =
+            ScrollbarState::new(len_of_today).position(self.view_today.vertical_scroll);
 
         let (par_of_rest_of_the_week, len_of_rest_of_the_week) =
             dated::par_of_rest_of_the_week(task_data);
-        self.scrollbar_state_of_rest_of_the_week = ScrollbarState::new(len_of_rest_of_the_week)
-            .position(self.vertical_scroll_of_rest_of_the_week);
+        self.view_rest_of_the_week.scrollbar_state = ScrollbarState::new(len_of_rest_of_the_week)
+            .position(self.view_rest_of_the_week.vertical_scroll);
 
         let (par_of_later_and_other, len_of_later_and_other) =
             dated::par_of_later_and_other(task_data);
-        self.scrollbar_state_of_later_and_other = ScrollbarState::new(len_of_later_and_other)
-            .position(self.vertical_scroll_of_later_and_other);
+        self.view_later_and_other.scrollbar_state = ScrollbarState::new(len_of_later_and_other)
+            .position(self.view_later_and_other.vertical_scroll);
 
         loop {
             terminal.draw(|frame: &mut Frame| {
@@ -131,18 +107,18 @@ impl Tui {
                             frame,
                             area,
                             &par_of_overdue,
-                            self.vertical_scroll_of_overdue,
+                            self.view_overdue.vertical_scroll,
                         );
                     }
                     CurrentView::Today => {
-                        render_screen(frame, area, &par_of_today, self.vertical_scroll_of_today);
+                        render_screen(frame, area, &par_of_today, self.view_today.vertical_scroll);
                     }
                     CurrentView::RestOfTheWeek => {
                         render_screen(
                             frame,
                             area,
                             &par_of_rest_of_the_week,
-                            self.vertical_scroll_of_rest_of_the_week,
+                            self.view_rest_of_the_week.vertical_scroll,
                         );
                     }
                     CurrentView::LaterAndOther => {
@@ -150,7 +126,7 @@ impl Tui {
                             frame,
                             area,
                             &par_of_later_and_other,
-                            self.vertical_scroll_of_later_and_other,
+                            self.view_later_and_other.vertical_scroll,
                         );
                     }
                 }
@@ -202,10 +178,10 @@ impl Tui {
 
     fn render_scrollbar(&mut self, frame: &mut Frame, area: Rect) {
         let scrollbar_state: &mut ScrollbarState = match self.current_view {
-            CurrentView::Overdue => &mut self.scrollbar_state_of_overdue,
-            CurrentView::Today => &mut self.scrollbar_state_of_today,
-            CurrentView::RestOfTheWeek => &mut self.scrollbar_state_of_rest_of_the_week,
-            CurrentView::LaterAndOther => &mut self.scrollbar_state_of_later_and_other,
+            CurrentView::Overdue => &mut self.view_overdue.scrollbar_state,
+            CurrentView::Today => &mut self.view_today.scrollbar_state,
+            CurrentView::RestOfTheWeek => &mut self.view_rest_of_the_week.scrollbar_state,
+            CurrentView::LaterAndOther => &mut self.view_later_and_other.scrollbar_state,
         };
 
         frame.render_stateful_widget(
