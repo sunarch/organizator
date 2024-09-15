@@ -117,9 +117,9 @@ impl Tui {
         par_map.insert(CurrentView::RestOfTheWeek, &par_of_rest_of_the_week);
         par_map.insert(CurrentView::LaterAndOther, &par_of_later_and_other);
 
-        loop {
-            terminal.draw(|frame: &mut Frame| self.draw(frame, &par_map))?;
+        terminal.draw(|frame: &mut Frame| self.draw(frame, &par_map))?;
 
+        loop {
             if event::poll(EVENT_POLL_TIMEOUT)? {
                 if let event::Event::Key(key) = event::read()? {
                     if key.kind == KeyEventKind::Press {
@@ -141,6 +141,8 @@ impl Tui {
                             _ => {}
                         }
                     }
+
+                    terminal.draw(|frame: &mut Frame| self.draw(frame, &par_map))?;
                 }
             }
         }
