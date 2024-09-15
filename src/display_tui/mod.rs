@@ -133,10 +133,10 @@ pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
                             View::RestOfTheWeek => {
                                 (
                                     vertical_scroll_of_rest_of_the_week,
-                                    scrollbar_state_of_today,
+                                    scrollbar_state_of_rest_of_the_week,
                                 ) = scroll_down(
                                     vertical_scroll_of_rest_of_the_week,
-                                    scrollbar_state_of_today,
+                                    scrollbar_state_of_rest_of_the_week,
                                 );
                             }
                             View::LaterAndOther => {
@@ -164,10 +164,10 @@ pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
                             View::RestOfTheWeek => {
                                 (
                                     vertical_scroll_of_rest_of_the_week,
-                                    scrollbar_state_of_today,
+                                    scrollbar_state_of_rest_of_the_week,
                                 ) = scroll_up(
                                     vertical_scroll_of_rest_of_the_week,
-                                    scrollbar_state_of_today,
+                                    scrollbar_state_of_rest_of_the_week,
                                 );
                             }
                             View::LaterAndOther => {
