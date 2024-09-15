@@ -11,14 +11,9 @@ use std::time::Duration;
 use ratatui::layout::Margin;
 use ratatui::widgets::{Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState};
 use ratatui::{
-    backend::CrosstermBackend,
-    crossterm::{
-        event::{self, KeyCode, KeyEventKind},
-        terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-        ExecutableCommand,
-    },
+    crossterm::event::{self, KeyCode, KeyEventKind},
     layout::Rect,
-    Frame, Terminal,
+    DefaultTerminal, Frame,
 };
 // internal
 use crate::display_tui::tui_view::View;
@@ -27,14 +22,16 @@ use crate::tasks::data::TaskData;
 
 const EVENT_POLL_TIMEOUT: Duration = Duration::from_millis(16);
 
-pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
+pub(crate) fn run(task_data: &TaskData) -> Result<(), io::Error> {
     logging::info("Running TUI ...".to_string());
+    let terminal: DefaultTerminal = ratatui::init();
+    let tui_result: Result<(), io::Error> = run_tui(terminal, task_data);
+    ratatui::restore();
+    logging::info("Exiting TUI ...".to_string());
+    tui_result
+}
 
-    io::stdout().execute(EnterAlternateScreen)?;
-    enable_raw_mode()?;
-    let mut terminal = Terminal::new(CrosstermBackend::new(io::stdout()))?;
-    terminal.clear()?;
-
+fn run_tui(mut terminal: DefaultTerminal, task_data: &TaskData) -> Result<(), io::Error> {
     let mut current_view: View = Default::default();
 
     let (par_of_overdue, len_of_overdue) = dated::par_of_overdue(task_data);
@@ -204,11 +201,6 @@ pub(crate) fn run(task_data: &TaskData) -> io::Result<()> {
             }
         }
     }
-
-    io::stdout().execute(LeaveAlternateScreen)?;
-    disable_raw_mode()?;
-
-    logging::info("Exiting TUI ...".to_string());
 
     return Ok(());
 }
