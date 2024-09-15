@@ -121,7 +121,7 @@ impl Tui {
 
                 match self.current_view {
                     CurrentView::Overdue => {
-                        render_screen(
+                        self.render_paragraph(
                             frame,
                             area,
                             &par_of_overdue,
@@ -129,10 +129,15 @@ impl Tui {
                         );
                     }
                     CurrentView::Today => {
-                        render_screen(frame, area, &par_of_today, self.view_today.vertical_scroll);
+                        self.render_paragraph(
+                            frame,
+                            area,
+                            &par_of_today,
+                            self.view_today.vertical_scroll,
+                        );
                     }
                     CurrentView::RestOfTheWeek => {
-                        render_screen(
+                        self.render_paragraph(
                             frame,
                             area,
                             &par_of_rest_of_the_week,
@@ -140,7 +145,7 @@ impl Tui {
                         );
                     }
                     CurrentView::LaterAndOther => {
-                        render_screen(
+                        self.render_paragraph(
                             frame,
                             area,
                             &par_of_later_and_other,
@@ -180,6 +185,19 @@ impl Tui {
         return Ok(());
     }
 
+    fn render_paragraph(
+        &mut self,
+        frame: &mut Frame,
+        area: Rect,
+        par_of_screen: &Paragraph,
+        vertical_scroll: usize,
+    ) {
+        frame.render_widget(
+            par_of_screen.clone().scroll((vertical_scroll as u16, 0)),
+            area,
+        );
+    }
+
     fn render_scrollbar(&mut self, frame: &mut Frame, area: Rect) {
         let scrollbar_state: &mut ScrollbarState = match self.current_view {
             CurrentView::Overdue => &mut self.view_overdue.scrollbar_state,
@@ -201,11 +219,4 @@ impl Tui {
             scrollbar_state,
         );
     }
-}
-
-fn render_screen(frame: &mut Frame, area: Rect, par_of_screen: &Paragraph, vertical_scroll: usize) {
-    frame.render_widget(
-        par_of_screen.clone().scroll((vertical_scroll as u16, 0)),
-        area,
-    );
 }
