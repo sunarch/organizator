@@ -46,7 +46,7 @@ impl DatedView {
     }
 }
 
-fn par<'a>(lines: Vec<Line<'a>>, title: &'a str) -> (Paragraph<'a>, DatedView) {
+fn par<'a>(lines: Vec<Line<'a>>, title: &'static str) -> (Paragraph<'a>, DatedView) {
     let line_count: usize = lines.len();
     const PROGRAM_NAME: &str = env!("CARGO_PKG_NAME");
     return (
