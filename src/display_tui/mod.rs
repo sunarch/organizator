@@ -23,8 +23,8 @@ use crate::logging;
 use crate::tasks::data::TaskData;
 
 const EVENT_POLL_TIMEOUT: Duration = Duration::from_millis(16);
-const DEFAULT_SCROLL_AMOUNT: usize = 1;
-const DEFAULT_SCROLL_PG_OVERLAP: usize = DEFAULT_SCROLL_AMOUNT + 3;
+const DEFAULT_SCROLL_AMOUNT: usize = 2;
+const DEFAULT_SCROLL_PG_OVERLAP: usize = DEFAULT_SCROLL_AMOUNT + 2;
 
 pub(crate) fn run(task_data: &TaskData) -> Result<(), io::Error> {
     logging::info("Running TUI ...".to_string());
