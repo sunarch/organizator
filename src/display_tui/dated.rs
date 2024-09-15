@@ -10,7 +10,7 @@ use ratatui::layout::Alignment;
 use ratatui::style::{Modifier, Style, Stylize};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::block::Title;
-use ratatui::widgets::{Block, Paragraph, Wrap};
+use ratatui::widgets::{Block, Paragraph, ScrollbarState, Wrap};
 // internal
 use crate::tasks::data::TaskData;
 use crate::tasks::task::contents::TaskVisibility;
@@ -18,6 +18,34 @@ use crate::tasks::task::Task;
 use crate::time;
 use crate::time::timestamp;
 use crate::words;
+
+const INITIAL_SCROLL: usize = 0;
+
+pub(super) struct DatedView {
+    pub(super) content_length: usize,
+    pub(super) vertical_scroll: usize,
+    pub(super) scrollbar_state: ScrollbarState,
+}
+
+impl Default for DatedView {
+    fn default() -> Self {
+        return Self {
+            content_length: Default::default(),
+            vertical_scroll: Default::default(),
+            scrollbar_state: Default::default(),
+        };
+    }
+}
+
+impl DatedView {
+    pub(super) fn new(content_length: usize) -> Self {
+        return Self {
+            content_length,
+            vertical_scroll: INITIAL_SCROLL,
+            scrollbar_state: ScrollbarState::new(content_length).position(INITIAL_SCROLL),
+        };
+    }
+}
 
 fn par<'a>(lines: Vec<Line<'a>>, title: &'a str) -> (Paragraph<'a>, usize) {
     let line_count: usize = lines.len();

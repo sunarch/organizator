@@ -4,7 +4,6 @@
 
 pub(crate) mod dated;
 mod tui_current_view;
-mod tui_view;
 
 use std::io;
 use std::time::Duration;
@@ -19,8 +18,8 @@ use ratatui::{
     DefaultTerminal, Frame,
 };
 // internal
+use crate::display_tui::dated::DatedView;
 use crate::display_tui::tui_current_view::CurrentView;
-use crate::display_tui::tui_view::TuiView;
 use crate::logging;
 use crate::tasks::data::TaskData;
 
@@ -38,10 +37,10 @@ pub(crate) fn run(task_data: &TaskData) -> Result<(), io::Error> {
 struct Tui {
     current_view: CurrentView,
 
-    view_overdue: TuiView,
-    view_today: TuiView,
-    view_rest_of_the_week: TuiView,
-    view_later_and_other: TuiView,
+    view_overdue: DatedView,
+    view_today: DatedView,
+    view_rest_of_the_week: DatedView,
+    view_later_and_other: DatedView,
 }
 
 impl Tui {
@@ -69,7 +68,7 @@ impl Tui {
     }
 
     fn scroll(&mut self, direction: ScrollDirection) {
-        let view: &mut TuiView = match self.current_view {
+        let view: &mut DatedView = match self.current_view {
             CurrentView::Overdue => &mut self.view_overdue,
             CurrentView::Today => &mut self.view_today,
             CurrentView::RestOfTheWeek => &mut self.view_rest_of_the_week,
@@ -102,18 +101,18 @@ impl Tui {
         task_data: &TaskData,
     ) -> Result<(), io::Error> {
         let (par_of_overdue, len_of_overdue) = dated::par_of_overdue(task_data);
-        self.view_overdue = TuiView::new(len_of_overdue);
+        self.view_overdue = DatedView::new(len_of_overdue);
 
         let (par_of_today, len_of_today) = dated::par_of_today(task_data);
-        self.view_today = TuiView::new(len_of_today);
+        self.view_today = DatedView::new(len_of_today);
 
         let (par_of_rest_of_the_week, len_of_rest_of_the_week) =
             dated::par_of_rest_of_the_week(task_data);
-        self.view_rest_of_the_week = TuiView::new(len_of_rest_of_the_week);
+        self.view_rest_of_the_week = DatedView::new(len_of_rest_of_the_week);
 
         let (par_of_later_and_other, len_of_later_and_other) =
             dated::par_of_later_and_other(task_data);
-        self.view_later_and_other = TuiView::new(len_of_later_and_other);
+        self.view_later_and_other = DatedView::new(len_of_later_and_other);
 
         loop {
             terminal.draw(|frame: &mut Frame| {
