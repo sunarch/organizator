@@ -5,6 +5,7 @@
 pub(crate) mod dated;
 mod tui_current_view;
 
+use std::collections::HashMap;
 use std::io;
 use std::time::Duration;
 // dependencies
@@ -110,30 +111,14 @@ impl Tui {
         (par_of_later_and_other, self.view_later_and_other) =
             dated::par_of_later_and_other(task_data);
 
+        let mut par_map: HashMap<CurrentView, &Paragraph> = Default::default();
+        par_map.insert(CurrentView::Overdue, &par_of_overdue);
+        par_map.insert(CurrentView::Today, &par_of_today);
+        par_map.insert(CurrentView::RestOfTheWeek, &par_of_rest_of_the_week);
+        par_map.insert(CurrentView::LaterAndOther, &par_of_later_and_other);
+
         loop {
-            terminal.draw(|frame: &mut Frame| {
-                let area: Rect = frame.area();
-
-                {
-                    let (paragraph, vertical_scroll) = match self.current_view {
-                        CurrentView::Overdue => {
-                            (&par_of_overdue, self.view_overdue.vertical_scroll)
-                        }
-                        CurrentView::Today => (&par_of_today, self.view_today.vertical_scroll),
-                        CurrentView::RestOfTheWeek => (
-                            &par_of_rest_of_the_week,
-                            self.view_rest_of_the_week.vertical_scroll,
-                        ),
-                        CurrentView::LaterAndOther => (
-                            &par_of_later_and_other,
-                            self.view_later_and_other.vertical_scroll,
-                        ),
-                    };
-                    self.render_paragraph(frame, area, paragraph, vertical_scroll);
-                }
-
-                self.render_scrollbar(frame, area);
-            })?;
+            terminal.draw(|frame: &mut Frame| self.draw(frame, &par_map))?;
 
             if event::poll(EVENT_POLL_TIMEOUT)? {
                 if let event::Event::Key(key) = event::read()? {
@@ -161,6 +146,25 @@ impl Tui {
         }
 
         return Ok(());
+    }
+
+    fn draw(&mut self, frame: &mut Frame, par_map: &HashMap<CurrentView, &Paragraph>) {
+        let area: Rect = frame.area();
+
+        {
+            let paragraph: &Paragraph = par_map
+                .get(&self.current_view)
+                .expect("Unable to get Paragraph from map of references");
+            let vertical_scroll: usize = match self.current_view {
+                CurrentView::Overdue => self.view_overdue.vertical_scroll,
+                CurrentView::Today => self.view_today.vertical_scroll,
+                CurrentView::RestOfTheWeek => self.view_rest_of_the_week.vertical_scroll,
+                CurrentView::LaterAndOther => self.view_later_and_other.vertical_scroll,
+            };
+            self.render_paragraph(frame, area, paragraph, vertical_scroll);
+        }
+
+        self.render_scrollbar(frame, area);
     }
 
     fn render_paragraph(
