@@ -9,7 +9,9 @@ use std::io;
 use std::time::Duration;
 // dependencies
 use ratatui::layout::Margin;
-use ratatui::widgets::{Paragraph, Scrollbar, ScrollbarOrientation, ScrollbarState};
+use ratatui::widgets::{
+    Paragraph, ScrollDirection, Scrollbar, ScrollbarOrientation, ScrollbarState,
+};
 use ratatui::{
     crossterm::event::{self, KeyCode, KeyEventKind},
     layout::Rect,
@@ -64,6 +66,36 @@ impl Tui {
             vertical_scroll_of_later_and_other: 0,
             scrollbar_state_of_later_and_other: Default::default(),
         };
+    }
+
+    fn scroll(&mut self, direction: ScrollDirection) {
+        let (vertical_scroll, scrollbar_state) = match self.current_view {
+            View::Overdue => (
+                &mut self.vertical_scroll_of_overdue,
+                &mut self.scrollbar_state_of_overdue,
+            ),
+            View::Today => (
+                &mut self.vertical_scroll_of_today,
+                &mut self.scrollbar_state_of_today,
+            ),
+            View::RestOfTheWeek => (
+                &mut self.vertical_scroll_of_rest_of_the_week,
+                &mut self.scrollbar_state_of_rest_of_the_week,
+            ),
+            View::LaterAndOther => (
+                &mut self.vertical_scroll_of_later_and_other,
+                &mut self.scrollbar_state_of_later_and_other,
+            ),
+        };
+        match direction {
+            ScrollDirection::Forward => {
+                *vertical_scroll = vertical_scroll.saturating_add(1);
+            }
+            ScrollDirection::Backward => {
+                *vertical_scroll = vertical_scroll.saturating_sub(1);
+            }
+        }
+        *scrollbar_state = scrollbar_state.position(*vertical_scroll);
     }
 
     fn run(
@@ -134,82 +166,12 @@ impl Tui {
                                 self.current_view = View::Today;
                             }
                             KeyCode::Char('q') => break,
-                            KeyCode::Char('j') | KeyCode::Down => match self.current_view {
-                                View::Overdue => {
-                                    (
-                                        self.vertical_scroll_of_overdue,
-                                        self.scrollbar_state_of_overdue,
-                                    ) = scroll_down(
-                                        self.vertical_scroll_of_overdue,
-                                        self.scrollbar_state_of_overdue,
-                                    );
-                                }
-                                View::Today => {
-                                    (
-                                        self.vertical_scroll_of_today,
-                                        self.scrollbar_state_of_today,
-                                    ) = scroll_down(
-                                        self.vertical_scroll_of_today,
-                                        self.scrollbar_state_of_today,
-                                    );
-                                }
-                                View::RestOfTheWeek => {
-                                    (
-                                        self.vertical_scroll_of_rest_of_the_week,
-                                        self.scrollbar_state_of_rest_of_the_week,
-                                    ) = scroll_down(
-                                        self.vertical_scroll_of_rest_of_the_week,
-                                        self.scrollbar_state_of_rest_of_the_week,
-                                    );
-                                }
-                                View::LaterAndOther => {
-                                    (
-                                        self.vertical_scroll_of_later_and_other,
-                                        self.scrollbar_state_of_later_and_other,
-                                    ) = scroll_down(
-                                        self.vertical_scroll_of_later_and_other,
-                                        self.scrollbar_state_of_later_and_other,
-                                    );
-                                }
-                            },
-                            KeyCode::Char('k') | KeyCode::Up => match self.current_view {
-                                View::Overdue => {
-                                    (
-                                        self.vertical_scroll_of_overdue,
-                                        self.scrollbar_state_of_overdue,
-                                    ) = scroll_up(
-                                        self.vertical_scroll_of_overdue,
-                                        self.scrollbar_state_of_overdue,
-                                    );
-                                }
-                                View::Today => {
-                                    (
-                                        self.vertical_scroll_of_today,
-                                        self.scrollbar_state_of_today,
-                                    ) = scroll_up(
-                                        self.vertical_scroll_of_today,
-                                        self.scrollbar_state_of_today,
-                                    );
-                                }
-                                View::RestOfTheWeek => {
-                                    (
-                                        self.vertical_scroll_of_rest_of_the_week,
-                                        self.scrollbar_state_of_rest_of_the_week,
-                                    ) = scroll_up(
-                                        self.vertical_scroll_of_rest_of_the_week,
-                                        self.scrollbar_state_of_rest_of_the_week,
-                                    );
-                                }
-                                View::LaterAndOther => {
-                                    (
-                                        self.vertical_scroll_of_later_and_other,
-                                        self.scrollbar_state_of_later_and_other,
-                                    ) = scroll_up(
-                                        self.vertical_scroll_of_later_and_other,
-                                        self.scrollbar_state_of_later_and_other,
-                                    );
-                                }
-                            },
+                            KeyCode::Char('j') | KeyCode::Down => {
+                                self.scroll(ScrollDirection::Forward);
+                            }
+                            KeyCode::Char('k') | KeyCode::Up => {
+                                self.scroll(ScrollDirection::Backward);
+                            }
                             KeyCode::Char('h') | KeyCode::Left => {
                                 self.current_view = self.current_view.prev();
                             }
@@ -265,19 +227,5 @@ fn render_screen(frame: &mut Frame, area: Rect, par_of_screen: &Paragraph, verti
     frame.render_widget(
         par_of_screen.clone().scroll((vertical_scroll as u16, 0)),
         area,
-    );
-}
-
-fn scroll_up(vertical_scroll: usize, scrollbar_state: ScrollbarState) -> (usize, ScrollbarState) {
-    return (
-        vertical_scroll.saturating_sub(1),
-        scrollbar_state.position(vertical_scroll),
-    );
-}
-
-fn scroll_down(vertical_scroll: usize, scrollbar_state: ScrollbarState) -> (usize, ScrollbarState) {
-    return (
-        vertical_scroll.saturating_add(1),
-        scrollbar_state.position(vertical_scroll),
     );
 }
