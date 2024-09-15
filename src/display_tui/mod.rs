@@ -56,6 +56,18 @@ impl Tui {
         };
     }
 
+    fn current_view_set(&mut self, new_current_view: CurrentView) {
+        self.current_view = new_current_view;
+    }
+
+    fn current_view_prev(&mut self) {
+        self.current_view = self.current_view.prev();
+    }
+
+    fn current_view_next(&mut self) {
+        self.current_view = self.current_view.next();
+    }
+
     fn scroll(&mut self, direction: ScrollDirection) {
         let view: &mut TuiView = match self.current_view {
             CurrentView::Overdue => &mut self.view_overdue,
@@ -74,6 +86,14 @@ impl Tui {
             }
         }
         view.scrollbar_state = view.scrollbar_state.position(view.vertical_scroll);
+    }
+
+    fn scroll_down(&mut self) {
+        self.scroll(ScrollDirection::Forward);
+    }
+
+    fn scroll_up(&mut self) {
+        self.scroll(ScrollDirection::Backward);
     }
 
     fn run(
@@ -136,34 +156,20 @@ impl Tui {
                 if let event::Event::Key(key) = event::read()? {
                     if key.kind == KeyEventKind::Press {
                         match key.code {
-                            KeyCode::Char('t') => {
-                                self.current_view = CurrentView::Today;
-                            }
                             KeyCode::Char('q') => break,
-                            KeyCode::Char('j') | KeyCode::Down => {
-                                self.scroll(ScrollDirection::Forward);
-                            }
-                            KeyCode::Char('k') | KeyCode::Up => {
-                                self.scroll(ScrollDirection::Backward);
-                            }
-                            KeyCode::Char('h') | KeyCode::Left => {
-                                self.current_view = self.current_view.prev();
-                            }
-                            KeyCode::Char('l') | KeyCode::Right => {
-                                self.current_view = self.current_view.next();
-                            }
-                            KeyCode::Char('1') => {
-                                self.current_view = CurrentView::Overdue;
-                            }
-                            KeyCode::Char('2') => {
-                                self.current_view = CurrentView::Today;
-                            }
-                            KeyCode::Char('3') => {
-                                self.current_view = CurrentView::RestOfTheWeek;
-                            }
-                            KeyCode::Char('4') => {
-                                self.current_view = CurrentView::LaterAndOther;
-                            }
+
+                            KeyCode::Char('h') | KeyCode::Left => self.current_view_prev(),
+                            KeyCode::Char('j') | KeyCode::Down => self.scroll_down(),
+                            KeyCode::Char('k') | KeyCode::Up => self.scroll_up(),
+                            KeyCode::Char('l') | KeyCode::Right => self.current_view_next(),
+
+                            KeyCode::Char('1') => self.current_view_set(CurrentView::Overdue),
+                            KeyCode::Char('2') => self.current_view_set(CurrentView::Today),
+                            KeyCode::Char('3') => self.current_view_set(CurrentView::RestOfTheWeek),
+                            KeyCode::Char('4') => self.current_view_set(CurrentView::LaterAndOther),
+
+                            KeyCode::Char('t') => self.current_view_set(CurrentView::Today),
+
                             _ => {}
                         }
                     }
